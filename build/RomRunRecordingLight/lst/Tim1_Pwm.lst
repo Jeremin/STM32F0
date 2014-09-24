@@ -1,0 +1,531 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"Tim1_Pwm.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.Tim1_Pwm_init,"ax",%progbits
+  18              		.align	2
+  19              		.global	Tim1_Pwm_init
+  20              		.code	16
+  21              		.thumb_func
+  23              	Tim1_Pwm_init:
+  24              	.LFB32:
+  25              		.file 1 "../../src/driver/PWM/Tim1_Pwm.c"
+   1:../../src/driver/PWM/Tim1_Pwm.c **** /*
+   2:../../src/driver/PWM/Tim1_Pwm.c ****  * Tim1_Pwm.c
+   3:../../src/driver/PWM/Tim1_Pwm.c ****  *
+   4:../../src/driver/PWM/Tim1_Pwm.c ****  *  Created on: Aug 31, 2014
+   5:../../src/driver/PWM/Tim1_Pwm.c ****  *      Author: jonasbachli
+   6:../../src/driver/PWM/Tim1_Pwm.c ****  */
+   7:../../src/driver/PWM/Tim1_Pwm.c **** 
+   8:../../src/driver/PWM/Tim1_Pwm.c **** #include "Tim1_Pwm.h"
+   9:../../src/driver/PWM/Tim1_Pwm.c **** 
+  10:../../src/driver/PWM/Tim1_Pwm.c **** #include "stm32f0xx_rcc.h"
+  11:../../src/driver/PWM/Tim1_Pwm.c **** #include "stm32f0xx_gpio.h"
+  12:../../src/driver/PWM/Tim1_Pwm.c **** #include "stm32f0xx_tim.h"
+  13:../../src/driver/PWM/Tim1_Pwm.c **** 
+  14:../../src/driver/PWM/Tim1_Pwm.c **** /////////////////////////////////////
+  15:../../src/driver/PWM/Tim1_Pwm.c **** // forward declarations
+  16:../../src/driver/PWM/Tim1_Pwm.c **** /////////////////////////////////////
+  17:../../src/driver/PWM/Tim1_Pwm.c **** 
+  18:../../src/driver/PWM/Tim1_Pwm.c **** /////////////////////////////////////
+  19:../../src/driver/PWM/Tim1_Pwm.c **** // private variables
+  20:../../src/driver/PWM/Tim1_Pwm.c **** /////////////////////////////////////
+  21:../../src/driver/PWM/Tim1_Pwm.c **** 
+  22:../../src/driver/PWM/Tim1_Pwm.c **** /////////////////////////////////////
+  23:../../src/driver/PWM/Tim1_Pwm.c **** // public functions
+  24:../../src/driver/PWM/Tim1_Pwm.c **** /////////////////////////////////////
+  25:../../src/driver/PWM/Tim1_Pwm.c **** 
+  26:../../src/driver/PWM/Tim1_Pwm.c **** void Tim1_Pwm_init(void) {
+  26              		.loc 1 26 0
+  27              		.cfi_startproc
+  28 0000 80B5     		push	{r7, lr}
+  29              		.cfi_def_cfa_offset 8
+  30              		.cfi_offset 7, -8
+  31              		.cfi_offset 14, -4
+  32 0002 8AB0     		sub	sp, sp, #40
+  33              		.cfi_def_cfa_offset 48
+  34 0004 00AF     		add	r7, sp, #0
+  35              		.cfi_def_cfa_register 7
+  27:../../src/driver/PWM/Tim1_Pwm.c **** 	GPIO_InitTypeDef gpioInit;
+  28:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_TimeBaseInitTypeDef timerTimeBaseInit;
+  29:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_OCInitTypeDef timerOCInit;
+  30:../../src/driver/PWM/Tim1_Pwm.c **** 
+  31:../../src/driver/PWM/Tim1_Pwm.c **** 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+  36              		.loc 1 31 0
+  37 0006 8023     		mov	r3, #128
+  38 0008 DB02     		lsl	r3, r3, #11
+  39 000a 181C     		mov	r0, r3
+  40 000c 0121     		mov	r1, #1
+  41 000e FFF7FEFF 		bl	RCC_AHBPeriphClockCmd
+  32:../../src/driver/PWM/Tim1_Pwm.c **** 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+  42              		.loc 1 32 0
+  43 0012 8023     		mov	r3, #128
+  44 0014 1B01     		lsl	r3, r3, #4
+  45 0016 181C     		mov	r0, r3
+  46 0018 0121     		mov	r1, #1
+  47 001a FFF7FEFF 		bl	RCC_APB2PeriphClockCmd
+  33:../../src/driver/PWM/Tim1_Pwm.c **** 
+  34:../../src/driver/PWM/Tim1_Pwm.c **** 	gpioInit.GPIO_Mode = GPIO_Mode_AF;
+  48              		.loc 1 34 0
+  49 001e 3B1C     		mov	r3, r7
+  50 0020 2033     		add	r3, r3, #32
+  51 0022 0222     		mov	r2, #2
+  52 0024 1A71     		strb	r2, [r3, #4]
+  35:../../src/driver/PWM/Tim1_Pwm.c **** 	gpioInit.GPIO_OType = GPIO_OType_PP;
+  53              		.loc 1 35 0
+  54 0026 3B1C     		mov	r3, r7
+  55 0028 2033     		add	r3, r3, #32
+  56 002a 0022     		mov	r2, #0
+  57 002c 9A71     		strb	r2, [r3, #6]
+  36:../../src/driver/PWM/Tim1_Pwm.c **** 	gpioInit.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
+  58              		.loc 1 36 0
+  59 002e 3B1C     		mov	r3, r7
+  60 0030 2033     		add	r3, r3, #32
+  61 0032 E022     		mov	r2, #224
+  62 0034 1202     		lsl	r2, r2, #8
+  63 0036 1A60     		str	r2, [r3]
+  37:../../src/driver/PWM/Tim1_Pwm.c **** 	gpioInit.GPIO_PuPd = GPIO_PuPd_UP;
+  64              		.loc 1 37 0
+  65 0038 3B1C     		mov	r3, r7
+  66 003a 2033     		add	r3, r3, #32
+  67 003c 0122     		mov	r2, #1
+  68 003e DA71     		strb	r2, [r3, #7]
+  38:../../src/driver/PWM/Tim1_Pwm.c **** 	gpioInit.GPIO_Speed = GPIO_Speed_50MHz;
+  69              		.loc 1 38 0
+  70 0040 3B1C     		mov	r3, r7
+  71 0042 2033     		add	r3, r3, #32
+  72 0044 0322     		mov	r2, #3
+  73 0046 5A71     		strb	r2, [r3, #5]
+  39:../../src/driver/PWM/Tim1_Pwm.c **** 	GPIO_Init(GPIOB, &gpioInit);
+  74              		.loc 1 39 0
+  75 0048 3E4A     		ldr	r2, .L2
+  76 004a 3B1C     		mov	r3, r7
+  77 004c 2033     		add	r3, r3, #32
+  78 004e 101C     		mov	r0, r2
+  79 0050 191C     		mov	r1, r3
+  80 0052 FFF7FEFF 		bl	GPIO_Init
+  40:../../src/driver/PWM/Tim1_Pwm.c **** 
+  41:../../src/driver/PWM/Tim1_Pwm.c **** 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_2);
+  81              		.loc 1 41 0
+  82 0056 3B4B     		ldr	r3, .L2
+  83 0058 181C     		mov	r0, r3
+  84 005a 0D21     		mov	r1, #13
+  85 005c 0222     		mov	r2, #2
+  86 005e FFF7FEFF 		bl	GPIO_PinAFConfig
+  42:../../src/driver/PWM/Tim1_Pwm.c **** 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_2);
+  87              		.loc 1 42 0
+  88 0062 384B     		ldr	r3, .L2
+  89 0064 181C     		mov	r0, r3
+  90 0066 0E21     		mov	r1, #14
+  91 0068 0222     		mov	r2, #2
+  92 006a FFF7FEFF 		bl	GPIO_PinAFConfig
+  43:../../src/driver/PWM/Tim1_Pwm.c **** 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_2);
+  93              		.loc 1 43 0
+  94 006e 354B     		ldr	r3, .L2
+  95 0070 181C     		mov	r0, r3
+  96 0072 0F21     		mov	r1, #15
+  97 0074 0222     		mov	r2, #2
+  98 0076 FFF7FEFF 		bl	GPIO_PinAFConfig
+  44:../../src/driver/PWM/Tim1_Pwm.c **** 
+  45:../../src/driver/PWM/Tim1_Pwm.c **** 	timerTimeBaseInit.TIM_Prescaler = 0;
+  99              		.loc 1 45 0
+ 100 007a 3B1C     		mov	r3, r7
+ 101 007c 1433     		add	r3, r3, #20
+ 102 007e 0022     		mov	r2, #0
+ 103 0080 1A80     		strh	r2, [r3]
+  46:../../src/driver/PWM/Tim1_Pwm.c **** 	timerTimeBaseInit.TIM_CounterMode = TIM_CounterMode_Up;
+ 104              		.loc 1 46 0
+ 105 0082 3B1C     		mov	r3, r7
+ 106 0084 1433     		add	r3, r3, #20
+ 107 0086 0022     		mov	r2, #0
+ 108 0088 5A80     		strh	r2, [r3, #2]
+  47:../../src/driver/PWM/Tim1_Pwm.c **** 	timerTimeBaseInit.TIM_Period = 256;
+ 109              		.loc 1 47 0
+ 110 008a 3B1C     		mov	r3, r7
+ 111 008c 1433     		add	r3, r3, #20
+ 112 008e 8022     		mov	r2, #128
+ 113 0090 5200     		lsl	r2, r2, #1
+ 114 0092 5A60     		str	r2, [r3, #4]
+  48:../../src/driver/PWM/Tim1_Pwm.c **** 	timerTimeBaseInit.TIM_ClockDivision = TIM_CKD_DIV1;
+ 115              		.loc 1 48 0
+ 116 0094 3B1C     		mov	r3, r7
+ 117 0096 1433     		add	r3, r3, #20
+ 118 0098 0022     		mov	r2, #0
+ 119 009a 1A81     		strh	r2, [r3, #8]
+  49:../../src/driver/PWM/Tim1_Pwm.c **** 	timerTimeBaseInit.TIM_RepetitionCounter = 0;
+ 120              		.loc 1 49 0
+ 121 009c 3B1C     		mov	r3, r7
+ 122 009e 1433     		add	r3, r3, #20
+ 123 00a0 0022     		mov	r2, #0
+ 124 00a2 9A72     		strb	r2, [r3, #10]
+  50:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_TimeBaseInit(TIM1, &timerTimeBaseInit);
+ 125              		.loc 1 50 0
+ 126 00a4 284A     		ldr	r2, .L2+4
+ 127 00a6 3B1C     		mov	r3, r7
+ 128 00a8 1433     		add	r3, r3, #20
+ 129 00aa 101C     		mov	r0, r2
+ 130 00ac 191C     		mov	r1, r3
+ 131 00ae FFF7FEFF 		bl	TIM_TimeBaseInit
+  51:../../src/driver/PWM/Tim1_Pwm.c **** 
+  52:../../src/driver/PWM/Tim1_Pwm.c **** 	timerOCInit.TIM_OCMode = TIM_OCMode_PWM1;
+ 132              		.loc 1 52 0
+ 133 00b2 3B1C     		mov	r3, r7
+ 134 00b4 6022     		mov	r2, #96
+ 135 00b6 1A80     		strh	r2, [r3]
+  53:../../src/driver/PWM/Tim1_Pwm.c **** 	timerOCInit.TIM_OutputState = TIM_OutputState_Enable;
+ 136              		.loc 1 53 0
+ 137 00b8 3B1C     		mov	r3, r7
+ 138 00ba 0122     		mov	r2, #1
+ 139 00bc 5A80     		strh	r2, [r3, #2]
+  54:../../src/driver/PWM/Tim1_Pwm.c **** 	timerOCInit.TIM_OutputNState = TIM_OutputNState_Enable;
+ 140              		.loc 1 54 0
+ 141 00be 3B1C     		mov	r3, r7
+ 142 00c0 0422     		mov	r2, #4
+ 143 00c2 9A80     		strh	r2, [r3, #4]
+  55:../../src/driver/PWM/Tim1_Pwm.c **** 	timerOCInit.TIM_OCPolarity = TIM_OCPolarity_High;
+ 144              		.loc 1 55 0
+ 145 00c4 3B1C     		mov	r3, r7
+ 146 00c6 0022     		mov	r2, #0
+ 147 00c8 9A81     		strh	r2, [r3, #12]
+  56:../../src/driver/PWM/Tim1_Pwm.c **** 	timerOCInit.TIM_OCNPolarity = TIM_OCNPolarity_Low;
+ 148              		.loc 1 56 0
+ 149 00ca 3B1C     		mov	r3, r7
+ 150 00cc 0822     		mov	r2, #8
+ 151 00ce DA81     		strh	r2, [r3, #14]
+  57:../../src/driver/PWM/Tim1_Pwm.c **** 	timerOCInit.TIM_OCIdleState = TIM_OCIdleState_Set;
+ 152              		.loc 1 57 0
+ 153 00d0 3B1C     		mov	r3, r7
+ 154 00d2 8022     		mov	r2, #128
+ 155 00d4 5200     		lsl	r2, r2, #1
+ 156 00d6 1A82     		strh	r2, [r3, #16]
+  58:../../src/driver/PWM/Tim1_Pwm.c **** 	timerOCInit.TIM_OCNIdleState = TIM_OCNIdleState_Reset;
+ 157              		.loc 1 58 0
+ 158 00d8 3B1C     		mov	r3, r7
+ 159 00da 0022     		mov	r2, #0
+ 160 00dc 5A82     		strh	r2, [r3, #18]
+  59:../../src/driver/PWM/Tim1_Pwm.c **** 	timerOCInit.TIM_Pulse = 0;
+ 161              		.loc 1 59 0
+ 162 00de 3B1C     		mov	r3, r7
+ 163 00e0 0022     		mov	r2, #0
+ 164 00e2 9A60     		str	r2, [r3, #8]
+  60:../../src/driver/PWM/Tim1_Pwm.c **** 
+  61:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_OC1Init(TIM1, &timerOCInit);
+ 165              		.loc 1 61 0
+ 166 00e4 184A     		ldr	r2, .L2+4
+ 167 00e6 3B1C     		mov	r3, r7
+ 168 00e8 101C     		mov	r0, r2
+ 169 00ea 191C     		mov	r1, r3
+ 170 00ec FFF7FEFF 		bl	TIM_OC1Init
+  62:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_OC2Init(TIM1, &timerOCInit);
+ 171              		.loc 1 62 0
+ 172 00f0 154A     		ldr	r2, .L2+4
+ 173 00f2 3B1C     		mov	r3, r7
+ 174 00f4 101C     		mov	r0, r2
+ 175 00f6 191C     		mov	r1, r3
+ 176 00f8 FFF7FEFF 		bl	TIM_OC2Init
+  63:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_OC3Init(TIM1, &timerOCInit);
+ 177              		.loc 1 63 0
+ 178 00fc 124A     		ldr	r2, .L2+4
+ 179 00fe 3B1C     		mov	r3, r7
+ 180 0100 101C     		mov	r0, r2
+ 181 0102 191C     		mov	r1, r3
+ 182 0104 FFF7FEFF 		bl	TIM_OC3Init
+  64:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_OC4Init(TIM1, &timerOCInit);
+ 183              		.loc 1 64 0
+ 184 0108 0F4A     		ldr	r2, .L2+4
+ 185 010a 3B1C     		mov	r3, r7
+ 186 010c 101C     		mov	r0, r2
+ 187 010e 191C     		mov	r1, r3
+ 188 0110 FFF7FEFF 		bl	TIM_OC4Init
+  65:../../src/driver/PWM/Tim1_Pwm.c **** 
+  66:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_OC1PreloadConfig(TIM1, TIM_OCPreload_Disable);
+ 189              		.loc 1 66 0
+ 190 0114 0C4B     		ldr	r3, .L2+4
+ 191 0116 181C     		mov	r0, r3
+ 192 0118 0021     		mov	r1, #0
+ 193 011a FFF7FEFF 		bl	TIM_OC1PreloadConfig
+  67:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_ARRPreloadConfig(TIM1, ENABLE);
+ 194              		.loc 1 67 0
+ 195 011e 0A4B     		ldr	r3, .L2+4
+ 196 0120 181C     		mov	r0, r3
+ 197 0122 0121     		mov	r1, #1
+ 198 0124 FFF7FEFF 		bl	TIM_ARRPreloadConfig
+  68:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_CtrlPWMOutputs(TIM1, ENABLE);
+ 199              		.loc 1 68 0
+ 200 0128 074B     		ldr	r3, .L2+4
+ 201 012a 181C     		mov	r0, r3
+ 202 012c 0121     		mov	r1, #1
+ 203 012e FFF7FEFF 		bl	TIM_CtrlPWMOutputs
+  69:../../src/driver/PWM/Tim1_Pwm.c **** 
+  70:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_Cmd(TIM1, ENABLE);
+ 204              		.loc 1 70 0
+ 205 0132 054B     		ldr	r3, .L2+4
+ 206 0134 181C     		mov	r0, r3
+ 207 0136 0121     		mov	r1, #1
+ 208 0138 FFF7FEFF 		bl	TIM_Cmd
+  71:../../src/driver/PWM/Tim1_Pwm.c **** }
+ 209              		.loc 1 71 0
+ 210 013c BD46     		mov	sp, r7
+ 211 013e 0AB0     		add	sp, sp, #40
+ 212              		@ sp needed
+ 213 0140 80BD     		pop	{r7, pc}
+ 214              	.L3:
+ 215 0142 C046     		.align	2
+ 216              	.L2:
+ 217 0144 00040048 		.word	1207960576
+ 218 0148 002C0140 		.word	1073818624
+ 219              		.cfi_endproc
+ 220              	.LFE32:
+ 222              		.section	.text.Tim1_Pwm_setValueCh1,"ax",%progbits
+ 223              		.align	2
+ 224              		.global	Tim1_Pwm_setValueCh1
+ 225              		.code	16
+ 226              		.thumb_func
+ 228              	Tim1_Pwm_setValueCh1:
+ 229              	.LFB33:
+  72:../../src/driver/PWM/Tim1_Pwm.c **** 
+  73:../../src/driver/PWM/Tim1_Pwm.c **** void Tim1_Pwm_setValueCh1(uint8_t value) {
+ 230              		.loc 1 73 0
+ 231              		.cfi_startproc
+ 232 0000 80B5     		push	{r7, lr}
+ 233              		.cfi_def_cfa_offset 8
+ 234              		.cfi_offset 7, -8
+ 235              		.cfi_offset 14, -4
+ 236 0002 82B0     		sub	sp, sp, #8
+ 237              		.cfi_def_cfa_offset 16
+ 238 0004 00AF     		add	r7, sp, #0
+ 239              		.cfi_def_cfa_register 7
+ 240 0006 021C     		mov	r2, r0
+ 241 0008 FB1D     		add	r3, r7, #7
+ 242 000a 1A70     		strb	r2, [r3]
+  74:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_SetCompare1(TIM1, value);
+ 243              		.loc 1 74 0
+ 244 000c FB1D     		add	r3, r7, #7
+ 245 000e 1B78     		ldrb	r3, [r3]
+ 246 0010 034A     		ldr	r2, .L5
+ 247 0012 101C     		mov	r0, r2
+ 248 0014 191C     		mov	r1, r3
+ 249 0016 FFF7FEFF 		bl	TIM_SetCompare1
+  75:../../src/driver/PWM/Tim1_Pwm.c **** }
+ 250              		.loc 1 75 0
+ 251 001a BD46     		mov	sp, r7
+ 252 001c 02B0     		add	sp, sp, #8
+ 253              		@ sp needed
+ 254 001e 80BD     		pop	{r7, pc}
+ 255              	.L6:
+ 256              		.align	2
+ 257              	.L5:
+ 258 0020 002C0140 		.word	1073818624
+ 259              		.cfi_endproc
+ 260              	.LFE33:
+ 262              		.section	.text.Tim1_Pwm_setValueCh2,"ax",%progbits
+ 263              		.align	2
+ 264              		.global	Tim1_Pwm_setValueCh2
+ 265              		.code	16
+ 266              		.thumb_func
+ 268              	Tim1_Pwm_setValueCh2:
+ 269              	.LFB34:
+  76:../../src/driver/PWM/Tim1_Pwm.c **** 
+  77:../../src/driver/PWM/Tim1_Pwm.c **** void Tim1_Pwm_setValueCh2(uint8_t value) {
+ 270              		.loc 1 77 0
+ 271              		.cfi_startproc
+ 272 0000 80B5     		push	{r7, lr}
+ 273              		.cfi_def_cfa_offset 8
+ 274              		.cfi_offset 7, -8
+ 275              		.cfi_offset 14, -4
+ 276 0002 82B0     		sub	sp, sp, #8
+ 277              		.cfi_def_cfa_offset 16
+ 278 0004 00AF     		add	r7, sp, #0
+ 279              		.cfi_def_cfa_register 7
+ 280 0006 021C     		mov	r2, r0
+ 281 0008 FB1D     		add	r3, r7, #7
+ 282 000a 1A70     		strb	r2, [r3]
+  78:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_SetCompare2(TIM1, value);
+ 283              		.loc 1 78 0
+ 284 000c FB1D     		add	r3, r7, #7
+ 285 000e 1B78     		ldrb	r3, [r3]
+ 286 0010 034A     		ldr	r2, .L8
+ 287 0012 101C     		mov	r0, r2
+ 288 0014 191C     		mov	r1, r3
+ 289 0016 FFF7FEFF 		bl	TIM_SetCompare2
+  79:../../src/driver/PWM/Tim1_Pwm.c **** }
+ 290              		.loc 1 79 0
+ 291 001a BD46     		mov	sp, r7
+ 292 001c 02B0     		add	sp, sp, #8
+ 293              		@ sp needed
+ 294 001e 80BD     		pop	{r7, pc}
+ 295              	.L9:
+ 296              		.align	2
+ 297              	.L8:
+ 298 0020 002C0140 		.word	1073818624
+ 299              		.cfi_endproc
+ 300              	.LFE34:
+ 302              		.section	.text.Tim1_Pwm_setValueCh3,"ax",%progbits
+ 303              		.align	2
+ 304              		.global	Tim1_Pwm_setValueCh3
+ 305              		.code	16
+ 306              		.thumb_func
+ 308              	Tim1_Pwm_setValueCh3:
+ 309              	.LFB35:
+  80:../../src/driver/PWM/Tim1_Pwm.c **** 
+  81:../../src/driver/PWM/Tim1_Pwm.c **** void Tim1_Pwm_setValueCh3(uint8_t value) {
+ 310              		.loc 1 81 0
+ 311              		.cfi_startproc
+ 312 0000 80B5     		push	{r7, lr}
+ 313              		.cfi_def_cfa_offset 8
+ 314              		.cfi_offset 7, -8
+ 315              		.cfi_offset 14, -4
+ 316 0002 82B0     		sub	sp, sp, #8
+ 317              		.cfi_def_cfa_offset 16
+ 318 0004 00AF     		add	r7, sp, #0
+ 319              		.cfi_def_cfa_register 7
+ 320 0006 021C     		mov	r2, r0
+ 321 0008 FB1D     		add	r3, r7, #7
+ 322 000a 1A70     		strb	r2, [r3]
+  82:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_SetCompare3(TIM1, value);
+ 323              		.loc 1 82 0
+ 324 000c FB1D     		add	r3, r7, #7
+ 325 000e 1B78     		ldrb	r3, [r3]
+ 326 0010 034A     		ldr	r2, .L11
+ 327 0012 101C     		mov	r0, r2
+ 328 0014 191C     		mov	r1, r3
+ 329 0016 FFF7FEFF 		bl	TIM_SetCompare3
+  83:../../src/driver/PWM/Tim1_Pwm.c **** }
+ 330              		.loc 1 83 0
+ 331 001a BD46     		mov	sp, r7
+ 332 001c 02B0     		add	sp, sp, #8
+ 333              		@ sp needed
+ 334 001e 80BD     		pop	{r7, pc}
+ 335              	.L12:
+ 336              		.align	2
+ 337              	.L11:
+ 338 0020 002C0140 		.word	1073818624
+ 339              		.cfi_endproc
+ 340              	.LFE35:
+ 342              		.section	.text.Tim1_Pwm_setValueCh4,"ax",%progbits
+ 343              		.align	2
+ 344              		.global	Tim1_Pwm_setValueCh4
+ 345              		.code	16
+ 346              		.thumb_func
+ 348              	Tim1_Pwm_setValueCh4:
+ 349              	.LFB36:
+  84:../../src/driver/PWM/Tim1_Pwm.c **** 
+  85:../../src/driver/PWM/Tim1_Pwm.c **** void Tim1_Pwm_setValueCh4(uint8_t value) {
+ 350              		.loc 1 85 0
+ 351              		.cfi_startproc
+ 352 0000 80B5     		push	{r7, lr}
+ 353              		.cfi_def_cfa_offset 8
+ 354              		.cfi_offset 7, -8
+ 355              		.cfi_offset 14, -4
+ 356 0002 82B0     		sub	sp, sp, #8
+ 357              		.cfi_def_cfa_offset 16
+ 358 0004 00AF     		add	r7, sp, #0
+ 359              		.cfi_def_cfa_register 7
+ 360 0006 021C     		mov	r2, r0
+ 361 0008 FB1D     		add	r3, r7, #7
+ 362 000a 1A70     		strb	r2, [r3]
+  86:../../src/driver/PWM/Tim1_Pwm.c **** 	TIM_SetCompare4(TIM1, value);
+ 363              		.loc 1 86 0
+ 364 000c FB1D     		add	r3, r7, #7
+ 365 000e 1B78     		ldrb	r3, [r3]
+ 366 0010 034A     		ldr	r2, .L14
+ 367 0012 101C     		mov	r0, r2
+ 368 0014 191C     		mov	r1, r3
+ 369 0016 FFF7FEFF 		bl	TIM_SetCompare4
+  87:../../src/driver/PWM/Tim1_Pwm.c **** }
+ 370              		.loc 1 87 0
+ 371 001a BD46     		mov	sp, r7
+ 372 001c 02B0     		add	sp, sp, #8
+ 373              		@ sp needed
+ 374 001e 80BD     		pop	{r7, pc}
+ 375              	.L15:
+ 376              		.align	2
+ 377              	.L14:
+ 378 0020 002C0140 		.word	1073818624
+ 379              		.cfi_endproc
+ 380              	.LFE36:
+ 382              		.text
+ 383              	.Letext0:
+ 384              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+ 385              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+ 386              		.file 4 "../../ext-src/CMSIS/ST/STM32F0xx/Include/stm32f0xx.h"
+ 387              		.file 5 "../../ext-src/STM32F0xx_StdPeriph_Driver/inc/stm32f0xx_gpio.h"
+ 388              		.file 6 "../../ext-src/STM32F0xx_StdPeriph_Driver/inc/stm32f0xx_tim.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Tim1_Pwm.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:18     .text.Tim1_Pwm_init:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:23     .text.Tim1_Pwm_init:0000000000000000 Tim1_Pwm_init
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:217    .text.Tim1_Pwm_init:0000000000000144 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:223    .text.Tim1_Pwm_setValueCh1:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:228    .text.Tim1_Pwm_setValueCh1:0000000000000000 Tim1_Pwm_setValueCh1
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:258    .text.Tim1_Pwm_setValueCh1:0000000000000020 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:263    .text.Tim1_Pwm_setValueCh2:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:268    .text.Tim1_Pwm_setValueCh2:0000000000000000 Tim1_Pwm_setValueCh2
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:298    .text.Tim1_Pwm_setValueCh2:0000000000000020 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:303    .text.Tim1_Pwm_setValueCh3:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:308    .text.Tim1_Pwm_setValueCh3:0000000000000000 Tim1_Pwm_setValueCh3
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:338    .text.Tim1_Pwm_setValueCh3:0000000000000020 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:343    .text.Tim1_Pwm_setValueCh4:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:348    .text.Tim1_Pwm_setValueCh4:0000000000000000 Tim1_Pwm_setValueCh4
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cctx5H9z.s:378    .text.Tim1_Pwm_setValueCh4:0000000000000020 $d
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+
+UNDEFINED SYMBOLS
+RCC_AHBPeriphClockCmd
+RCC_APB2PeriphClockCmd
+GPIO_Init
+GPIO_PinAFConfig
+TIM_TimeBaseInit
+TIM_OC1Init
+TIM_OC2Init
+TIM_OC3Init
+TIM_OC4Init
+TIM_OC1PreloadConfig
+TIM_ARRPreloadConfig
+TIM_CtrlPWMOutputs
+TIM_Cmd
+TIM_SetCompare1
+TIM_SetCompare2
+TIM_SetCompare3
+TIM_SetCompare4

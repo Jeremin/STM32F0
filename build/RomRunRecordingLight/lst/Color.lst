@@ -1,0 +1,257 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"Color.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.global	__aeabi_uidiv
+  18              		.section	.text.RGBA2RGB,"ax",%progbits
+  19              		.align	2
+  20              		.global	RGBA2RGB
+  21              		.code	16
+  22              		.thumb_func
+  24              	RGBA2RGB:
+  25              	.LFB32:
+  26              		.file 1 "../../src/lib/Color.c"
+   1:../../src/lib/Color.c **** /*
+   2:../../src/lib/Color.c ****  * Color.c
+   3:../../src/lib/Color.c ****  *
+   4:../../src/lib/Color.c ****  *  Created on: Jul 25, 2014
+   5:../../src/lib/Color.c ****  *      Author: jonasbachli
+   6:../../src/lib/Color.c ****  */
+   7:../../src/lib/Color.c **** 
+   8:../../src/lib/Color.c **** #include "Color.h"
+   9:../../src/lib/Color.c **** #include "TypesAndMacros.h"
+  10:../../src/lib/Color.c **** 
+  11:../../src/lib/Color.c **** /////////////////////////////////////
+  12:../../src/lib/Color.c **** // forward declarations
+  13:../../src/lib/Color.c **** /////////////////////////////////////
+  14:../../src/lib/Color.c **** 
+  15:../../src/lib/Color.c **** /////////////////////////////////////
+  16:../../src/lib/Color.c **** // private variables
+  17:../../src/lib/Color.c **** /////////////////////////////////////
+  18:../../src/lib/Color.c **** 
+  19:../../src/lib/Color.c **** /////////////////////////////////////
+  20:../../src/lib/Color.c **** // public functions
+  21:../../src/lib/Color.c **** /////////////////////////////////////
+  22:../../src/lib/Color.c **** RGB RGBA2RGB(RGBA rgba){
+  27              		.loc 1 22 0
+  28              		.cfi_startproc
+  29 0000 80B5     		push	{r7, lr}
+  30              		.cfi_def_cfa_offset 8
+  31              		.cfi_offset 7, -8
+  32              		.cfi_offset 14, -4
+  33 0002 84B0     		sub	sp, sp, #16
+  34              		.cfi_def_cfa_offset 24
+  35 0004 00AF     		add	r7, sp, #0
+  36              		.cfi_def_cfa_register 7
+  37 0006 3B1D     		add	r3, r7, #4
+  38 0008 1860     		str	r0, [r3]
+  23:../../src/lib/Color.c **** 	RGB rgb;
+  24:../../src/lib/Color.c **** 	rgb.red = (uint8_t) (((uint32_t)rgba.red)*(uint32_t)rgba.alpha)/0xff;
+  39              		.loc 1 24 0
+  40 000a 3B1D     		add	r3, r7, #4
+  41 000c 1B78     		ldrb	r3, [r3]
+  42 000e 3A1D     		add	r2, r7, #4
+  43 0010 D278     		ldrb	r2, [r2, #3]
+  44 0012 5343     		mul	r3, r2
+  45 0014 DBB2     		uxtb	r3, r3
+  46 0016 181C     		mov	r0, r3
+  47 0018 FF21     		mov	r1, #255
+  48 001a FFF7FEFF 		bl	__aeabi_uidiv
+  49 001e 031C     		mov	r3, r0
+  50 0020 DAB2     		uxtb	r2, r3
+  51 0022 3B1C     		mov	r3, r7
+  52 0024 0833     		add	r3, r3, #8
+  53 0026 1A70     		strb	r2, [r3]
+  25:../../src/lib/Color.c **** 	rgb.green = (uint8_t) (((uint32_t)rgba.green)*(uint32_t)rgba.alpha)/0xff;
+  54              		.loc 1 25 0
+  55 0028 3B1D     		add	r3, r7, #4
+  56 002a 5B78     		ldrb	r3, [r3, #1]
+  57 002c 3A1D     		add	r2, r7, #4
+  58 002e D278     		ldrb	r2, [r2, #3]
+  59 0030 5343     		mul	r3, r2
+  60 0032 DBB2     		uxtb	r3, r3
+  61 0034 181C     		mov	r0, r3
+  62 0036 FF21     		mov	r1, #255
+  63 0038 FFF7FEFF 		bl	__aeabi_uidiv
+  64 003c 031C     		mov	r3, r0
+  65 003e DAB2     		uxtb	r2, r3
+  66 0040 3B1C     		mov	r3, r7
+  67 0042 0833     		add	r3, r3, #8
+  68 0044 5A70     		strb	r2, [r3, #1]
+  26:../../src/lib/Color.c **** 	rgb.blue = (uint8_t) (((uint32_t)rgba.blue)*(uint32_t)rgba.alpha)/0xff;
+  69              		.loc 1 26 0
+  70 0046 3B1D     		add	r3, r7, #4
+  71 0048 9B78     		ldrb	r3, [r3, #2]
+  72 004a 3A1D     		add	r2, r7, #4
+  73 004c D278     		ldrb	r2, [r2, #3]
+  74 004e 5343     		mul	r3, r2
+  75 0050 DBB2     		uxtb	r3, r3
+  76 0052 181C     		mov	r0, r3
+  77 0054 FF21     		mov	r1, #255
+  78 0056 FFF7FEFF 		bl	__aeabi_uidiv
+  79 005a 031C     		mov	r3, r0
+  80 005c DAB2     		uxtb	r2, r3
+  81 005e 3B1C     		mov	r3, r7
+  82 0060 0833     		add	r3, r3, #8
+  83 0062 9A70     		strb	r2, [r3, #2]
+  27:../../src/lib/Color.c **** 	return rgb;
+  84              		.loc 1 27 0
+  85 0064 3B1C     		mov	r3, r7
+  86 0066 0C33     		add	r3, r3, #12
+  87 0068 3A1C     		mov	r2, r7
+  88 006a 0832     		add	r2, r2, #8
+  89 006c 1188     		ldrh	r1, [r2]
+  90 006e 1980     		strh	r1, [r3]
+  91 0070 9278     		ldrb	r2, [r2, #2]
+  92 0072 9A70     		strb	r2, [r3, #2]
+  93 0074 3A1C     		mov	r2, r7
+  94 0076 0C32     		add	r2, r2, #12
+  95 0078 0023     		mov	r3, #0
+  96 007a 1078     		ldrb	r0, [r2]
+  97 007c FF21     		mov	r1, #255
+  98 007e 0140     		and	r1, r0
+  99 0080 FF20     		mov	r0, #255
+ 100 0082 8343     		bic	r3, r0
+ 101 0084 0B43     		orr	r3, r1
+ 102 0086 5078     		ldrb	r0, [r2, #1]
+ 103 0088 FF21     		mov	r1, #255
+ 104 008a 0140     		and	r1, r0
+ 105 008c 0902     		lsl	r1, r1, #8
+ 106 008e 0748     		ldr	r0, .L3
+ 107 0090 0340     		and	r3, r0
+ 108 0092 0B43     		orr	r3, r1
+ 109 0094 9178     		ldrb	r1, [r2, #2]
+ 110 0096 FF22     		mov	r2, #255
+ 111 0098 0A40     		and	r2, r1
+ 112 009a 1204     		lsl	r2, r2, #16
+ 113 009c 0449     		ldr	r1, .L3+4
+ 114 009e 0B40     		and	r3, r1
+ 115 00a0 1343     		orr	r3, r2
+  28:../../src/lib/Color.c **** }
+ 116              		.loc 1 28 0
+ 117 00a2 181C     		mov	r0, r3
+ 118 00a4 BD46     		mov	sp, r7
+ 119 00a6 04B0     		add	sp, sp, #16
+ 120              		@ sp needed
+ 121 00a8 80BD     		pop	{r7, pc}
+ 122              	.L4:
+ 123 00aa C046     		.align	2
+ 124              	.L3:
+ 125 00ac FF00FFFF 		.word	-65281
+ 126 00b0 FFFF00FF 		.word	-16711681
+ 127              		.cfi_endproc
+ 128              	.LFE32:
+ 130              		.section	.text.RGB2RGBA,"ax",%progbits
+ 131              		.align	2
+ 132              		.global	RGB2RGBA
+ 133              		.code	16
+ 134              		.thumb_func
+ 136              	RGB2RGBA:
+ 137              	.LFB33:
+  29:../../src/lib/Color.c **** 
+  30:../../src/lib/Color.c **** RGBA RGB2RGBA(RGB rgb){
+ 138              		.loc 1 30 0
+ 139              		.cfi_startproc
+ 140 0000 80B5     		push	{r7, lr}
+ 141              		.cfi_def_cfa_offset 8
+ 142              		.cfi_offset 7, -8
+ 143              		.cfi_offset 14, -4
+ 144 0002 84B0     		sub	sp, sp, #16
+ 145              		.cfi_def_cfa_offset 24
+ 146 0004 00AF     		add	r7, sp, #0
+ 147              		.cfi_def_cfa_register 7
+ 148 0006 3B1D     		add	r3, r7, #4
+ 149 0008 1860     		str	r0, [r3]
+  31:../../src/lib/Color.c **** 	RGBA rgba;
+  32:../../src/lib/Color.c **** 	rgba.alpha = MIN(rgb.red, MIN(rgb.green, rgb.blue));
+ 150              		.loc 1 32 0
+ 151 000a 3B1D     		add	r3, r7, #4
+ 152 000c 9B78     		ldrb	r3, [r3, #2]
+ 153 000e 3A1D     		add	r2, r7, #4
+ 154 0010 5278     		ldrb	r2, [r2, #1]
+ 155 0012 D8B2     		uxtb	r0, r3
+ 156 0014 D1B2     		uxtb	r1, r2
+ 157 0016 8842     		cmp	r0, r1
+ 158 0018 00D9     		bls	.L6
+ 159 001a 131C     		add	r3, r2, #0
+ 160              	.L6:
+ 161 001c DBB2     		uxtb	r3, r3
+ 162 001e 3A1D     		add	r2, r7, #4
+ 163 0020 1278     		ldrb	r2, [r2]
+ 164 0022 D8B2     		uxtb	r0, r3
+ 165 0024 D1B2     		uxtb	r1, r2
+ 166 0026 8842     		cmp	r0, r1
+ 167 0028 00D9     		bls	.L7
+ 168 002a 131C     		add	r3, r2, #0
+ 169              	.L7:
+ 170 002c DAB2     		uxtb	r2, r3
+ 171 002e 3B1C     		mov	r3, r7
+ 172 0030 0C33     		add	r3, r3, #12
+ 173 0032 DA70     		strb	r2, [r3, #3]
+  33:../../src/lib/Color.c **** }
+ 174              		.loc 1 33 0
+ 175 0034 181C     		mov	r0, r3
+ 176 0036 BD46     		mov	sp, r7
+ 177 0038 04B0     		add	sp, sp, #16
+ 178              		@ sp needed
+ 179 003a 80BD     		pop	{r7, pc}
+ 180              		.cfi_endproc
+ 181              	.LFE33:
+ 183              		.text
+ 184              	.Letext0:
+ 185              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+ 186              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+ 187              		.file 4 "../../src/lib/Color.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Color.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccKhez96.s:19     .text.RGBA2RGB:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccKhez96.s:24     .text.RGBA2RGB:0000000000000000 RGBA2RGB
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccKhez96.s:125    .text.RGBA2RGB:00000000000000ac $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccKhez96.s:131    .text.RGB2RGBA:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccKhez96.s:136    .text.RGB2RGBA:0000000000000000 RGB2RGBA
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.TypesAndMacros.h.9.011452ff864ebe38011f65d1081174f8
+
+UNDEFINED SYMBOLS
+__aeabi_uidiv

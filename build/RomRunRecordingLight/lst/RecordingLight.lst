@@ -1,0 +1,1138 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"RecordingLight.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.bss.currentState,"aw",%nobits
+  20              	currentState:
+  21 0000 00       		.space	1
+  22              		.section	.bss.settings,"aw",%nobits
+  23              		.align	2
+  26              	settings:
+  27 0000 00000000 		.space	16
+  27      00000000 
+  27      00000000 
+  27      00000000 
+  28              		.section	.text.RecordingLight_init,"ax",%progbits
+  29              		.align	2
+  30              		.global	RecordingLight_init
+  31              		.code	16
+  32              		.thumb_func
+  34              	RecordingLight_init:
+  35              	.LFB32:
+  36              		.file 1 "../../src/app/RecordingLight/RecordingLight.c"
+   1:../../src/app/RecordingLight/RecordingLight.c **** /*
+   2:../../src/app/RecordingLight/RecordingLight.c ****  * RecordingLight.c
+   3:../../src/app/RecordingLight/RecordingLight.c ****  *
+   4:../../src/app/RecordingLight/RecordingLight.c ****  *  Created on: Jul 19, 2014
+   5:../../src/app/RecordingLight/RecordingLight.c ****  *      Author: jonasbachli
+   6:../../src/app/RecordingLight/RecordingLight.c ****  */
+   7:../../src/app/RecordingLight/RecordingLight.c **** 
+   8:../../src/app/RecordingLight/RecordingLight.c **** #include "RecordingLight.h"
+   9:../../src/app/RecordingLight/RecordingLight.c **** 
+  10:../../src/app/RecordingLight/RecordingLight.c **** #include "USART_SM.h"
+  11:../../src/app/RecordingLight/RecordingLight.c **** #include "Settings.h"
+  12:../../src/app/RecordingLight/RecordingLight.c **** #include "WS2812B.h"
+  13:../../src/app/RecordingLight/RecordingLight.c **** #include "Tim1_Pwm.h"
+  14:../../src/app/RecordingLight/RecordingLight.c **** #include "BinUtils.h"
+  15:../../src/app/RecordingLight/RecordingLight.c **** 
+  16:../../src/app/RecordingLight/RecordingLight.c **** /////////////////////////////////////
+  17:../../src/app/RecordingLight/RecordingLight.c **** // forward declarations
+  18:../../src/app/RecordingLight/RecordingLight.c **** /////////////////////////////////////
+  19:../../src/app/RecordingLight/RecordingLight.c **** 
+  20:../../src/app/RecordingLight/RecordingLight.c **** static void update(void);
+  21:../../src/app/RecordingLight/RecordingLight.c **** 
+  22:../../src/app/RecordingLight/RecordingLight.c **** static void handleCommand(RLMsg* msg);
+  23:../../src/app/RecordingLight/RecordingLight.c **** static void sendResponse(RL_CMD cmd, uint32_t arg);
+  24:../../src/app/RecordingLight/RecordingLight.c **** 
+  25:../../src/app/RecordingLight/RecordingLight.c **** static void resetStateMachine();
+  26:../../src/app/RecordingLight/RecordingLight.c **** static void setState(RLMsg* msg);
+  27:../../src/app/RecordingLight/RecordingLight.c **** static void getState(RLMsg* msg);
+  28:../../src/app/RecordingLight/RecordingLight.c **** static void setColor(RLMsg* msg);
+  29:../../src/app/RecordingLight/RecordingLight.c **** static void getColor(RLMsg* msg);
+  30:../../src/app/RecordingLight/RecordingLight.c **** static void sendInfo(RLMsg* msg);
+  31:../../src/app/RecordingLight/RecordingLight.c **** 
+  32:../../src/app/RecordingLight/RecordingLight.c **** void setLedColor(uint32_t rgba);
+  33:../../src/app/RecordingLight/RecordingLight.c **** 
+  34:../../src/app/RecordingLight/RecordingLight.c **** /////////////////////////////////////
+  35:../../src/app/RecordingLight/RecordingLight.c **** // private variables
+  36:../../src/app/RecordingLight/RecordingLight.c **** /////////////////////////////////////
+  37:../../src/app/RecordingLight/RecordingLight.c **** 
+  38:../../src/app/RecordingLight/RecordingLight.c **** static RLState currentState;
+  39:../../src/app/RecordingLight/RecordingLight.c **** static Settings settings;
+  40:../../src/app/RecordingLight/RecordingLight.c **** 
+  41:../../src/app/RecordingLight/RecordingLight.c **** /////////////////////////////////////
+  42:../../src/app/RecordingLight/RecordingLight.c **** // public functions
+  43:../../src/app/RecordingLight/RecordingLight.c **** /////////////////////////////////////
+  44:../../src/app/RecordingLight/RecordingLight.c **** 
+  45:../../src/app/RecordingLight/RecordingLight.c **** void RecordingLight_init() {
+  37              		.loc 1 45 0
+  38              		.cfi_startproc
+  39 0000 80B5     		push	{r7, lr}
+  40              		.cfi_def_cfa_offset 8
+  41              		.cfi_offset 7, -8
+  42              		.cfi_offset 14, -4
+  43 0002 00AF     		add	r7, sp, #0
+  44              		.cfi_def_cfa_register 7
+  46:../../src/app/RecordingLight/RecordingLight.c **** 	//WS2812B_init();
+  47:../../src/app/RecordingLight/RecordingLight.c **** 	//WS2812B_start();
+  48:../../src/app/RecordingLight/RecordingLight.c **** 
+  49:../../src/app/RecordingLight/RecordingLight.c **** 	Tim1_Pwm_init();
+  45              		.loc 1 49 0
+  46 0004 FFF7FEFF 		bl	Tim1_Pwm_init
+  50:../../src/app/RecordingLight/RecordingLight.c **** 
+  51:../../src/app/RecordingLight/RecordingLight.c **** 	USART_SM_init();
+  47              		.loc 1 51 0
+  48 0008 FFF7FEFF 		bl	USART_SM_init
+  52:../../src/app/RecordingLight/RecordingLight.c **** 
+  53:../../src/app/RecordingLight/RecordingLight.c **** 	Settings_read(&settings);
+  49              		.loc 1 53 0
+  50 000c 054B     		ldr	r3, .L2
+  51 000e 181C     		mov	r0, r3
+  52 0010 FFF7FEFF 		bl	Settings_read
+  54:../../src/app/RecordingLight/RecordingLight.c **** 
+  55:../../src/app/RecordingLight/RecordingLight.c **** 	currentState = RLState_idle;
+  53              		.loc 1 55 0
+  54 0014 044B     		ldr	r3, .L2+4
+  55 0016 0022     		mov	r2, #0
+  56 0018 1A70     		strb	r2, [r3]
+  56:../../src/app/RecordingLight/RecordingLight.c **** 	update();
+  57              		.loc 1 56 0
+  58 001a FFF7FEFF 		bl	update
+  57:../../src/app/RecordingLight/RecordingLight.c **** }
+  59              		.loc 1 57 0
+  60 001e BD46     		mov	sp, r7
+  61              		@ sp needed
+  62 0020 80BD     		pop	{r7, pc}
+  63              	.L3:
+  64 0022 C046     		.align	2
+  65              	.L2:
+  66 0024 00000000 		.word	settings
+  67 0028 00000000 		.word	currentState
+  68              		.cfi_endproc
+  69              	.LFE32:
+  71              		.section	.text.RecordingLight_tick,"ax",%progbits
+  72              		.align	2
+  73              		.global	RecordingLight_tick
+  74              		.code	16
+  75              		.thumb_func
+  77              	RecordingLight_tick:
+  78              	.LFB33:
+  58:../../src/app/RecordingLight/RecordingLight.c **** 
+  59:../../src/app/RecordingLight/RecordingLight.c **** void RecordingLight_tick(uint32_t timestamp) {
+  79              		.loc 1 59 0
+  80              		.cfi_startproc
+  81 0000 80B5     		push	{r7, lr}
+  82              		.cfi_def_cfa_offset 8
+  83              		.cfi_offset 7, -8
+  84              		.cfi_offset 14, -4
+  85 0002 84B0     		sub	sp, sp, #16
+  86              		.cfi_def_cfa_offset 24
+  87 0004 00AF     		add	r7, sp, #0
+  88              		.cfi_def_cfa_register 7
+  89 0006 7860     		str	r0, [r7, #4]
+  60:../../src/app/RecordingLight/RecordingLight.c **** 	RLMsg msg;
+  61:../../src/app/RecordingLight/RecordingLight.c **** 
+  62:../../src/app/RecordingLight/RecordingLight.c **** 	USART_SM_tick();
+  90              		.loc 1 62 0
+  91 0008 FFF7FEFF 		bl	USART_SM_tick
+  63:../../src/app/RecordingLight/RecordingLight.c **** 	if (USART_SM_getMessage(&msg)) {
+  92              		.loc 1 63 0
+  93 000c 3B1C     		mov	r3, r7
+  94 000e 0833     		add	r3, r3, #8
+  95 0010 181C     		mov	r0, r3
+  96 0012 FFF7FEFF 		bl	USART_SM_getMessage
+  97 0016 031C     		mov	r3, r0
+  98 0018 002B     		cmp	r3, #0
+  99 001a 04D0     		beq	.L4
+  64:../../src/app/RecordingLight/RecordingLight.c **** 		handleCommand(&msg);
+ 100              		.loc 1 64 0
+ 101 001c 3B1C     		mov	r3, r7
+ 102 001e 0833     		add	r3, r3, #8
+ 103 0020 181C     		mov	r0, r3
+ 104 0022 FFF7FEFF 		bl	handleCommand
+ 105              	.L4:
+  65:../../src/app/RecordingLight/RecordingLight.c **** 	}
+  66:../../src/app/RecordingLight/RecordingLight.c **** }
+ 106              		.loc 1 66 0
+ 107 0026 BD46     		mov	sp, r7
+ 108 0028 04B0     		add	sp, sp, #16
+ 109              		@ sp needed
+ 110 002a 80BD     		pop	{r7, pc}
+ 111              		.cfi_endproc
+ 112              	.LFE33:
+ 114              		.section	.text.update,"ax",%progbits
+ 115              		.align	2
+ 116              		.code	16
+ 117              		.thumb_func
+ 119              	update:
+ 120              	.LFB34:
+  67:../../src/app/RecordingLight/RecordingLight.c **** 
+  68:../../src/app/RecordingLight/RecordingLight.c **** /////////////////////////////////////
+  69:../../src/app/RecordingLight/RecordingLight.c **** // private functions
+  70:../../src/app/RecordingLight/RecordingLight.c **** /////////////////////////////////////
+  71:../../src/app/RecordingLight/RecordingLight.c **** static void update(void) {
+ 121              		.loc 1 71 0
+ 122              		.cfi_startproc
+ 123 0000 80B5     		push	{r7, lr}
+ 124              		.cfi_def_cfa_offset 8
+ 125              		.cfi_offset 7, -8
+ 126              		.cfi_offset 14, -4
+ 127 0002 00AF     		add	r7, sp, #0
+ 128              		.cfi_def_cfa_register 7
+  72:../../src/app/RecordingLight/RecordingLight.c **** 	switch (currentState) {
+ 129              		.loc 1 72 0
+ 130 0004 154B     		ldr	r3, .L14
+ 131 0006 1B78     		ldrb	r3, [r3]
+ 132 0008 012B     		cmp	r3, #1
+ 133 000a 0ED0     		beq	.L8
+ 134 000c 02DC     		bgt	.L9
+ 135 000e 002B     		cmp	r3, #0
+ 136 0010 05D0     		beq	.L10
+ 137 0012 1CE0     		b	.L7
+ 138              	.L9:
+ 139 0014 022B     		cmp	r3, #2
+ 140 0016 14D0     		beq	.L11
+ 141 0018 032B     		cmp	r3, #3
+ 142 001a 0CD0     		beq	.L12
+ 143 001c 17E0     		b	.L7
+ 144              	.L10:
+  73:../../src/app/RecordingLight/RecordingLight.c **** 	case RLState_idle:
+  74:../../src/app/RecordingLight/RecordingLight.c **** 		setLedColor(settings.idleColor);
+ 145              		.loc 1 74 0
+ 146 001e 104B     		ldr	r3, .L14+4
+ 147 0020 1B68     		ldr	r3, [r3]
+ 148 0022 181C     		mov	r0, r3
+ 149 0024 FFF7FEFF 		bl	setLedColor
+  75:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 150              		.loc 1 75 0
+ 151 0028 15E0     		b	.L6
+ 152              	.L8:
+  76:../../src/app/RecordingLight/RecordingLight.c **** 	case RLState_ready:
+  77:../../src/app/RecordingLight/RecordingLight.c **** 		setLedColor(settings.readyColor);
+ 153              		.loc 1 77 0
+ 154 002a 0D4B     		ldr	r3, .L14+4
+ 155 002c 5B68     		ldr	r3, [r3, #4]
+ 156 002e 181C     		mov	r0, r3
+ 157 0030 FFF7FEFF 		bl	setLedColor
+  78:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 158              		.loc 1 78 0
+ 159 0034 0FE0     		b	.L6
+ 160              	.L12:
+  79:../../src/app/RecordingLight/RecordingLight.c **** 	case RLState_cue:
+  80:../../src/app/RecordingLight/RecordingLight.c **** 		setLedColor(settings.cueColor);
+ 161              		.loc 1 80 0
+ 162 0036 0A4B     		ldr	r3, .L14+4
+ 163 0038 DB68     		ldr	r3, [r3, #12]
+ 164 003a 181C     		mov	r0, r3
+ 165 003c FFF7FEFF 		bl	setLedColor
+  81:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 166              		.loc 1 81 0
+ 167 0040 09E0     		b	.L6
+ 168              	.L11:
+  82:../../src/app/RecordingLight/RecordingLight.c **** 	case RLState_rec:
+  83:../../src/app/RecordingLight/RecordingLight.c **** 		setLedColor(settings.recColor);
+ 169              		.loc 1 83 0
+ 170 0042 074B     		ldr	r3, .L14+4
+ 171 0044 9B68     		ldr	r3, [r3, #8]
+ 172 0046 181C     		mov	r0, r3
+ 173 0048 FFF7FEFF 		bl	setLedColor
+  84:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 174              		.loc 1 84 0
+ 175 004c 03E0     		b	.L6
+ 176              	.L7:
+  85:../../src/app/RecordingLight/RecordingLight.c **** 	default:
+  86:../../src/app/RecordingLight/RecordingLight.c **** 		setLedColor(0);
+ 177              		.loc 1 86 0
+ 178 004e 0020     		mov	r0, #0
+ 179 0050 FFF7FEFF 		bl	setLedColor
+  87:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 180              		.loc 1 87 0
+ 181 0054 C046     		mov	r8, r8
+ 182              	.L6:
+  88:../../src/app/RecordingLight/RecordingLight.c **** 	}
+  89:../../src/app/RecordingLight/RecordingLight.c **** }
+ 183              		.loc 1 89 0
+ 184 0056 BD46     		mov	sp, r7
+ 185              		@ sp needed
+ 186 0058 80BD     		pop	{r7, pc}
+ 187              	.L15:
+ 188 005a C046     		.align	2
+ 189              	.L14:
+ 190 005c 00000000 		.word	currentState
+ 191 0060 00000000 		.word	settings
+ 192              		.cfi_endproc
+ 193              	.LFE34:
+ 195              		.section	.text.handleCommand,"ax",%progbits
+ 196              		.align	2
+ 197              		.code	16
+ 198              		.thumb_func
+ 200              	handleCommand:
+ 201              	.LFB35:
+  90:../../src/app/RecordingLight/RecordingLight.c **** 
+  91:../../src/app/RecordingLight/RecordingLight.c **** static void handleCommand(RLMsg* msg) {
+ 202              		.loc 1 91 0
+ 203              		.cfi_startproc
+ 204 0000 80B5     		push	{r7, lr}
+ 205              		.cfi_def_cfa_offset 8
+ 206              		.cfi_offset 7, -8
+ 207              		.cfi_offset 14, -4
+ 208 0002 84B0     		sub	sp, sp, #16
+ 209              		.cfi_def_cfa_offset 24
+ 210 0004 00AF     		add	r7, sp, #0
+ 211              		.cfi_def_cfa_register 7
+ 212 0006 7860     		str	r0, [r7, #4]
+  92:../../src/app/RecordingLight/RecordingLight.c **** 	uint8_t cmd = msg->cmd;
+ 213              		.loc 1 92 0
+ 214 0008 3B1C     		mov	r3, r7
+ 215 000a 0F33     		add	r3, r3, #15
+ 216 000c 7A68     		ldr	r2, [r7, #4]
+ 217 000e 1278     		ldrb	r2, [r2]
+ 218 0010 1A70     		strb	r2, [r3]
+  93:../../src/app/RecordingLight/RecordingLight.c **** 	if ((cmd >= RL_CMD_SET_IDLE) && (cmd <= RL_CMD_SET_CUE)) {
+ 219              		.loc 1 93 0
+ 220 0012 3B1C     		mov	r3, r7
+ 221 0014 0F33     		add	r3, r3, #15
+ 222 0016 1B78     		ldrb	r3, [r3]
+ 223 0018 102B     		cmp	r3, #16
+ 224 001a 09D9     		bls	.L17
+ 225              		.loc 1 93 0 is_stmt 0 discriminator 1
+ 226 001c 3B1C     		mov	r3, r7
+ 227 001e 0F33     		add	r3, r3, #15
+ 228 0020 1B78     		ldrb	r3, [r3]
+ 229 0022 142B     		cmp	r3, #20
+ 230 0024 04D8     		bhi	.L17
+  94:../../src/app/RecordingLight/RecordingLight.c **** 		setState(msg);
+ 231              		.loc 1 94 0 is_stmt 1
+ 232 0026 7B68     		ldr	r3, [r7, #4]
+ 233 0028 181C     		mov	r0, r3
+ 234 002a FFF7FEFF 		bl	setState
+ 235 002e 46E0     		b	.L16
+ 236              	.L17:
+  95:../../src/app/RecordingLight/RecordingLight.c **** 	} else if (cmd == RL_CMD_GET_STATE) {
+ 237              		.loc 1 95 0
+ 238 0030 3B1C     		mov	r3, r7
+ 239 0032 0F33     		add	r3, r3, #15
+ 240 0034 1B78     		ldrb	r3, [r3]
+ 241 0036 212B     		cmp	r3, #33
+ 242 0038 04D1     		bne	.L19
+  96:../../src/app/RecordingLight/RecordingLight.c **** 		getState(msg);
+ 243              		.loc 1 96 0
+ 244 003a 7B68     		ldr	r3, [r7, #4]
+ 245 003c 181C     		mov	r0, r3
+ 246 003e FFF7FEFF 		bl	getState
+ 247 0042 3CE0     		b	.L16
+ 248              	.L19:
+  97:../../src/app/RecordingLight/RecordingLight.c **** 	} else if ((cmd >= RL_CMD_SET_IDLE_COL) && (cmd <= RL_CMD_SET_CUE_COL)) {
+ 249              		.loc 1 97 0
+ 250 0044 3B1C     		mov	r3, r7
+ 251 0046 0F33     		add	r3, r3, #15
+ 252 0048 1B78     		ldrb	r3, [r3]
+ 253 004a 402B     		cmp	r3, #64
+ 254 004c 09D9     		bls	.L20
+ 255              		.loc 1 97 0 is_stmt 0 discriminator 1
+ 256 004e 3B1C     		mov	r3, r7
+ 257 0050 0F33     		add	r3, r3, #15
+ 258 0052 1B78     		ldrb	r3, [r3]
+ 259 0054 442B     		cmp	r3, #68
+ 260 0056 04D8     		bhi	.L20
+  98:../../src/app/RecordingLight/RecordingLight.c **** 		setColor(msg);
+ 261              		.loc 1 98 0 is_stmt 1
+ 262 0058 7B68     		ldr	r3, [r7, #4]
+ 263 005a 181C     		mov	r0, r3
+ 264 005c FFF7FEFF 		bl	setColor
+ 265 0060 2DE0     		b	.L16
+ 266              	.L20:
+  99:../../src/app/RecordingLight/RecordingLight.c **** 	} else if ((cmd >= RL_CMD_GET_IDLE_COL) && (cmd <= RL_CMD_GET_CUE_COL)) {
+ 267              		.loc 1 99 0
+ 268 0062 3B1C     		mov	r3, r7
+ 269 0064 0F33     		add	r3, r3, #15
+ 270 0066 1B78     		ldrb	r3, [r3]
+ 271 0068 502B     		cmp	r3, #80
+ 272 006a 09D9     		bls	.L21
+ 273              		.loc 1 99 0 is_stmt 0 discriminator 1
+ 274 006c 3B1C     		mov	r3, r7
+ 275 006e 0F33     		add	r3, r3, #15
+ 276 0070 1B78     		ldrb	r3, [r3]
+ 277 0072 542B     		cmp	r3, #84
+ 278 0074 04D8     		bhi	.L21
+ 100:../../src/app/RecordingLight/RecordingLight.c **** 		getColor(msg);
+ 279              		.loc 1 100 0 is_stmt 1
+ 280 0076 7B68     		ldr	r3, [r7, #4]
+ 281 0078 181C     		mov	r0, r3
+ 282 007a FFF7FEFF 		bl	getColor
+ 283 007e 1EE0     		b	.L16
+ 284              	.L21:
+ 101:../../src/app/RecordingLight/RecordingLight.c **** 	} else if (cmd == RL_CMD_RESET) {
+ 285              		.loc 1 101 0
+ 286 0080 3B1C     		mov	r3, r7
+ 287 0082 0F33     		add	r3, r3, #15
+ 288 0084 1B78     		ldrb	r3, [r3]
+ 289 0086 FF2B     		cmp	r3, #255
+ 290 0088 04D1     		bne	.L22
+ 102:../../src/app/RecordingLight/RecordingLight.c **** 		resetStateMachine(msg);
+ 291              		.loc 1 102 0
+ 292 008a 7B68     		ldr	r3, [r7, #4]
+ 293 008c 181C     		mov	r0, r3
+ 294 008e FFF7FEFF 		bl	resetStateMachine
+ 295 0092 14E0     		b	.L16
+ 296              	.L22:
+ 103:../../src/app/RecordingLight/RecordingLight.c **** 	} else if (cmd == RL_CMD_PING){
+ 297              		.loc 1 103 0
+ 298 0094 3B1C     		mov	r3, r7
+ 299 0096 0F33     		add	r3, r3, #15
+ 300 0098 1B78     		ldrb	r3, [r3]
+ 301 009a 002B     		cmp	r3, #0
+ 302 009c 06D1     		bne	.L23
+ 104:../../src/app/RecordingLight/RecordingLight.c **** 		sendResponse(msg->cmd, 0);
+ 303              		.loc 1 104 0
+ 304 009e 7B68     		ldr	r3, [r7, #4]
+ 305 00a0 1B78     		ldrb	r3, [r3]
+ 306 00a2 181C     		mov	r0, r3
+ 307 00a4 0021     		mov	r1, #0
+ 308 00a6 FFF7FEFF 		bl	sendResponse
+ 309 00aa 08E0     		b	.L16
+ 310              	.L23:
+ 105:../../src/app/RecordingLight/RecordingLight.c **** 	} else if (cmd == RL_CMD_INFO){
+ 311              		.loc 1 105 0
+ 312 00ac 3B1C     		mov	r3, r7
+ 313 00ae 0F33     		add	r3, r3, #15
+ 314 00b0 1B78     		ldrb	r3, [r3]
+ 315 00b2 012B     		cmp	r3, #1
+ 316 00b4 03D1     		bne	.L16
+ 106:../../src/app/RecordingLight/RecordingLight.c **** 		sendInfo(msg);
+ 317              		.loc 1 106 0
+ 318 00b6 7B68     		ldr	r3, [r7, #4]
+ 319 00b8 181C     		mov	r0, r3
+ 320 00ba FFF7FEFF 		bl	sendInfo
+ 321              	.L16:
+ 107:../../src/app/RecordingLight/RecordingLight.c **** 	}
+ 108:../../src/app/RecordingLight/RecordingLight.c **** }
+ 322              		.loc 1 108 0
+ 323 00be BD46     		mov	sp, r7
+ 324 00c0 04B0     		add	sp, sp, #16
+ 325              		@ sp needed
+ 326 00c2 80BD     		pop	{r7, pc}
+ 327              		.cfi_endproc
+ 328              	.LFE35:
+ 330              		.section	.text.sendResponse,"ax",%progbits
+ 331              		.align	2
+ 332              		.code	16
+ 333              		.thumb_func
+ 335              	sendResponse:
+ 336              	.LFB36:
+ 109:../../src/app/RecordingLight/RecordingLight.c **** 
+ 110:../../src/app/RecordingLight/RecordingLight.c **** static void sendResponse(RL_CMD cmd, uint32_t arg) {
+ 337              		.loc 1 110 0
+ 338              		.cfi_startproc
+ 339 0000 90B5     		push	{r4, r7, lr}
+ 340              		.cfi_def_cfa_offset 12
+ 341              		.cfi_offset 4, -12
+ 342              		.cfi_offset 7, -8
+ 343              		.cfi_offset 14, -4
+ 344 0002 87B0     		sub	sp, sp, #28
+ 345              		.cfi_def_cfa_offset 40
+ 346 0004 02AF     		add	r7, sp, #8
+ 347              		.cfi_def_cfa 7, 32
+ 348 0006 021C     		mov	r2, r0
+ 349 0008 3960     		str	r1, [r7]
+ 350 000a FB1D     		add	r3, r7, #7
+ 351 000c 1A70     		strb	r2, [r3]
+ 111:../../src/app/RecordingLight/RecordingLight.c **** 	uint8_t b0, b1, b2, b3;
+ 112:../../src/app/RecordingLight/RecordingLight.c **** 	BinUtils_get4BytesFrom32Bit(arg, &b0, &b1, &b2, &b3);
+ 352              		.loc 1 112 0
+ 353 000e 3868     		ldr	r0, [r7]
+ 354 0010 391C     		mov	r1, r7
+ 355 0012 0F31     		add	r1, r1, #15
+ 356 0014 3A1C     		mov	r2, r7
+ 357 0016 0E32     		add	r2, r2, #14
+ 358 0018 3B1C     		mov	r3, r7
+ 359 001a 0D33     		add	r3, r3, #13
+ 360 001c 3C1C     		mov	r4, r7
+ 361 001e 0C34     		add	r4, r4, #12
+ 362 0020 0094     		str	r4, [sp]
+ 363 0022 FFF7FEFF 		bl	BinUtils_get4BytesFrom32Bit
+ 113:../../src/app/RecordingLight/RecordingLight.c **** 
+ 114:../../src/app/RecordingLight/RecordingLight.c **** 	USART1_sendByte(RL_RESPONSE_HEADER);
+ 364              		.loc 1 114 0
+ 365 0026 2B20     		mov	r0, #43
+ 366 0028 FFF7FEFF 		bl	USART1_sendByte
+ 115:../../src/app/RecordingLight/RecordingLight.c **** 	USART1_sendByte((uint8_t) cmd);
+ 367              		.loc 1 115 0
+ 368 002c FB1D     		add	r3, r7, #7
+ 369 002e 1B78     		ldrb	r3, [r3]
+ 370 0030 181C     		mov	r0, r3
+ 371 0032 FFF7FEFF 		bl	USART1_sendByte
+ 116:../../src/app/RecordingLight/RecordingLight.c **** 	USART1_sendByte(b0);
+ 372              		.loc 1 116 0
+ 373 0036 3B1C     		mov	r3, r7
+ 374 0038 0F33     		add	r3, r3, #15
+ 375 003a 1B78     		ldrb	r3, [r3]
+ 376 003c 181C     		mov	r0, r3
+ 377 003e FFF7FEFF 		bl	USART1_sendByte
+ 117:../../src/app/RecordingLight/RecordingLight.c **** 	USART1_sendByte(b1);
+ 378              		.loc 1 117 0
+ 379 0042 3B1C     		mov	r3, r7
+ 380 0044 0E33     		add	r3, r3, #14
+ 381 0046 1B78     		ldrb	r3, [r3]
+ 382 0048 181C     		mov	r0, r3
+ 383 004a FFF7FEFF 		bl	USART1_sendByte
+ 118:../../src/app/RecordingLight/RecordingLight.c **** 	USART1_sendByte(b2);
+ 384              		.loc 1 118 0
+ 385 004e 3B1C     		mov	r3, r7
+ 386 0050 0D33     		add	r3, r3, #13
+ 387 0052 1B78     		ldrb	r3, [r3]
+ 388 0054 181C     		mov	r0, r3
+ 389 0056 FFF7FEFF 		bl	USART1_sendByte
+ 119:../../src/app/RecordingLight/RecordingLight.c **** 	USART1_sendByte(b3);
+ 390              		.loc 1 119 0
+ 391 005a 3B1C     		mov	r3, r7
+ 392 005c 0C33     		add	r3, r3, #12
+ 393 005e 1B78     		ldrb	r3, [r3]
+ 394 0060 181C     		mov	r0, r3
+ 395 0062 FFF7FEFF 		bl	USART1_sendByte
+ 120:../../src/app/RecordingLight/RecordingLight.c **** }
+ 396              		.loc 1 120 0
+ 397 0066 BD46     		mov	sp, r7
+ 398 0068 05B0     		add	sp, sp, #20
+ 399              		@ sp needed
+ 400 006a 90BD     		pop	{r4, r7, pc}
+ 401              		.cfi_endproc
+ 402              	.LFE36:
+ 404              		.section	.text.resetStateMachine,"ax",%progbits
+ 405              		.align	2
+ 406              		.code	16
+ 407              		.thumb_func
+ 409              	resetStateMachine:
+ 410              	.LFB37:
+ 121:../../src/app/RecordingLight/RecordingLight.c **** 
+ 122:../../src/app/RecordingLight/RecordingLight.c **** static void resetStateMachine() {
+ 411              		.loc 1 122 0
+ 412              		.cfi_startproc
+ 413 0000 80B5     		push	{r7, lr}
+ 414              		.cfi_def_cfa_offset 8
+ 415              		.cfi_offset 7, -8
+ 416              		.cfi_offset 14, -4
+ 417 0002 00AF     		add	r7, sp, #0
+ 418              		.cfi_def_cfa_register 7
+ 123:../../src/app/RecordingLight/RecordingLight.c **** 	currentState = RLState_idle;
+ 419              		.loc 1 123 0
+ 420 0004 054B     		ldr	r3, .L26
+ 421 0006 0022     		mov	r2, #0
+ 422 0008 1A70     		strb	r2, [r3]
+ 124:../../src/app/RecordingLight/RecordingLight.c **** 	update();
+ 423              		.loc 1 124 0
+ 424 000a FFF7FEFF 		bl	update
+ 125:../../src/app/RecordingLight/RecordingLight.c **** 	sendResponse(RL_CMD_RESET, RL_RESPONSE_OK);
+ 425              		.loc 1 125 0
+ 426 000e FF20     		mov	r0, #255
+ 427 0010 0021     		mov	r1, #0
+ 428 0012 FFF7FEFF 		bl	sendResponse
+ 126:../../src/app/RecordingLight/RecordingLight.c **** }
+ 429              		.loc 1 126 0
+ 430 0016 BD46     		mov	sp, r7
+ 431              		@ sp needed
+ 432 0018 80BD     		pop	{r7, pc}
+ 433              	.L27:
+ 434 001a C046     		.align	2
+ 435              	.L26:
+ 436 001c 00000000 		.word	currentState
+ 437              		.cfi_endproc
+ 438              	.LFE37:
+ 440              		.section	.text.setState,"ax",%progbits
+ 441              		.align	2
+ 442              		.code	16
+ 443              		.thumb_func
+ 445              	setState:
+ 446              	.LFB38:
+ 127:../../src/app/RecordingLight/RecordingLight.c **** 
+ 128:../../src/app/RecordingLight/RecordingLight.c **** static void setState(RLMsg* msg) {
+ 447              		.loc 1 128 0
+ 448              		.cfi_startproc
+ 449 0000 80B5     		push	{r7, lr}
+ 450              		.cfi_def_cfa_offset 8
+ 451              		.cfi_offset 7, -8
+ 452              		.cfi_offset 14, -4
+ 453 0002 82B0     		sub	sp, sp, #8
+ 454              		.cfi_def_cfa_offset 16
+ 455 0004 00AF     		add	r7, sp, #0
+ 456              		.cfi_def_cfa_register 7
+ 457 0006 7860     		str	r0, [r7, #4]
+ 129:../../src/app/RecordingLight/RecordingLight.c **** 	currentState = msg->cmd - RL_CMD_SET_IDLE;
+ 458              		.loc 1 129 0
+ 459 0008 7B68     		ldr	r3, [r7, #4]
+ 460 000a 1B78     		ldrb	r3, [r3]
+ 461 000c 113B     		sub	r3, r3, #17
+ 462 000e DAB2     		uxtb	r2, r3
+ 463 0010 064B     		ldr	r3, .L29
+ 464 0012 1A70     		strb	r2, [r3]
+ 130:../../src/app/RecordingLight/RecordingLight.c **** 	update();
+ 465              		.loc 1 130 0
+ 466 0014 FFF7FEFF 		bl	update
+ 131:../../src/app/RecordingLight/RecordingLight.c **** 	sendResponse(msg->cmd, RL_RESPONSE_OK);
+ 467              		.loc 1 131 0
+ 468 0018 7B68     		ldr	r3, [r7, #4]
+ 469 001a 1B78     		ldrb	r3, [r3]
+ 470 001c 181C     		mov	r0, r3
+ 471 001e 0021     		mov	r1, #0
+ 472 0020 FFF7FEFF 		bl	sendResponse
+ 132:../../src/app/RecordingLight/RecordingLight.c **** }
+ 473              		.loc 1 132 0
+ 474 0024 BD46     		mov	sp, r7
+ 475 0026 02B0     		add	sp, sp, #8
+ 476              		@ sp needed
+ 477 0028 80BD     		pop	{r7, pc}
+ 478              	.L30:
+ 479 002a C046     		.align	2
+ 480              	.L29:
+ 481 002c 00000000 		.word	currentState
+ 482              		.cfi_endproc
+ 483              	.LFE38:
+ 485              		.section	.text.getState,"ax",%progbits
+ 486              		.align	2
+ 487              		.code	16
+ 488              		.thumb_func
+ 490              	getState:
+ 491              	.LFB39:
+ 133:../../src/app/RecordingLight/RecordingLight.c **** 
+ 134:../../src/app/RecordingLight/RecordingLight.c **** static void getState(RLMsg* msg) {
+ 492              		.loc 1 134 0
+ 493              		.cfi_startproc
+ 494 0000 80B5     		push	{r7, lr}
+ 495              		.cfi_def_cfa_offset 8
+ 496              		.cfi_offset 7, -8
+ 497              		.cfi_offset 14, -4
+ 498 0002 82B0     		sub	sp, sp, #8
+ 499              		.cfi_def_cfa_offset 16
+ 500 0004 00AF     		add	r7, sp, #0
+ 501              		.cfi_def_cfa_register 7
+ 502 0006 7860     		str	r0, [r7, #4]
+ 135:../../src/app/RecordingLight/RecordingLight.c **** 	sendResponse(msg->cmd, currentState);
+ 503              		.loc 1 135 0
+ 504 0008 7B68     		ldr	r3, [r7, #4]
+ 505 000a 1A78     		ldrb	r2, [r3]
+ 506 000c 044B     		ldr	r3, .L32
+ 507 000e 1B78     		ldrb	r3, [r3]
+ 508 0010 101C     		mov	r0, r2
+ 509 0012 191C     		mov	r1, r3
+ 510 0014 FFF7FEFF 		bl	sendResponse
+ 136:../../src/app/RecordingLight/RecordingLight.c **** }
+ 511              		.loc 1 136 0
+ 512 0018 BD46     		mov	sp, r7
+ 513 001a 02B0     		add	sp, sp, #8
+ 514              		@ sp needed
+ 515 001c 80BD     		pop	{r7, pc}
+ 516              	.L33:
+ 517 001e C046     		.align	2
+ 518              	.L32:
+ 519 0020 00000000 		.word	currentState
+ 520              		.cfi_endproc
+ 521              	.LFE39:
+ 523              		.section	.text.setColor,"ax",%progbits
+ 524              		.align	2
+ 525              		.code	16
+ 526              		.thumb_func
+ 528              	setColor:
+ 529              	.LFB40:
+ 137:../../src/app/RecordingLight/RecordingLight.c **** 
+ 138:../../src/app/RecordingLight/RecordingLight.c **** static void setColor(RLMsg* msg) {
+ 530              		.loc 1 138 0
+ 531              		.cfi_startproc
+ 532 0000 80B5     		push	{r7, lr}
+ 533              		.cfi_def_cfa_offset 8
+ 534              		.cfi_offset 7, -8
+ 535              		.cfi_offset 14, -4
+ 536 0002 82B0     		sub	sp, sp, #8
+ 537              		.cfi_def_cfa_offset 16
+ 538 0004 00AF     		add	r7, sp, #0
+ 539              		.cfi_def_cfa_register 7
+ 540 0006 7860     		str	r0, [r7, #4]
+ 139:../../src/app/RecordingLight/RecordingLight.c **** 	switch (msg->cmd) {
+ 541              		.loc 1 139 0
+ 542 0008 7B68     		ldr	r3, [r7, #4]
+ 543 000a 1B78     		ldrb	r3, [r3]
+ 544 000c 422B     		cmp	r3, #66
+ 545 000e 17D0     		beq	.L36
+ 546 0010 02DC     		bgt	.L37
+ 547 0012 412B     		cmp	r3, #65
+ 548 0014 05D0     		beq	.L38
+ 140:../../src/app/RecordingLight/RecordingLight.c **** 	case RL_CMD_SET_IDLE_COL:
+ 141:../../src/app/RecordingLight/RecordingLight.c **** 		settings.idleColor = msg->arg;
+ 142:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 143:../../src/app/RecordingLight/RecordingLight.c **** 	case RL_CMD_SET_READY_COL:
+ 144:../../src/app/RecordingLight/RecordingLight.c **** 		settings.readyColor = msg->arg;
+ 145:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 146:../../src/app/RecordingLight/RecordingLight.c **** 	case RL_CMD_SET_CUE_COL:
+ 147:../../src/app/RecordingLight/RecordingLight.c **** 		settings.readyColor = msg->arg;
+ 148:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 149:../../src/app/RecordingLight/RecordingLight.c **** 	case RL_CMD_SET_REC_COL:
+ 150:../../src/app/RecordingLight/RecordingLight.c **** 		settings.readyColor = msg->arg;
+ 151:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 152:../../src/app/RecordingLight/RecordingLight.c **** 	default:
+ 153:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 549              		.loc 1 153 0
+ 550 0016 40E0     		b	.L41
+ 551              	.L37:
+ 139:../../src/app/RecordingLight/RecordingLight.c **** 	switch (msg->cmd) {
+ 552              		.loc 1 139 0
+ 553 0018 432B     		cmp	r3, #67
+ 554 001a 2FD0     		beq	.L39
+ 555 001c 442B     		cmp	r3, #68
+ 556 001e 1ED0     		beq	.L40
+ 557              		.loc 1 153 0
+ 558 0020 3BE0     		b	.L41
+ 559              	.L38:
+ 141:../../src/app/RecordingLight/RecordingLight.c **** 		settings.idleColor = msg->arg;
+ 560              		.loc 1 141 0
+ 561 0022 7B68     		ldr	r3, [r7, #4]
+ 562 0024 5A78     		ldrb	r2, [r3, #1]
+ 563 0026 9978     		ldrb	r1, [r3, #2]
+ 564 0028 0902     		lsl	r1, r1, #8
+ 565 002a 0A43     		orr	r2, r1
+ 566 002c D978     		ldrb	r1, [r3, #3]
+ 567 002e 0904     		lsl	r1, r1, #16
+ 568 0030 0A43     		orr	r2, r1
+ 569 0032 1B79     		ldrb	r3, [r3, #4]
+ 570 0034 1B06     		lsl	r3, r3, #24
+ 571 0036 1343     		orr	r3, r2
+ 572 0038 1A1C     		mov	r2, r3
+ 573 003a 1F4B     		ldr	r3, .L42
+ 574 003c 1A60     		str	r2, [r3]
+ 142:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 575              		.loc 1 142 0
+ 576 003e 2CE0     		b	.L41
+ 577              	.L36:
+ 144:../../src/app/RecordingLight/RecordingLight.c **** 		settings.readyColor = msg->arg;
+ 578              		.loc 1 144 0
+ 579 0040 7B68     		ldr	r3, [r7, #4]
+ 580 0042 5A78     		ldrb	r2, [r3, #1]
+ 581 0044 9978     		ldrb	r1, [r3, #2]
+ 582 0046 0902     		lsl	r1, r1, #8
+ 583 0048 0A43     		orr	r2, r1
+ 584 004a D978     		ldrb	r1, [r3, #3]
+ 585 004c 0904     		lsl	r1, r1, #16
+ 586 004e 0A43     		orr	r2, r1
+ 587 0050 1B79     		ldrb	r3, [r3, #4]
+ 588 0052 1B06     		lsl	r3, r3, #24
+ 589 0054 1343     		orr	r3, r2
+ 590 0056 1A1C     		mov	r2, r3
+ 591 0058 174B     		ldr	r3, .L42
+ 592 005a 5A60     		str	r2, [r3, #4]
+ 145:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 593              		.loc 1 145 0
+ 594 005c 1DE0     		b	.L41
+ 595              	.L40:
+ 147:../../src/app/RecordingLight/RecordingLight.c **** 		settings.readyColor = msg->arg;
+ 596              		.loc 1 147 0
+ 597 005e 7B68     		ldr	r3, [r7, #4]
+ 598 0060 5A78     		ldrb	r2, [r3, #1]
+ 599 0062 9978     		ldrb	r1, [r3, #2]
+ 600 0064 0902     		lsl	r1, r1, #8
+ 601 0066 0A43     		orr	r2, r1
+ 602 0068 D978     		ldrb	r1, [r3, #3]
+ 603 006a 0904     		lsl	r1, r1, #16
+ 604 006c 0A43     		orr	r2, r1
+ 605 006e 1B79     		ldrb	r3, [r3, #4]
+ 606 0070 1B06     		lsl	r3, r3, #24
+ 607 0072 1343     		orr	r3, r2
+ 608 0074 1A1C     		mov	r2, r3
+ 609 0076 104B     		ldr	r3, .L42
+ 610 0078 5A60     		str	r2, [r3, #4]
+ 148:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 611              		.loc 1 148 0
+ 612 007a 0EE0     		b	.L41
+ 613              	.L39:
+ 150:../../src/app/RecordingLight/RecordingLight.c **** 		settings.readyColor = msg->arg;
+ 614              		.loc 1 150 0
+ 615 007c 7B68     		ldr	r3, [r7, #4]
+ 616 007e 5A78     		ldrb	r2, [r3, #1]
+ 617 0080 9978     		ldrb	r1, [r3, #2]
+ 618 0082 0902     		lsl	r1, r1, #8
+ 619 0084 0A43     		orr	r2, r1
+ 620 0086 D978     		ldrb	r1, [r3, #3]
+ 621 0088 0904     		lsl	r1, r1, #16
+ 622 008a 0A43     		orr	r2, r1
+ 623 008c 1B79     		ldrb	r3, [r3, #4]
+ 624 008e 1B06     		lsl	r3, r3, #24
+ 625 0090 1343     		orr	r3, r2
+ 626 0092 1A1C     		mov	r2, r3
+ 627 0094 084B     		ldr	r3, .L42
+ 628 0096 5A60     		str	r2, [r3, #4]
+ 151:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 629              		.loc 1 151 0
+ 630 0098 C046     		mov	r8, r8
+ 631              	.L41:
+ 154:../../src/app/RecordingLight/RecordingLight.c **** 	}
+ 155:../../src/app/RecordingLight/RecordingLight.c **** 	update();
+ 632              		.loc 1 155 0
+ 633 009a FFF7FEFF 		bl	update
+ 156:../../src/app/RecordingLight/RecordingLight.c **** 	Settings_write(&settings);
+ 634              		.loc 1 156 0
+ 635 009e 064B     		ldr	r3, .L42
+ 636 00a0 181C     		mov	r0, r3
+ 637 00a2 FFF7FEFF 		bl	Settings_write
+ 157:../../src/app/RecordingLight/RecordingLight.c **** 	sendResponse(msg->cmd, RL_RESPONSE_OK);
+ 638              		.loc 1 157 0
+ 639 00a6 7B68     		ldr	r3, [r7, #4]
+ 640 00a8 1B78     		ldrb	r3, [r3]
+ 641 00aa 181C     		mov	r0, r3
+ 642 00ac 0021     		mov	r1, #0
+ 643 00ae FFF7FEFF 		bl	sendResponse
+ 158:../../src/app/RecordingLight/RecordingLight.c **** }
+ 644              		.loc 1 158 0
+ 645 00b2 BD46     		mov	sp, r7
+ 646 00b4 02B0     		add	sp, sp, #8
+ 647              		@ sp needed
+ 648 00b6 80BD     		pop	{r7, pc}
+ 649              	.L43:
+ 650              		.align	2
+ 651              	.L42:
+ 652 00b8 00000000 		.word	settings
+ 653              		.cfi_endproc
+ 654              	.LFE40:
+ 656              		.section	.text.getColor,"ax",%progbits
+ 657              		.align	2
+ 658              		.code	16
+ 659              		.thumb_func
+ 661              	getColor:
+ 662              	.LFB41:
+ 159:../../src/app/RecordingLight/RecordingLight.c **** 
+ 160:../../src/app/RecordingLight/RecordingLight.c **** static void getColor(RLMsg* msg) {
+ 663              		.loc 1 160 0
+ 664              		.cfi_startproc
+ 665 0000 80B5     		push	{r7, lr}
+ 666              		.cfi_def_cfa_offset 8
+ 667              		.cfi_offset 7, -8
+ 668              		.cfi_offset 14, -4
+ 669 0002 82B0     		sub	sp, sp, #8
+ 670              		.cfi_def_cfa_offset 16
+ 671 0004 00AF     		add	r7, sp, #0
+ 672              		.cfi_def_cfa_register 7
+ 673 0006 7860     		str	r0, [r7, #4]
+ 161:../../src/app/RecordingLight/RecordingLight.c **** 	switch (msg->cmd) {
+ 674              		.loc 1 161 0
+ 675 0008 7B68     		ldr	r3, [r7, #4]
+ 676 000a 1B78     		ldrb	r3, [r3]
+ 677 000c 522B     		cmp	r3, #82
+ 678 000e 11D0     		beq	.L46
+ 679 0010 02DC     		bgt	.L47
+ 680 0012 512B     		cmp	r3, #81
+ 681 0014 05D0     		beq	.L48
+ 162:../../src/app/RecordingLight/RecordingLight.c **** 	case RL_CMD_GET_IDLE_COL:
+ 163:../../src/app/RecordingLight/RecordingLight.c **** 		sendResponse(msg->cmd, settings.idleColor);
+ 164:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 165:../../src/app/RecordingLight/RecordingLight.c **** 	case RL_CMD_GET_READY_COL:
+ 166:../../src/app/RecordingLight/RecordingLight.c **** 		sendResponse(msg->cmd, settings.readyColor);
+ 167:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 168:../../src/app/RecordingLight/RecordingLight.c **** 	case RL_CMD_GET_CUE_COL:
+ 169:../../src/app/RecordingLight/RecordingLight.c **** 		sendResponse(msg->cmd, settings.cueColor);
+ 170:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 171:../../src/app/RecordingLight/RecordingLight.c **** 	case RL_CMD_GET_REC_COL:
+ 172:../../src/app/RecordingLight/RecordingLight.c **** 		sendResponse(msg->cmd, settings.recColor);
+ 173:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 174:../../src/app/RecordingLight/RecordingLight.c **** 	default:
+ 175:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 682              		.loc 1 175 0
+ 683 0016 28E0     		b	.L44
+ 684              	.L47:
+ 161:../../src/app/RecordingLight/RecordingLight.c **** 	switch (msg->cmd) {
+ 685              		.loc 1 161 0
+ 686 0018 532B     		cmp	r3, #83
+ 687 001a 1DD0     		beq	.L49
+ 688 001c 542B     		cmp	r3, #84
+ 689 001e 12D0     		beq	.L50
+ 690              		.loc 1 175 0
+ 691 0020 23E0     		b	.L44
+ 692              	.L48:
+ 163:../../src/app/RecordingLight/RecordingLight.c **** 		sendResponse(msg->cmd, settings.idleColor);
+ 693              		.loc 1 163 0
+ 694 0022 7B68     		ldr	r3, [r7, #4]
+ 695 0024 1A78     		ldrb	r2, [r3]
+ 696 0026 124B     		ldr	r3, .L52
+ 697 0028 1B68     		ldr	r3, [r3]
+ 698 002a 101C     		mov	r0, r2
+ 699 002c 191C     		mov	r1, r3
+ 700 002e FFF7FEFF 		bl	sendResponse
+ 164:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 701              		.loc 1 164 0
+ 702 0032 1AE0     		b	.L44
+ 703              	.L46:
+ 166:../../src/app/RecordingLight/RecordingLight.c **** 		sendResponse(msg->cmd, settings.readyColor);
+ 704              		.loc 1 166 0
+ 705 0034 7B68     		ldr	r3, [r7, #4]
+ 706 0036 1A78     		ldrb	r2, [r3]
+ 707 0038 0D4B     		ldr	r3, .L52
+ 708 003a 5B68     		ldr	r3, [r3, #4]
+ 709 003c 101C     		mov	r0, r2
+ 710 003e 191C     		mov	r1, r3
+ 711 0040 FFF7FEFF 		bl	sendResponse
+ 167:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 712              		.loc 1 167 0
+ 713 0044 11E0     		b	.L44
+ 714              	.L50:
+ 169:../../src/app/RecordingLight/RecordingLight.c **** 		sendResponse(msg->cmd, settings.cueColor);
+ 715              		.loc 1 169 0
+ 716 0046 7B68     		ldr	r3, [r7, #4]
+ 717 0048 1A78     		ldrb	r2, [r3]
+ 718 004a 094B     		ldr	r3, .L52
+ 719 004c DB68     		ldr	r3, [r3, #12]
+ 720 004e 101C     		mov	r0, r2
+ 721 0050 191C     		mov	r1, r3
+ 722 0052 FFF7FEFF 		bl	sendResponse
+ 170:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 723              		.loc 1 170 0
+ 724 0056 08E0     		b	.L44
+ 725              	.L49:
+ 172:../../src/app/RecordingLight/RecordingLight.c **** 		sendResponse(msg->cmd, settings.recColor);
+ 726              		.loc 1 172 0
+ 727 0058 7B68     		ldr	r3, [r7, #4]
+ 728 005a 1A78     		ldrb	r2, [r3]
+ 729 005c 044B     		ldr	r3, .L52
+ 730 005e 9B68     		ldr	r3, [r3, #8]
+ 731 0060 101C     		mov	r0, r2
+ 732 0062 191C     		mov	r1, r3
+ 733 0064 FFF7FEFF 		bl	sendResponse
+ 173:../../src/app/RecordingLight/RecordingLight.c **** 		break;
+ 734              		.loc 1 173 0
+ 735 0068 C046     		mov	r8, r8
+ 736              	.L44:
+ 176:../../src/app/RecordingLight/RecordingLight.c **** 	}
+ 177:../../src/app/RecordingLight/RecordingLight.c **** }
+ 737              		.loc 1 177 0
+ 738 006a BD46     		mov	sp, r7
+ 739 006c 02B0     		add	sp, sp, #8
+ 740              		@ sp needed
+ 741 006e 80BD     		pop	{r7, pc}
+ 742              	.L53:
+ 743              		.align	2
+ 744              	.L52:
+ 745 0070 00000000 		.word	settings
+ 746              		.cfi_endproc
+ 747              	.LFE41:
+ 749              		.section	.text.sendInfo,"ax",%progbits
+ 750              		.align	2
+ 751              		.code	16
+ 752              		.thumb_func
+ 754              	sendInfo:
+ 755              	.LFB42:
+ 178:../../src/app/RecordingLight/RecordingLight.c **** 
+ 179:../../src/app/RecordingLight/RecordingLight.c **** static void sendInfo(RLMsg* msg){
+ 756              		.loc 1 179 0
+ 757              		.cfi_startproc
+ 758 0000 80B5     		push	{r7, lr}
+ 759              		.cfi_def_cfa_offset 8
+ 760              		.cfi_offset 7, -8
+ 761              		.cfi_offset 14, -4
+ 762 0002 82B0     		sub	sp, sp, #8
+ 763              		.cfi_def_cfa_offset 16
+ 764 0004 00AF     		add	r7, sp, #0
+ 765              		.cfi_def_cfa_register 7
+ 766 0006 7860     		str	r0, [r7, #4]
+ 180:../../src/app/RecordingLight/RecordingLight.c **** 	sendResponse(msg->cmd, 0);
+ 767              		.loc 1 180 0
+ 768 0008 7B68     		ldr	r3, [r7, #4]
+ 769 000a 1B78     		ldrb	r3, [r3]
+ 770 000c 181C     		mov	r0, r3
+ 771 000e 0021     		mov	r1, #0
+ 772 0010 FFF7FEFF 		bl	sendResponse
+ 181:../../src/app/RecordingLight/RecordingLight.c **** }
+ 773              		.loc 1 181 0
+ 774 0014 BD46     		mov	sp, r7
+ 775 0016 02B0     		add	sp, sp, #8
+ 776              		@ sp needed
+ 777 0018 80BD     		pop	{r7, pc}
+ 778              		.cfi_endproc
+ 779              	.LFE42:
+ 781 001a C046     		.section	.text.setLedColor,"ax",%progbits
+ 782              		.align	2
+ 783              		.global	setLedColor
+ 784              		.code	16
+ 785              		.thumb_func
+ 787              	setLedColor:
+ 788              	.LFB43:
+ 182:../../src/app/RecordingLight/RecordingLight.c **** 
+ 183:../../src/app/RecordingLight/RecordingLight.c **** void setLedColor(uint32_t rgba) {
+ 789              		.loc 1 183 0
+ 790              		.cfi_startproc
+ 791 0000 90B5     		push	{r4, r7, lr}
+ 792              		.cfi_def_cfa_offset 12
+ 793              		.cfi_offset 4, -12
+ 794              		.cfi_offset 7, -8
+ 795              		.cfi_offset 14, -4
+ 796 0002 87B0     		sub	sp, sp, #28
+ 797              		.cfi_def_cfa_offset 40
+ 798 0004 02AF     		add	r7, sp, #8
+ 799              		.cfi_def_cfa 7, 32
+ 800 0006 7860     		str	r0, [r7, #4]
+ 184:../../src/app/RecordingLight/RecordingLight.c **** 	uint8_t r, g, b, a;
+ 185:../../src/app/RecordingLight/RecordingLight.c **** 	RGB color;
+ 186:../../src/app/RecordingLight/RecordingLight.c **** 
+ 187:../../src/app/RecordingLight/RecordingLight.c **** 	BinUtils_get4BytesFrom32Bit(rgba, &r, &g, &b, &a);
+ 801              		.loc 1 187 0
+ 802 0008 7868     		ldr	r0, [r7, #4]
+ 803 000a 391C     		mov	r1, r7
+ 804 000c 0F31     		add	r1, r1, #15
+ 805 000e 3A1C     		mov	r2, r7
+ 806 0010 0E32     		add	r2, r2, #14
+ 807 0012 3B1C     		mov	r3, r7
+ 808 0014 0D33     		add	r3, r3, #13
+ 809 0016 3C1C     		mov	r4, r7
+ 810 0018 0C34     		add	r4, r4, #12
+ 811 001a 0094     		str	r4, [sp]
+ 812 001c FFF7FEFF 		bl	BinUtils_get4BytesFrom32Bit
+ 188:../../src/app/RecordingLight/RecordingLight.c **** 
+ 189:../../src/app/RecordingLight/RecordingLight.c **** 	color.red = r;
+ 813              		.loc 1 189 0
+ 814 0020 3B1C     		mov	r3, r7
+ 815 0022 0F33     		add	r3, r3, #15
+ 816 0024 1A78     		ldrb	r2, [r3]
+ 817 0026 3B1C     		mov	r3, r7
+ 818 0028 0833     		add	r3, r3, #8
+ 819 002a 1A70     		strb	r2, [r3]
+ 190:../../src/app/RecordingLight/RecordingLight.c **** 	color.green = g;
+ 820              		.loc 1 190 0
+ 821 002c 3B1C     		mov	r3, r7
+ 822 002e 0E33     		add	r3, r3, #14
+ 823 0030 1A78     		ldrb	r2, [r3]
+ 824 0032 3B1C     		mov	r3, r7
+ 825 0034 0833     		add	r3, r3, #8
+ 826 0036 5A70     		strb	r2, [r3, #1]
+ 191:../../src/app/RecordingLight/RecordingLight.c **** 	color.blue = b;
+ 827              		.loc 1 191 0
+ 828 0038 3B1C     		mov	r3, r7
+ 829 003a 0D33     		add	r3, r3, #13
+ 830 003c 1A78     		ldrb	r2, [r3]
+ 831 003e 3B1C     		mov	r3, r7
+ 832 0040 0833     		add	r3, r3, #8
+ 833 0042 9A70     		strb	r2, [r3, #2]
+ 192:../../src/app/RecordingLight/RecordingLight.c **** 
+ 193:../../src/app/RecordingLight/RecordingLight.c **** 	Tim1_Pwm_setValueCh1(r);
+ 834              		.loc 1 193 0
+ 835 0044 3B1C     		mov	r3, r7
+ 836 0046 0F33     		add	r3, r3, #15
+ 837 0048 1B78     		ldrb	r3, [r3]
+ 838 004a 181C     		mov	r0, r3
+ 839 004c FFF7FEFF 		bl	Tim1_Pwm_setValueCh1
+ 194:../../src/app/RecordingLight/RecordingLight.c **** 	Tim1_Pwm_setValueCh2(g);
+ 840              		.loc 1 194 0
+ 841 0050 3B1C     		mov	r3, r7
+ 842 0052 0E33     		add	r3, r3, #14
+ 843 0054 1B78     		ldrb	r3, [r3]
+ 844 0056 181C     		mov	r0, r3
+ 845 0058 FFF7FEFF 		bl	Tim1_Pwm_setValueCh2
+ 195:../../src/app/RecordingLight/RecordingLight.c **** 	Tim1_Pwm_setValueCh3(b);
+ 846              		.loc 1 195 0
+ 847 005c 3B1C     		mov	r3, r7
+ 848 005e 0D33     		add	r3, r3, #13
+ 849 0060 1B78     		ldrb	r3, [r3]
+ 850 0062 181C     		mov	r0, r3
+ 851 0064 FFF7FEFF 		bl	Tim1_Pwm_setValueCh3
+ 196:../../src/app/RecordingLight/RecordingLight.c **** 	//WS2812B_fillColor(&color);
+ 197:../../src/app/RecordingLight/RecordingLight.c **** }
+ 852              		.loc 1 197 0
+ 853 0068 BD46     		mov	sp, r7
+ 854 006a 05B0     		add	sp, sp, #20
+ 855              		@ sp needed
+ 856 006c 90BD     		pop	{r4, r7, pc}
+ 857              		.cfi_endproc
+ 858              	.LFE43:
+ 860 006e C046     		.text
+ 861              	.Letext0:
+ 862              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+ 863              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+ 864              		.file 4 "../../src/app/RecordingLight/SerialProtocol.h"
+ 865              		.file 5 "../../src/app/RecordingLight/Settings.h"
+ 866              		.file 6 "../../src/lib/Color.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 RecordingLight.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:20     .bss.currentState:0000000000000000 currentState
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:21     .bss.currentState:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:23     .bss.settings:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:26     .bss.settings:0000000000000000 settings
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:29     .text.RecordingLight_init:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:34     .text.RecordingLight_init:0000000000000000 RecordingLight_init
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:119    .text.update:0000000000000000 update
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:66     .text.RecordingLight_init:0000000000000024 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:72     .text.RecordingLight_tick:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:77     .text.RecordingLight_tick:0000000000000000 RecordingLight_tick
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:200    .text.handleCommand:0000000000000000 handleCommand
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:115    .text.update:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:787    .text.setLedColor:0000000000000000 setLedColor
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:190    .text.update:000000000000005c $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:196    .text.handleCommand:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:445    .text.setState:0000000000000000 setState
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:490    .text.getState:0000000000000000 getState
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:528    .text.setColor:0000000000000000 setColor
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:661    .text.getColor:0000000000000000 getColor
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:409    .text.resetStateMachine:0000000000000000 resetStateMachine
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:335    .text.sendResponse:0000000000000000 sendResponse
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:754    .text.sendInfo:0000000000000000 sendInfo
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:331    .text.sendResponse:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:405    .text.resetStateMachine:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:436    .text.resetStateMachine:000000000000001c $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:441    .text.setState:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:481    .text.setState:000000000000002c $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:486    .text.getState:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:519    .text.getState:0000000000000020 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:524    .text.setColor:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:652    .text.setColor:00000000000000b8 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:657    .text.getColor:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:745    .text.getColor:0000000000000070 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:750    .text.sendInfo:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc7s3NYu.s:782    .text.setLedColor:0000000000000000 $t
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.SerialProtocol.h.9.041afe8f6879fee3574134cafd4e5453
+                           .group:0000000000000000 wm4.WS2812B_config.h.9.4251b94bdb38cd7be1a24a0be377049f
+
+UNDEFINED SYMBOLS
+Tim1_Pwm_init
+USART_SM_init
+Settings_read
+USART_SM_tick
+USART_SM_getMessage
+BinUtils_get4BytesFrom32Bit
+USART1_sendByte
+Settings_write
+Tim1_Pwm_setValueCh1
+Tim1_Pwm_setValueCh2
+Tim1_Pwm_setValueCh3

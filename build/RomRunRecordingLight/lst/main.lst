@@ -1,0 +1,210 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.main,"ax",%progbits
+  18              		.align	2
+  19              		.global	main
+  20              		.code	16
+  21              		.thumb_func
+  23              	main:
+  24              	.LFB32:
+  25              		.file 1 "../../src/mains/recordingLight/main.c"
+   1:../../src/mains/recordingLight/main.c **** /* Includes ------------------------------------------------------------------*/
+   2:../../src/mains/recordingLight/main.c **** #include "System.h"
+   3:../../src/mains/recordingLight/main.c **** 
+   4:../../src/mains/recordingLight/main.c **** #include "stm32f0xx.h"
+   5:../../src/mains/recordingLight/main.c **** #include "RecordingLight.h"
+   6:../../src/mains/recordingLight/main.c **** 
+   7:../../src/mains/recordingLight/main.c **** /*#include "stm32f0xx_rcc.h"
+   8:../../src/mains/recordingLight/main.c **** #include "stm32f0xx_gpio.h"
+   9:../../src/mains/recordingLight/main.c **** #include "stm32f0xx_tim.h"
+  10:../../src/mains/recordingLight/main.c **** 
+  11:../../src/mains/recordingLight/main.c **** #include "Tim1_Pwm.h"
+  12:../../src/mains/recordingLight/main.c **** 
+  13:../../src/mains/recordingLight/main.c **** static uint8_t rgb[3] = {255, 0, 0};
+  14:../../src/mains/recordingLight/main.c **** 
+  15:../../src/mains/recordingLight/main.c **** typedef struct {
+  16:../../src/mains/recordingLight/main.c **** 	uint8_t index;
+  17:../../src/mains/recordingLight/main.c **** 	char delta;
+  18:../../src/mains/recordingLight/main.c **** } stepDesc;
+  19:../../src/mains/recordingLight/main.c **** 
+  20:../../src/mains/recordingLight/main.c **** static stepDesc steps[] = {{1,1}, {0,-1}, {2,1}, {1,-1}, {0,1}, {2,-1}};
+  21:../../src/mains/recordingLight/main.c **** static uint8_t currentStepIndex = 0;
+  22:../../src/mains/recordingLight/main.c **** 
+  23:../../src/mains/recordingLight/main.c **** void tick(uint32_t time){
+  24:../../src/mains/recordingLight/main.c **** 	static uint32_t ctr;
+  25:../../src/mains/recordingLight/main.c **** 	static uint8_t stepCounter = 0;
+  26:../../src/mains/recordingLight/main.c **** 
+  27:../../src/mains/recordingLight/main.c **** 	if (ctr % 20 == 0)
+  28:../../src/mains/recordingLight/main.c **** 	{
+  29:../../src/mains/recordingLight/main.c **** 		rgb[steps[currentStepIndex].index] += steps[currentStepIndex].delta;
+  30:../../src/mains/recordingLight/main.c **** 		stepCounter++;
+  31:../../src/mains/recordingLight/main.c **** 
+  32:../../src/mains/recordingLight/main.c **** 		if (stepCounter==255){
+  33:../../src/mains/recordingLight/main.c **** 			stepCounter=0;
+  34:../../src/mains/recordingLight/main.c **** 			currentStepIndex++;
+  35:../../src/mains/recordingLight/main.c **** 			if (currentStepIndex==6){
+  36:../../src/mains/recordingLight/main.c **** 				currentStepIndex = 0;
+  37:../../src/mains/recordingLight/main.c **** 			}
+  38:../../src/mains/recordingLight/main.c **** 		}
+  39:../../src/mains/recordingLight/main.c **** 
+  40:../../src/mains/recordingLight/main.c **** 		Tim1_Pwm_setValueCh1(rgb[0]);
+  41:../../src/mains/recordingLight/main.c **** 		Tim1_Pwm_setValueCh2(rgb[1]);
+  42:../../src/mains/recordingLight/main.c **** 		Tim1_Pwm_setValueCh3(rgb[2]);
+  43:../../src/mains/recordingLight/main.c **** 	}
+  44:../../src/mains/recordingLight/main.c **** 
+  45:../../src/mains/recordingLight/main.c **** 	ctr++;
+  46:../../src/mains/recordingLight/main.c **** }
+  47:../../src/mains/recordingLight/main.c **** 
+  48:../../src/mains/recordingLight/main.c **** */
+  49:../../src/mains/recordingLight/main.c **** 
+  50:../../src/mains/recordingLight/main.c **** int main(void) {
+  26              		.loc 1 50 0
+  27              		.cfi_startproc
+  28 0000 80B5     		push	{r7, lr}
+  29              		.cfi_def_cfa_offset 8
+  30              		.cfi_offset 7, -8
+  31              		.cfi_offset 14, -4
+  32 0002 00AF     		add	r7, sp, #0
+  33              		.cfi_def_cfa_register 7
+  51:../../src/mains/recordingLight/main.c **** 	System_init();
+  34              		.loc 1 51 0
+  35 0004 FFF7FEFF 		bl	System_init
+  52:../../src/mains/recordingLight/main.c **** 
+  53:../../src/mains/recordingLight/main.c **** 	System_PITSetup(1);
+  36              		.loc 1 53 0
+  37 0008 0120     		mov	r0, #1
+  38 000a FFF7FEFF 		bl	System_PITSetup
+  54:../../src/mains/recordingLight/main.c **** 
+  55:../../src/mains/recordingLight/main.c **** 	RecordingLight_init();
+  39              		.loc 1 55 0
+  40 000e FFF7FEFF 		bl	RecordingLight_init
+  56:../../src/mains/recordingLight/main.c **** 	System_PITSetTaskCallback(&RecordingLight_tick);
+  41              		.loc 1 56 0
+  42 0012 034B     		ldr	r3, .L3
+  43 0014 181C     		mov	r0, r3
+  44 0016 FFF7FEFF 		bl	System_PITSetTaskCallback
+  57:../../src/mains/recordingLight/main.c **** 
+  58:../../src/mains/recordingLight/main.c **** 	//System_PITSetTaskCallback(&tick);
+  59:../../src/mains/recordingLight/main.c **** 
+  60:../../src/mains/recordingLight/main.c **** 	System_PITStart();
+  45              		.loc 1 60 0
+  46 001a FFF7FEFF 		bl	System_PITStart
+  47              	.L2:
+  61:../../src/mains/recordingLight/main.c **** 
+  62:../../src/mains/recordingLight/main.c **** 	while (1) {
+  63:../../src/mains/recordingLight/main.c **** 
+  64:../../src/mains/recordingLight/main.c **** 	}
+  48              		.loc 1 64 0 discriminator 1
+  49 001e FEE7     		b	.L2
+  50              	.L4:
+  51              		.align	2
+  52              	.L3:
+  53 0020 00000000 		.word	RecordingLight_tick
+  54              		.cfi_endproc
+  55              	.LFE32:
+  57              		.section	.text.assert_failed,"ax",%progbits
+  58              		.align	2
+  59              		.global	assert_failed
+  60              		.code	16
+  61              		.thumb_func
+  63              	assert_failed:
+  64              	.LFB33:
+  65:../../src/mains/recordingLight/main.c **** }
+  66:../../src/mains/recordingLight/main.c **** 
+  67:../../src/mains/recordingLight/main.c **** #ifdef  USE_FULL_ASSERT
+  68:../../src/mains/recordingLight/main.c **** 
+  69:../../src/mains/recordingLight/main.c **** /**
+  70:../../src/mains/recordingLight/main.c ****  * @brief  Reports the name of the source file and the source line number
+  71:../../src/mains/recordingLight/main.c ****  *   where the assert_param error has occurred.
+  72:../../src/mains/recordingLight/main.c ****  * @param  file: pointer to the source file name
+  73:../../src/mains/recordingLight/main.c ****  * @param  line: assert_param error line source number
+  74:../../src/mains/recordingLight/main.c ****  * @retval None
+  75:../../src/mains/recordingLight/main.c ****  */
+  76:../../src/mains/recordingLight/main.c **** void assert_failed(uint8_t* file, uint32_t line)
+  77:../../src/mains/recordingLight/main.c **** {
+  65              		.loc 1 77 0
+  66              		.cfi_startproc
+  67 0000 80B5     		push	{r7, lr}
+  68              		.cfi_def_cfa_offset 8
+  69              		.cfi_offset 7, -8
+  70              		.cfi_offset 14, -4
+  71 0002 82B0     		sub	sp, sp, #8
+  72              		.cfi_def_cfa_offset 16
+  73 0004 00AF     		add	r7, sp, #0
+  74              		.cfi_def_cfa_register 7
+  75 0006 7860     		str	r0, [r7, #4]
+  76 0008 3960     		str	r1, [r7]
+  77              	.L6:
+  78:../../src/mains/recordingLight/main.c **** 	/* User can add his own implementation to report the file name and line number,
+  79:../../src/mains/recordingLight/main.c **** 	 ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  80:../../src/mains/recordingLight/main.c **** 
+  81:../../src/mains/recordingLight/main.c **** 	/* Infinite loop */
+  82:../../src/mains/recordingLight/main.c **** 	while (1)
+  83:../../src/mains/recordingLight/main.c **** 	{}
+  78              		.loc 1 83 0 discriminator 1
+  79 000a FEE7     		b	.L6
+  80              		.cfi_endproc
+  81              	.LFE33:
+  83              		.text
+  84              	.Letext0:
+  85              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+  86              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccdK4HRj.s:18     .text.main:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccdK4HRj.s:23     .text.main:0000000000000000 main
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccdK4HRj.s:53     .text.main:0000000000000020 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccdK4HRj.s:58     .text.assert_failed:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccdK4HRj.s:63     .text.assert_failed:0000000000000000 assert_failed
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+
+UNDEFINED SYMBOLS
+System_init
+System_PITSetup
+RecordingLight_init
+System_PITSetTaskCallback
+System_PITStart
+RecordingLight_tick

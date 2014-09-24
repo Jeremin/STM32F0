@@ -1,0 +1,346 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"Flash.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.Flash_init,"ax",%progbits
+  18              		.align	2
+  19              		.global	Flash_init
+  20              		.code	16
+  21              		.thumb_func
+  23              	Flash_init:
+  24              	.LFB32:
+  25              		.file 1 "../../src/driver/Flash/Flash.c"
+   1:../../src/driver/Flash/Flash.c **** /*
+   2:../../src/driver/Flash/Flash.c ****  * Flash.c
+   3:../../src/driver/Flash/Flash.c ****  *
+   4:../../src/driver/Flash/Flash.c ****  *  Created on: Jul 20, 2014
+   5:../../src/driver/Flash/Flash.c ****  *      Author: jonasbachli
+   6:../../src/driver/Flash/Flash.c ****  */
+   7:../../src/driver/Flash/Flash.c **** 
+   8:../../src/driver/Flash/Flash.c **** 
+   9:../../src/driver/Flash/Flash.c **** #include "Flash.h"
+  10:../../src/driver/Flash/Flash.c **** 
+  11:../../src/driver/Flash/Flash.c **** #include "stm32f0xx_flash.h"
+  12:../../src/driver/Flash/Flash.c **** #include <string.h>
+  13:../../src/driver/Flash/Flash.c **** 
+  14:../../src/driver/Flash/Flash.c **** /////////////////////////////////////
+  15:../../src/driver/Flash/Flash.c **** // forward declarations
+  16:../../src/driver/Flash/Flash.c **** /////////////////////////////////////
+  17:../../src/driver/Flash/Flash.c **** #define DATA_PAGE_START_ADDR	((uint32_t) 0x0800FC00)
+  18:../../src/driver/Flash/Flash.c **** /////////////////////////////////////
+  19:../../src/driver/Flash/Flash.c **** // private variables
+  20:../../src/driver/Flash/Flash.c **** /////////////////////////////////////
+  21:../../src/driver/Flash/Flash.c **** 
+  22:../../src/driver/Flash/Flash.c **** /////////////////////////////////////
+  23:../../src/driver/Flash/Flash.c **** // public functions
+  24:../../src/driver/Flash/Flash.c **** /////////////////////////////////////
+  25:../../src/driver/Flash/Flash.c **** void Flash_init(void){
+  26              		.loc 1 25 0
+  27              		.cfi_startproc
+  28 0000 80B5     		push	{r7, lr}
+  29              		.cfi_def_cfa_offset 8
+  30              		.cfi_offset 7, -8
+  31              		.cfi_offset 14, -4
+  32 0002 00AF     		add	r7, sp, #0
+  33              		.cfi_def_cfa_register 7
+  26:../../src/driver/Flash/Flash.c **** 	FLASH_Unlock();
+  34              		.loc 1 26 0
+  35 0004 FFF7FEFF 		bl	FLASH_Unlock
+  27:../../src/driver/Flash/Flash.c **** }
+  36              		.loc 1 27 0
+  37 0008 BD46     		mov	sp, r7
+  38              		@ sp needed
+  39 000a 80BD     		pop	{r7, pc}
+  40              		.cfi_endproc
+  41              	.LFE32:
+  43              		.section	.text.Flash_writeToDataPage,"ax",%progbits
+  44              		.align	2
+  45              		.global	Flash_writeToDataPage
+  46              		.code	16
+  47              		.thumb_func
+  49              	Flash_writeToDataPage:
+  50              	.LFB33:
+  28:../../src/driver/Flash/Flash.c **** 
+  29:../../src/driver/Flash/Flash.c **** void Flash_writeToDataPage(void* data, uint32_t size){
+  51              		.loc 1 29 0
+  52              		.cfi_startproc
+  53 0000 80B5     		push	{r7, lr}
+  54              		.cfi_def_cfa_offset 8
+  55              		.cfi_offset 7, -8
+  56              		.cfi_offset 14, -4
+  57 0002 84B0     		sub	sp, sp, #16
+  58              		.cfi_def_cfa_offset 24
+  59 0004 00AF     		add	r7, sp, #0
+  60              		.cfi_def_cfa_register 7
+  61 0006 7860     		str	r0, [r7, #4]
+  62 0008 3960     		str	r1, [r7]
+  30:../../src/driver/Flash/Flash.c **** 	uint8_t remainder;
+  31:../../src/driver/Flash/Flash.c **** 	uint16_t i;
+  32:../../src/driver/Flash/Flash.c **** 	uint32_t remainderData = 0;
+  63              		.loc 1 32 0
+  64 000a 0023     		mov	r3, #0
+  65 000c BB60     		str	r3, [r7, #8]
+  33:../../src/driver/Flash/Flash.c **** 
+  34:../../src/driver/Flash/Flash.c **** 	remainder = size % 4;
+  66              		.loc 1 34 0
+  67 000e 3B68     		ldr	r3, [r7]
+  68 0010 D9B2     		uxtb	r1, r3
+  69 0012 3B1C     		mov	r3, r7
+  70 0014 0D33     		add	r3, r3, #13
+  71 0016 0322     		mov	r2, #3
+  72 0018 0A40     		and	r2, r1
+  73 001a 1A70     		strb	r2, [r3]
+  35:../../src/driver/Flash/Flash.c **** 	size /= 4;
+  74              		.loc 1 35 0
+  75 001c 3B68     		ldr	r3, [r7]
+  76 001e 9B08     		lsr	r3, r3, #2
+  77 0020 3B60     		str	r3, [r7]
+  36:../../src/driver/Flash/Flash.c **** 
+  37:../../src/driver/Flash/Flash.c **** 	FLASH_ErasePage(DATA_PAGE_START_ADDR);
+  78              		.loc 1 37 0
+  79 0022 2E4B     		ldr	r3, .L8
+  80 0024 181C     		mov	r0, r3
+  81 0026 FFF7FEFF 		bl	FLASH_ErasePage
+  38:../../src/driver/Flash/Flash.c **** 
+  39:../../src/driver/Flash/Flash.c **** 	for (i=0; i<size; i++){
+  82              		.loc 1 39 0
+  83 002a 3B1C     		mov	r3, r7
+  84 002c 0E33     		add	r3, r3, #14
+  85 002e 0022     		mov	r2, #0
+  86 0030 1A80     		strh	r2, [r3]
+  87 0032 17E0     		b	.L3
+  88              	.L4:
+  40:../../src/driver/Flash/Flash.c **** 		FLASH_ProgramWord(DATA_PAGE_START_ADDR + i*4, (uint32_t) *((uint32_t*)data+i*4));
+  89              		.loc 1 40 0 discriminator 2
+  90 0034 3B1C     		mov	r3, r7
+  91 0036 0E33     		add	r3, r3, #14
+  92 0038 1B88     		ldrh	r3, [r3]
+  93 003a 9B00     		lsl	r3, r3, #2
+  94 003c 2749     		ldr	r1, .L8
+  95 003e 5A18     		add	r2, r3, r1
+  96 0040 3B1C     		mov	r3, r7
+  97 0042 0E33     		add	r3, r3, #14
+  98 0044 1B88     		ldrh	r3, [r3]
+  99 0046 1B01     		lsl	r3, r3, #4
+ 100 0048 7968     		ldr	r1, [r7, #4]
+ 101 004a CB18     		add	r3, r1, r3
+ 102 004c 1B68     		ldr	r3, [r3]
+ 103 004e 101C     		mov	r0, r2
+ 104 0050 191C     		mov	r1, r3
+ 105 0052 FFF7FEFF 		bl	FLASH_ProgramWord
+  39:../../src/driver/Flash/Flash.c **** 	for (i=0; i<size; i++){
+ 106              		.loc 1 39 0 discriminator 2
+ 107 0056 3B1C     		mov	r3, r7
+ 108 0058 0E33     		add	r3, r3, #14
+ 109 005a 1A88     		ldrh	r2, [r3]
+ 110 005c 3B1C     		mov	r3, r7
+ 111 005e 0E33     		add	r3, r3, #14
+ 112 0060 0132     		add	r2, r2, #1
+ 113 0062 1A80     		strh	r2, [r3]
+ 114              	.L3:
+  39:../../src/driver/Flash/Flash.c **** 	for (i=0; i<size; i++){
+ 115              		.loc 1 39 0 is_stmt 0 discriminator 1
+ 116 0064 3B1C     		mov	r3, r7
+ 117 0066 0E33     		add	r3, r3, #14
+ 118 0068 1A88     		ldrh	r2, [r3]
+ 119 006a 3B68     		ldr	r3, [r7]
+ 120 006c 9A42     		cmp	r2, r3
+ 121 006e E1D3     		bcc	.L4
+  41:../../src/driver/Flash/Flash.c **** 	}
+  42:../../src/driver/Flash/Flash.c **** 
+  43:../../src/driver/Flash/Flash.c **** 	if (remainder){
+ 122              		.loc 1 43 0 is_stmt 1
+ 123 0070 3B1C     		mov	r3, r7
+ 124 0072 0D33     		add	r3, r3, #13
+ 125 0074 1B78     		ldrb	r3, [r3]
+ 126 0076 002B     		cmp	r3, #0
+ 127 0078 2DD0     		beq	.L2
+  44:../../src/driver/Flash/Flash.c **** 		for (i=0; i<remainder; i++){
+ 128              		.loc 1 44 0
+ 129 007a 3B1C     		mov	r3, r7
+ 130 007c 0E33     		add	r3, r3, #14
+ 131 007e 0022     		mov	r2, #0
+ 132 0080 1A80     		strh	r2, [r3]
+ 133 0082 16E0     		b	.L6
+ 134              	.L7:
+  45:../../src/driver/Flash/Flash.c **** 			((uint8_t*)&remainderData)[i] = (uint8_t) *((uint8_t*)data+size*4+i);
+ 135              		.loc 1 45 0 discriminator 2
+ 136 0084 3B1C     		mov	r3, r7
+ 137 0086 0E33     		add	r3, r3, #14
+ 138 0088 1B88     		ldrh	r3, [r3]
+ 139 008a 3A1C     		mov	r2, r7
+ 140 008c 0832     		add	r2, r2, #8
+ 141 008e D318     		add	r3, r2, r3
+ 142 0090 3A68     		ldr	r2, [r7]
+ 143 0092 9100     		lsl	r1, r2, #2
+ 144 0094 3A1C     		mov	r2, r7
+ 145 0096 0E32     		add	r2, r2, #14
+ 146 0098 1288     		ldrh	r2, [r2]
+ 147 009a 8A18     		add	r2, r1, r2
+ 148 009c 7968     		ldr	r1, [r7, #4]
+ 149 009e 8A18     		add	r2, r1, r2
+ 150 00a0 1278     		ldrb	r2, [r2]
+ 151 00a2 1A70     		strb	r2, [r3]
+  44:../../src/driver/Flash/Flash.c **** 		for (i=0; i<remainder; i++){
+ 152              		.loc 1 44 0 discriminator 2
+ 153 00a4 3B1C     		mov	r3, r7
+ 154 00a6 0E33     		add	r3, r3, #14
+ 155 00a8 1A88     		ldrh	r2, [r3]
+ 156 00aa 3B1C     		mov	r3, r7
+ 157 00ac 0E33     		add	r3, r3, #14
+ 158 00ae 0132     		add	r2, r2, #1
+ 159 00b0 1A80     		strh	r2, [r3]
+ 160              	.L6:
+  44:../../src/driver/Flash/Flash.c **** 		for (i=0; i<remainder; i++){
+ 161              		.loc 1 44 0 is_stmt 0 discriminator 1
+ 162 00b2 3B1C     		mov	r3, r7
+ 163 00b4 0D33     		add	r3, r3, #13
+ 164 00b6 1B78     		ldrb	r3, [r3]
+ 165 00b8 9BB2     		uxth	r3, r3
+ 166 00ba 3A1C     		mov	r2, r7
+ 167 00bc 0E32     		add	r2, r2, #14
+ 168 00be 1288     		ldrh	r2, [r2]
+ 169 00c0 9A42     		cmp	r2, r3
+ 170 00c2 DFD3     		bcc	.L7
+  46:../../src/driver/Flash/Flash.c **** 		}
+  47:../../src/driver/Flash/Flash.c **** 		FLASH_ProgramWord(DATA_PAGE_START_ADDR + size*4, remainderData);
+ 171              		.loc 1 47 0 is_stmt 1
+ 172 00c4 3B68     		ldr	r3, [r7]
+ 173 00c6 064A     		ldr	r2, .L8+4
+ 174 00c8 9B18     		add	r3, r3, r2
+ 175 00ca 9A00     		lsl	r2, r3, #2
+ 176 00cc BB68     		ldr	r3, [r7, #8]
+ 177 00ce 101C     		mov	r0, r2
+ 178 00d0 191C     		mov	r1, r3
+ 179 00d2 FFF7FEFF 		bl	FLASH_ProgramWord
+ 180              	.L2:
+  48:../../src/driver/Flash/Flash.c **** 	}
+  49:../../src/driver/Flash/Flash.c **** }
+ 181              		.loc 1 49 0
+ 182 00d6 BD46     		mov	sp, r7
+ 183 00d8 04B0     		add	sp, sp, #16
+ 184              		@ sp needed
+ 185 00da 80BD     		pop	{r7, pc}
+ 186              	.L9:
+ 187              		.align	2
+ 188              	.L8:
+ 189 00dc 00FC0008 		.word	134282240
+ 190 00e0 003F0002 		.word	33570560
+ 191              		.cfi_endproc
+ 192              	.LFE33:
+ 194              		.section	.text.Flash_readFromDataPage,"ax",%progbits
+ 195              		.align	2
+ 196              		.global	Flash_readFromDataPage
+ 197              		.code	16
+ 198              		.thumb_func
+ 200              	Flash_readFromDataPage:
+ 201              	.LFB34:
+  50:../../src/driver/Flash/Flash.c **** 
+  51:../../src/driver/Flash/Flash.c **** void Flash_readFromDataPage(void* data, uint32_t size){
+ 202              		.loc 1 51 0
+ 203              		.cfi_startproc
+ 204 0000 80B5     		push	{r7, lr}
+ 205              		.cfi_def_cfa_offset 8
+ 206              		.cfi_offset 7, -8
+ 207              		.cfi_offset 14, -4
+ 208 0002 82B0     		sub	sp, sp, #8
+ 209              		.cfi_def_cfa_offset 16
+ 210 0004 00AF     		add	r7, sp, #0
+ 211              		.cfi_def_cfa_register 7
+ 212 0006 7860     		str	r0, [r7, #4]
+ 213 0008 3960     		str	r1, [r7]
+  52:../../src/driver/Flash/Flash.c **** 	memcpy(data, (void*)DATA_PAGE_START_ADDR, size);
+ 214              		.loc 1 52 0
+ 215 000a 7968     		ldr	r1, [r7, #4]
+ 216 000c 044A     		ldr	r2, .L11
+ 217 000e 3B68     		ldr	r3, [r7]
+ 218 0010 081C     		mov	r0, r1
+ 219 0012 111C     		mov	r1, r2
+ 220 0014 1A1C     		mov	r2, r3
+ 221 0016 FFF7FEFF 		bl	memcpy
+  53:../../src/driver/Flash/Flash.c **** }
+ 222              		.loc 1 53 0
+ 223 001a BD46     		mov	sp, r7
+ 224 001c 02B0     		add	sp, sp, #8
+ 225              		@ sp needed
+ 226 001e 80BD     		pop	{r7, pc}
+ 227              	.L12:
+ 228              		.align	2
+ 229              	.L11:
+ 230 0020 00FC0008 		.word	134282240
+ 231              		.cfi_endproc
+ 232              	.LFE34:
+ 234              		.text
+ 235              	.Letext0:
+ 236              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+ 237              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Flash.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccXIlHjc.s:18     .text.Flash_init:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccXIlHjc.s:23     .text.Flash_init:0000000000000000 Flash_init
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccXIlHjc.s:44     .text.Flash_writeToDataPage:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccXIlHjc.s:49     .text.Flash_writeToDataPage:0000000000000000 Flash_writeToDataPage
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccXIlHjc.s:189    .text.Flash_writeToDataPage:00000000000000dc $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccXIlHjc.s:195    .text.Flash_readFromDataPage:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccXIlHjc.s:200    .text.Flash_readFromDataPage:0000000000000000 Flash_readFromDataPage
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccXIlHjc.s:230    .text.Flash_readFromDataPage:0000000000000020 $d
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.56.2827d744790910fcf1a21e59dae944ba
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+
+UNDEFINED SYMBOLS
+FLASH_Unlock
+FLASH_ErasePage
+FLASH_ProgramWord
+memcpy

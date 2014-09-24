@@ -1,0 +1,1583 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"WS2812B.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.bss.ledBuffer,"aw",%nobits
+  18              		.align	2
+  21              	ledBuffer:
+  22 0000 00000000 		.space	12
+  22      00000000 
+  22      00000000 
+  23              		.section	.bss.dutyCycleBuffer,"aw",%nobits
+  24              		.align	2
+  27              	dutyCycleBuffer:
+  28 0000 00000000 		.space	135
+  28      00000000 
+  28      00000000 
+  28      00000000 
+  28      00000000 
+  29 0087 00       		.section	.bss.numberOfActiveLeds,"aw",%nobits
+  30              		.align	2
+  33              	numberOfActiveLeds:
+  34 0000 00000000 		.space	4
+  35              		.section	.bss.currentDutyCycleBufferSize,"aw",%nobits
+  36              		.align	1
+  39              	currentDutyCycleBufferSize:
+  40 0000 0000     		.space	2
+  41              		.section	.bss.isRunning,"aw",%nobits
+  44              	isRunning:
+  45 0000 00       		.space	1
+  46              		.section	.text.WS2812B_init,"ax",%progbits
+  47              		.align	2
+  48              		.global	WS2812B_init
+  49              		.code	16
+  50              		.thumb_func
+  52              	WS2812B_init:
+  53              	.LFB32:
+  54              		.file 1 "../../src/driver/WS2812B/WS2812B.c"
+   1:../../src/driver/WS2812B/WS2812B.c **** /*
+   2:../../src/driver/WS2812B/WS2812B.c ****  * WS2812B.c
+   3:../../src/driver/WS2812B/WS2812B.c ****  *
+   4:../../src/driver/WS2812B/WS2812B.c ****  *  Created on: Jul 23, 2014
+   5:../../src/driver/WS2812B/WS2812B.c ****  *      Author: jonasbachli
+   6:../../src/driver/WS2812B/WS2812B.c ****  */
+   7:../../src/driver/WS2812B/WS2812B.c **** 
+   8:../../src/driver/WS2812B/WS2812B.c **** #include "WS2812B.h"
+   9:../../src/driver/WS2812B/WS2812B.c **** 
+  10:../../src/driver/WS2812B/WS2812B.c **** #include "DMA1.h"
+  11:../../src/driver/WS2812B/WS2812B.c **** 
+  12:../../src/driver/WS2812B/WS2812B.c **** #include "stm32f0xx_rcc.h"
+  13:../../src/driver/WS2812B/WS2812B.c **** #include "stm32f0xx_gpio.h"
+  14:../../src/driver/WS2812B/WS2812B.c **** #include "stm32f0xx_tim.h"
+  15:../../src/driver/WS2812B/WS2812B.c **** #include "stm32f0xx_dma.h"
+  16:../../src/driver/WS2812B/WS2812B.c **** 
+  17:../../src/driver/WS2812B/WS2812B.c **** #include "TypesAndMacros.h"
+  18:../../src/driver/WS2812B/WS2812B.c **** 
+  19:../../src/driver/WS2812B/WS2812B.c **** #define TIMER_DIV					(1)
+  20:../../src/driver/WS2812B/WS2812B.c **** #define TIMER_PERIOD				(63)
+  21:../../src/driver/WS2812B/WS2812B.c **** #define TIMER_0_DUTY_CYCLE			(20)
+  22:../../src/driver/WS2812B/WS2812B.c **** #define TIMER_1_DUTY_CYCLE			(40)
+  23:../../src/driver/WS2812B/WS2812B.c **** #define TIMER_RESET_DUTY_CYLCE 		(0)
+  24:../../src/driver/WS2812B/WS2812B.c **** #define TIMER_RESET_REPEAT_COUNT	(39)
+  25:../../src/driver/WS2812B/WS2812B.c **** 
+  26:../../src/driver/WS2812B/WS2812B.c **** #define DUTY_CYCLE_BUFFER_SIZE		WS2812B_NBR_OF_LEDS*3*8 + TIMER_RESET_REPEAT_COUNT
+  27:../../src/driver/WS2812B/WS2812B.c **** 
+  28:../../src/driver/WS2812B/WS2812B.c **** /////////////////////////////////////
+  29:../../src/driver/WS2812B/WS2812B.c **** // forward declarations
+  30:../../src/driver/WS2812B/WS2812B.c **** /////////////////////////////////////
+  31:../../src/driver/WS2812B/WS2812B.c **** 
+  32:../../src/driver/WS2812B/WS2812B.c **** static void updateDutyCycleBuffer(void);
+  33:../../src/driver/WS2812B/WS2812B.c **** 
+  34:../../src/driver/WS2812B/WS2812B.c **** static void initGpio(void);
+  35:../../src/driver/WS2812B/WS2812B.c **** static void initPwmTimer(void);
+  36:../../src/driver/WS2812B/WS2812B.c **** static void initDma(void);
+  37:../../src/driver/WS2812B/WS2812B.c **** 
+  38:../../src/driver/WS2812B/WS2812B.c **** static void dmaTransferCompleteHandler(void* arg);
+  39:../../src/driver/WS2812B/WS2812B.c **** static void dmaErrorHandler(void* arg);
+  40:../../src/driver/WS2812B/WS2812B.c **** 
+  41:../../src/driver/WS2812B/WS2812B.c **** /////////////////////////////////////
+  42:../../src/driver/WS2812B/WS2812B.c **** // private variables
+  43:../../src/driver/WS2812B/WS2812B.c **** /////////////////////////////////////
+  44:../../src/driver/WS2812B/WS2812B.c **** 
+  45:../../src/driver/WS2812B/WS2812B.c **** static RGB ledBuffer[WS2812B_NBR_OF_LEDS];
+  46:../../src/driver/WS2812B/WS2812B.c **** static volatile uint8_t dutyCycleBuffer[DUTY_CYCLE_BUFFER_SIZE];
+  47:../../src/driver/WS2812B/WS2812B.c **** static uint32_t numberOfActiveLeds;
+  48:../../src/driver/WS2812B/WS2812B.c **** static volatile uint16_t currentDutyCycleBufferSize;
+  49:../../src/driver/WS2812B/WS2812B.c **** static volatile bool isRunning;
+  50:../../src/driver/WS2812B/WS2812B.c **** 
+  51:../../src/driver/WS2812B/WS2812B.c **** /////////////////////////////////////
+  52:../../src/driver/WS2812B/WS2812B.c **** // public functions
+  53:../../src/driver/WS2812B/WS2812B.c **** /////////////////////////////////////
+  54:../../src/driver/WS2812B/WS2812B.c **** 
+  55:../../src/driver/WS2812B/WS2812B.c **** void WS2812B_init() {
+  55              		.loc 1 55 0
+  56              		.cfi_startproc
+  57 0000 80B5     		push	{r7, lr}
+  58              		.cfi_def_cfa_offset 8
+  59              		.cfi_offset 7, -8
+  60              		.cfi_offset 14, -4
+  61 0002 00AF     		add	r7, sp, #0
+  62              		.cfi_def_cfa_register 7
+  56:../../src/driver/WS2812B/WS2812B.c **** 	numberOfActiveLeds = WS2812B_NBR_OF_LEDS;
+  63              		.loc 1 56 0
+  64 0004 084B     		ldr	r3, .L2
+  65 0006 0422     		mov	r2, #4
+  66 0008 1A60     		str	r2, [r3]
+  57:../../src/driver/WS2812B/WS2812B.c **** 	currentDutyCycleBufferSize = 0;
+  67              		.loc 1 57 0
+  68 000a 084B     		ldr	r3, .L2+4
+  69 000c 0022     		mov	r2, #0
+  70 000e 1A80     		strh	r2, [r3]
+  58:../../src/driver/WS2812B/WS2812B.c **** 	isRunning = false;
+  71              		.loc 1 58 0
+  72 0010 074B     		ldr	r3, .L2+8
+  73 0012 0022     		mov	r2, #0
+  74 0014 1A70     		strb	r2, [r3]
+  59:../../src/driver/WS2812B/WS2812B.c **** 
+  60:../../src/driver/WS2812B/WS2812B.c **** 	initGpio();
+  75              		.loc 1 60 0
+  76 0016 FFF7FEFF 		bl	initGpio
+  61:../../src/driver/WS2812B/WS2812B.c **** 	initPwmTimer();
+  77              		.loc 1 61 0
+  78 001a FFF7FEFF 		bl	initPwmTimer
+  62:../../src/driver/WS2812B/WS2812B.c **** 	initDma();
+  79              		.loc 1 62 0
+  80 001e FFF7FEFF 		bl	initDma
+  63:../../src/driver/WS2812B/WS2812B.c **** }
+  81              		.loc 1 63 0
+  82 0022 BD46     		mov	sp, r7
+  83              		@ sp needed
+  84 0024 80BD     		pop	{r7, pc}
+  85              	.L3:
+  86 0026 C046     		.align	2
+  87              	.L2:
+  88 0028 00000000 		.word	numberOfActiveLeds
+  89 002c 00000000 		.word	currentDutyCycleBufferSize
+  90 0030 00000000 		.word	isRunning
+  91              		.cfi_endproc
+  92              	.LFE32:
+  94              		.section	.text.WS2812B_getLedDescription,"ax",%progbits
+  95              		.align	2
+  96              		.global	WS2812B_getLedDescription
+  97              		.code	16
+  98              		.thumb_func
+ 100              	WS2812B_getLedDescription:
+ 101              	.LFB33:
+  64:../../src/driver/WS2812B/WS2812B.c **** 
+  65:../../src/driver/WS2812B/WS2812B.c **** WS2812BLedDescription WS2812B_getLedDescription(void) {
+ 102              		.loc 1 65 0
+ 103              		.cfi_startproc
+ 104 0000 80B5     		push	{r7, lr}
+ 105              		.cfi_def_cfa_offset 8
+ 106              		.cfi_offset 7, -8
+ 107              		.cfi_offset 14, -4
+ 108 0002 84B0     		sub	sp, sp, #16
+ 109              		.cfi_def_cfa_offset 24
+ 110 0004 00AF     		add	r7, sp, #0
+ 111              		.cfi_def_cfa_register 7
+ 112 0006 7860     		str	r0, [r7, #4]
+  66:../../src/driver/WS2812B/WS2812B.c **** 	WS2812BLedDescription desc;
+  67:../../src/driver/WS2812B/WS2812B.c **** 	desc.leds = ledBuffer;
+ 113              		.loc 1 67 0
+ 114 0008 3B1C     		mov	r3, r7
+ 115 000a 0833     		add	r3, r3, #8
+ 116 000c 074A     		ldr	r2, .L6
+ 117 000e 5A60     		str	r2, [r3, #4]
+  68:../../src/driver/WS2812B/WS2812B.c **** 	desc.nbrOfLeds = WS2812B_NBR_OF_LEDS;
+ 118              		.loc 1 68 0
+ 119 0010 3B1C     		mov	r3, r7
+ 120 0012 0833     		add	r3, r3, #8
+ 121 0014 0422     		mov	r2, #4
+ 122 0016 1A60     		str	r2, [r3]
+  69:../../src/driver/WS2812B/WS2812B.c **** 	return desc;
+ 123              		.loc 1 69 0
+ 124 0018 7B68     		ldr	r3, [r7, #4]
+ 125 001a 3A1C     		mov	r2, r7
+ 126 001c 0832     		add	r2, r2, #8
+ 127 001e 03CA     		ldmia	r2!, {r0, r1}
+ 128 0020 03C3     		stmia	r3!, {r0, r1}
+  70:../../src/driver/WS2812B/WS2812B.c **** }
+ 129              		.loc 1 70 0
+ 130 0022 7868     		ldr	r0, [r7, #4]
+ 131 0024 BD46     		mov	sp, r7
+ 132 0026 04B0     		add	sp, sp, #16
+ 133              		@ sp needed
+ 134 0028 80BD     		pop	{r7, pc}
+ 135              	.L7:
+ 136 002a C046     		.align	2
+ 137              	.L6:
+ 138 002c 00000000 		.word	ledBuffer
+ 139              		.cfi_endproc
+ 140              	.LFE33:
+ 142              		.section	.text.WS2812B_setLedColor,"ax",%progbits
+ 143              		.align	2
+ 144              		.global	WS2812B_setLedColor
+ 145              		.code	16
+ 146              		.thumb_func
+ 148              	WS2812B_setLedColor:
+ 149              	.LFB34:
+  71:../../src/driver/WS2812B/WS2812B.c **** 
+  72:../../src/driver/WS2812B/WS2812B.c **** void WS2812B_setLedColor(RGB* color, uint32_t ledIndex) {
+ 150              		.loc 1 72 0
+ 151              		.cfi_startproc
+ 152 0000 80B5     		push	{r7, lr}
+ 153              		.cfi_def_cfa_offset 8
+ 154              		.cfi_offset 7, -8
+ 155              		.cfi_offset 14, -4
+ 156 0002 82B0     		sub	sp, sp, #8
+ 157              		.cfi_def_cfa_offset 16
+ 158 0004 00AF     		add	r7, sp, #0
+ 159              		.cfi_def_cfa_register 7
+ 160 0006 7860     		str	r0, [r7, #4]
+ 161 0008 3960     		str	r1, [r7]
+  73:../../src/driver/WS2812B/WS2812B.c **** 	if (ledIndex < WS2812B_NBR_OF_LEDS) {
+ 162              		.loc 1 73 0
+ 163 000a 3B68     		ldr	r3, [r7]
+ 164 000c 032B     		cmp	r3, #3
+ 165 000e 1CD8     		bhi	.L8
+  74:../../src/driver/WS2812B/WS2812B.c **** 		ledBuffer[ledIndex].red = color->red;
+ 166              		.loc 1 74 0
+ 167 0010 7B68     		ldr	r3, [r7, #4]
+ 168 0012 1878     		ldrb	r0, [r3]
+ 169 0014 0E49     		ldr	r1, .L10
+ 170 0016 3A68     		ldr	r2, [r7]
+ 171 0018 131C     		mov	r3, r2
+ 172 001a 5B00     		lsl	r3, r3, #1
+ 173 001c 9B18     		add	r3, r3, r2
+ 174 001e 021C     		add	r2, r0, #0
+ 175 0020 5A54     		strb	r2, [r3, r1]
+  75:../../src/driver/WS2812B/WS2812B.c **** 		ledBuffer[ledIndex].green = color->green;
+ 176              		.loc 1 75 0
+ 177 0022 7B68     		ldr	r3, [r7, #4]
+ 178 0024 5978     		ldrb	r1, [r3, #1]
+ 179 0026 0A48     		ldr	r0, .L10
+ 180 0028 3A68     		ldr	r2, [r7]
+ 181 002a 131C     		mov	r3, r2
+ 182 002c 5B00     		lsl	r3, r3, #1
+ 183 002e 9B18     		add	r3, r3, r2
+ 184 0030 C318     		add	r3, r0, r3
+ 185 0032 0A1C     		add	r2, r1, #0
+ 186 0034 5A70     		strb	r2, [r3, #1]
+  76:../../src/driver/WS2812B/WS2812B.c **** 		ledBuffer[ledIndex].blue = color->blue;
+ 187              		.loc 1 76 0
+ 188 0036 7B68     		ldr	r3, [r7, #4]
+ 189 0038 9978     		ldrb	r1, [r3, #2]
+ 190 003a 0548     		ldr	r0, .L10
+ 191 003c 3A68     		ldr	r2, [r7]
+ 192 003e 131C     		mov	r3, r2
+ 193 0040 5B00     		lsl	r3, r3, #1
+ 194 0042 9B18     		add	r3, r3, r2
+ 195 0044 C318     		add	r3, r0, r3
+ 196 0046 0A1C     		add	r2, r1, #0
+ 197 0048 9A70     		strb	r2, [r3, #2]
+ 198              	.L8:
+  77:../../src/driver/WS2812B/WS2812B.c **** 	}
+  78:../../src/driver/WS2812B/WS2812B.c **** }
+ 199              		.loc 1 78 0
+ 200 004a BD46     		mov	sp, r7
+ 201 004c 02B0     		add	sp, sp, #8
+ 202              		@ sp needed
+ 203 004e 80BD     		pop	{r7, pc}
+ 204              	.L11:
+ 205              		.align	2
+ 206              	.L10:
+ 207 0050 00000000 		.word	ledBuffer
+ 208              		.cfi_endproc
+ 209              	.LFE34:
+ 211              		.section	.text.WS2812B_getLedColor,"ax",%progbits
+ 212              		.align	2
+ 213              		.global	WS2812B_getLedColor
+ 214              		.code	16
+ 215              		.thumb_func
+ 217              	WS2812B_getLedColor:
+ 218              	.LFB35:
+  79:../../src/driver/WS2812B/WS2812B.c **** 
+  80:../../src/driver/WS2812B/WS2812B.c **** RGB* WS2812B_getLedColor(uint32_t ledIndex) {
+ 219              		.loc 1 80 0
+ 220              		.cfi_startproc
+ 221 0000 80B5     		push	{r7, lr}
+ 222              		.cfi_def_cfa_offset 8
+ 223              		.cfi_offset 7, -8
+ 224              		.cfi_offset 14, -4
+ 225 0002 82B0     		sub	sp, sp, #8
+ 226              		.cfi_def_cfa_offset 16
+ 227 0004 00AF     		add	r7, sp, #0
+ 228              		.cfi_def_cfa_register 7
+ 229 0006 7860     		str	r0, [r7, #4]
+  81:../../src/driver/WS2812B/WS2812B.c **** 	if (ledIndex < WS2812B_NBR_OF_LEDS) {
+ 230              		.loc 1 81 0
+ 231 0008 7B68     		ldr	r3, [r7, #4]
+ 232 000a 032B     		cmp	r3, #3
+ 233 000c 06D8     		bhi	.L13
+  82:../../src/driver/WS2812B/WS2812B.c **** 		return ledBuffer + ledIndex;
+ 234              		.loc 1 82 0
+ 235 000e 7A68     		ldr	r2, [r7, #4]
+ 236 0010 131C     		mov	r3, r2
+ 237 0012 5B00     		lsl	r3, r3, #1
+ 238 0014 9A18     		add	r2, r3, r2
+ 239 0016 044B     		ldr	r3, .L15
+ 240 0018 D318     		add	r3, r2, r3
+ 241 001a 00E0     		b	.L14
+ 242              	.L13:
+  83:../../src/driver/WS2812B/WS2812B.c **** 	} else {
+  84:../../src/driver/WS2812B/WS2812B.c **** 		return 0;
+ 243              		.loc 1 84 0
+ 244 001c 0023     		mov	r3, #0
+ 245              	.L14:
+  85:../../src/driver/WS2812B/WS2812B.c **** 	}
+  86:../../src/driver/WS2812B/WS2812B.c **** }
+ 246              		.loc 1 86 0
+ 247 001e 181C     		mov	r0, r3
+ 248 0020 BD46     		mov	sp, r7
+ 249 0022 02B0     		add	sp, sp, #8
+ 250              		@ sp needed
+ 251 0024 80BD     		pop	{r7, pc}
+ 252              	.L16:
+ 253 0026 C046     		.align	2
+ 254              	.L15:
+ 255 0028 00000000 		.word	ledBuffer
+ 256              		.cfi_endproc
+ 257              	.LFE35:
+ 259              		.section	.text.WS2812B_fillColor,"ax",%progbits
+ 260              		.align	2
+ 261              		.global	WS2812B_fillColor
+ 262              		.code	16
+ 263              		.thumb_func
+ 265              	WS2812B_fillColor:
+ 266              	.LFB36:
+  87:../../src/driver/WS2812B/WS2812B.c **** 
+  88:../../src/driver/WS2812B/WS2812B.c **** void WS2812B_fillColor(RGB* color) {
+ 267              		.loc 1 88 0
+ 268              		.cfi_startproc
+ 269 0000 80B5     		push	{r7, lr}
+ 270              		.cfi_def_cfa_offset 8
+ 271              		.cfi_offset 7, -8
+ 272              		.cfi_offset 14, -4
+ 273 0002 84B0     		sub	sp, sp, #16
+ 274              		.cfi_def_cfa_offset 24
+ 275 0004 00AF     		add	r7, sp, #0
+ 276              		.cfi_def_cfa_register 7
+ 277 0006 7860     		str	r0, [r7, #4]
+  89:../../src/driver/WS2812B/WS2812B.c **** 	uint32_t i;
+  90:../../src/driver/WS2812B/WS2812B.c **** 	for (i = 0; i < WS2812B_NBR_OF_LEDS; i++) {
+ 278              		.loc 1 90 0
+ 279 0008 0023     		mov	r3, #0
+ 280 000a FB60     		str	r3, [r7, #12]
+ 281 000c 1FE0     		b	.L18
+ 282              	.L19:
+  91:../../src/driver/WS2812B/WS2812B.c **** 		ledBuffer[i].red = color->red;
+ 283              		.loc 1 91 0 discriminator 2
+ 284 000e 7B68     		ldr	r3, [r7, #4]
+ 285 0010 1878     		ldrb	r0, [r3]
+ 286 0012 1249     		ldr	r1, .L20
+ 287 0014 FA68     		ldr	r2, [r7, #12]
+ 288 0016 131C     		mov	r3, r2
+ 289 0018 5B00     		lsl	r3, r3, #1
+ 290 001a 9B18     		add	r3, r3, r2
+ 291 001c 021C     		add	r2, r0, #0
+ 292 001e 5A54     		strb	r2, [r3, r1]
+  92:../../src/driver/WS2812B/WS2812B.c **** 		ledBuffer[i].green = color->green;
+ 293              		.loc 1 92 0 discriminator 2
+ 294 0020 7B68     		ldr	r3, [r7, #4]
+ 295 0022 5978     		ldrb	r1, [r3, #1]
+ 296 0024 0D48     		ldr	r0, .L20
+ 297 0026 FA68     		ldr	r2, [r7, #12]
+ 298 0028 131C     		mov	r3, r2
+ 299 002a 5B00     		lsl	r3, r3, #1
+ 300 002c 9B18     		add	r3, r3, r2
+ 301 002e C318     		add	r3, r0, r3
+ 302 0030 0A1C     		add	r2, r1, #0
+ 303 0032 5A70     		strb	r2, [r3, #1]
+  93:../../src/driver/WS2812B/WS2812B.c **** 		ledBuffer[i].blue = color->blue;
+ 304              		.loc 1 93 0 discriminator 2
+ 305 0034 7B68     		ldr	r3, [r7, #4]
+ 306 0036 9978     		ldrb	r1, [r3, #2]
+ 307 0038 0848     		ldr	r0, .L20
+ 308 003a FA68     		ldr	r2, [r7, #12]
+ 309 003c 131C     		mov	r3, r2
+ 310 003e 5B00     		lsl	r3, r3, #1
+ 311 0040 9B18     		add	r3, r3, r2
+ 312 0042 C318     		add	r3, r0, r3
+ 313 0044 0A1C     		add	r2, r1, #0
+ 314 0046 9A70     		strb	r2, [r3, #2]
+  90:../../src/driver/WS2812B/WS2812B.c **** 	for (i = 0; i < WS2812B_NBR_OF_LEDS; i++) {
+ 315              		.loc 1 90 0 discriminator 2
+ 316 0048 FB68     		ldr	r3, [r7, #12]
+ 317 004a 0133     		add	r3, r3, #1
+ 318 004c FB60     		str	r3, [r7, #12]
+ 319              	.L18:
+  90:../../src/driver/WS2812B/WS2812B.c **** 	for (i = 0; i < WS2812B_NBR_OF_LEDS; i++) {
+ 320              		.loc 1 90 0 is_stmt 0 discriminator 1
+ 321 004e FB68     		ldr	r3, [r7, #12]
+ 322 0050 032B     		cmp	r3, #3
+ 323 0052 DCD9     		bls	.L19
+  94:../../src/driver/WS2812B/WS2812B.c **** 	}
+  95:../../src/driver/WS2812B/WS2812B.c **** }
+ 324              		.loc 1 95 0 is_stmt 1
+ 325 0054 BD46     		mov	sp, r7
+ 326 0056 04B0     		add	sp, sp, #16
+ 327              		@ sp needed
+ 328 0058 80BD     		pop	{r7, pc}
+ 329              	.L21:
+ 330 005a C046     		.align	2
+ 331              	.L20:
+ 332 005c 00000000 		.word	ledBuffer
+ 333              		.cfi_endproc
+ 334              	.LFE36:
+ 336              		.section	.text.WS2812B_fillSectionColor,"ax",%progbits
+ 337              		.align	2
+ 338              		.global	WS2812B_fillSectionColor
+ 339              		.code	16
+ 340              		.thumb_func
+ 342              	WS2812B_fillSectionColor:
+ 343              	.LFB37:
+  96:../../src/driver/WS2812B/WS2812B.c **** 
+  97:../../src/driver/WS2812B/WS2812B.c **** void WS2812B_fillSectionColor(RGB* color, uint32_t firstLedIndex,
+  98:../../src/driver/WS2812B/WS2812B.c **** 		uint32_t lastLedIndex) {
+ 344              		.loc 1 98 0
+ 345              		.cfi_startproc
+ 346 0000 80B5     		push	{r7, lr}
+ 347              		.cfi_def_cfa_offset 8
+ 348              		.cfi_offset 7, -8
+ 349              		.cfi_offset 14, -4
+ 350 0002 86B0     		sub	sp, sp, #24
+ 351              		.cfi_def_cfa_offset 32
+ 352 0004 00AF     		add	r7, sp, #0
+ 353              		.cfi_def_cfa_register 7
+ 354 0006 F860     		str	r0, [r7, #12]
+ 355 0008 B960     		str	r1, [r7, #8]
+ 356 000a 7A60     		str	r2, [r7, #4]
+  99:../../src/driver/WS2812B/WS2812B.c **** 	uint32_t i;
+ 100:../../src/driver/WS2812B/WS2812B.c **** 	for (i = firstLedIndex; i <= lastLedIndex; i++) {
+ 357              		.loc 1 100 0
+ 358 000c BB68     		ldr	r3, [r7, #8]
+ 359 000e 7B61     		str	r3, [r7, #20]
+ 360 0010 1FE0     		b	.L23
+ 361              	.L24:
+ 101:../../src/driver/WS2812B/WS2812B.c **** 		ledBuffer[i].red = color->red;
+ 362              		.loc 1 101 0 discriminator 2
+ 363 0012 FB68     		ldr	r3, [r7, #12]
+ 364 0014 1878     		ldrb	r0, [r3]
+ 365 0016 1249     		ldr	r1, .L25
+ 366 0018 7A69     		ldr	r2, [r7, #20]
+ 367 001a 131C     		mov	r3, r2
+ 368 001c 5B00     		lsl	r3, r3, #1
+ 369 001e 9B18     		add	r3, r3, r2
+ 370 0020 021C     		add	r2, r0, #0
+ 371 0022 5A54     		strb	r2, [r3, r1]
+ 102:../../src/driver/WS2812B/WS2812B.c **** 		ledBuffer[i].green = color->green;
+ 372              		.loc 1 102 0 discriminator 2
+ 373 0024 FB68     		ldr	r3, [r7, #12]
+ 374 0026 5978     		ldrb	r1, [r3, #1]
+ 375 0028 0D48     		ldr	r0, .L25
+ 376 002a 7A69     		ldr	r2, [r7, #20]
+ 377 002c 131C     		mov	r3, r2
+ 378 002e 5B00     		lsl	r3, r3, #1
+ 379 0030 9B18     		add	r3, r3, r2
+ 380 0032 C318     		add	r3, r0, r3
+ 381 0034 0A1C     		add	r2, r1, #0
+ 382 0036 5A70     		strb	r2, [r3, #1]
+ 103:../../src/driver/WS2812B/WS2812B.c **** 		ledBuffer[i].blue = color->blue;
+ 383              		.loc 1 103 0 discriminator 2
+ 384 0038 FB68     		ldr	r3, [r7, #12]
+ 385 003a 9978     		ldrb	r1, [r3, #2]
+ 386 003c 0848     		ldr	r0, .L25
+ 387 003e 7A69     		ldr	r2, [r7, #20]
+ 388 0040 131C     		mov	r3, r2
+ 389 0042 5B00     		lsl	r3, r3, #1
+ 390 0044 9B18     		add	r3, r3, r2
+ 391 0046 C318     		add	r3, r0, r3
+ 392 0048 0A1C     		add	r2, r1, #0
+ 393 004a 9A70     		strb	r2, [r3, #2]
+ 100:../../src/driver/WS2812B/WS2812B.c **** 	for (i = firstLedIndex; i <= lastLedIndex; i++) {
+ 394              		.loc 1 100 0 discriminator 2
+ 395 004c 7B69     		ldr	r3, [r7, #20]
+ 396 004e 0133     		add	r3, r3, #1
+ 397 0050 7B61     		str	r3, [r7, #20]
+ 398              	.L23:
+ 100:../../src/driver/WS2812B/WS2812B.c **** 	for (i = firstLedIndex; i <= lastLedIndex; i++) {
+ 399              		.loc 1 100 0 is_stmt 0 discriminator 1
+ 400 0052 7A69     		ldr	r2, [r7, #20]
+ 401 0054 7B68     		ldr	r3, [r7, #4]
+ 402 0056 9A42     		cmp	r2, r3
+ 403 0058 DBD9     		bls	.L24
+ 104:../../src/driver/WS2812B/WS2812B.c **** 	}
+ 105:../../src/driver/WS2812B/WS2812B.c **** }
+ 404              		.loc 1 105 0 is_stmt 1
+ 405 005a BD46     		mov	sp, r7
+ 406 005c 06B0     		add	sp, sp, #24
+ 407              		@ sp needed
+ 408 005e 80BD     		pop	{r7, pc}
+ 409              	.L26:
+ 410              		.align	2
+ 411              	.L25:
+ 412 0060 00000000 		.word	ledBuffer
+ 413              		.cfi_endproc
+ 414              	.LFE37:
+ 416              		.section	.text.WS2812B_setNumberOfActiveLeds,"ax",%progbits
+ 417              		.align	2
+ 418              		.global	WS2812B_setNumberOfActiveLeds
+ 419              		.code	16
+ 420              		.thumb_func
+ 422              	WS2812B_setNumberOfActiveLeds:
+ 423              	.LFB38:
+ 106:../../src/driver/WS2812B/WS2812B.c **** 
+ 107:../../src/driver/WS2812B/WS2812B.c **** void WS2812B_setNumberOfActiveLeds(uint32_t nbrOfActiveLeds) {
+ 424              		.loc 1 107 0
+ 425              		.cfi_startproc
+ 426 0000 80B5     		push	{r7, lr}
+ 427              		.cfi_def_cfa_offset 8
+ 428              		.cfi_offset 7, -8
+ 429              		.cfi_offset 14, -4
+ 430 0002 82B0     		sub	sp, sp, #8
+ 431              		.cfi_def_cfa_offset 16
+ 432 0004 00AF     		add	r7, sp, #0
+ 433              		.cfi_def_cfa_register 7
+ 434 0006 7860     		str	r0, [r7, #4]
+ 108:../../src/driver/WS2812B/WS2812B.c **** 	numberOfActiveLeds = nbrOfActiveLeds;
+ 435              		.loc 1 108 0
+ 436 0008 024B     		ldr	r3, .L28
+ 437 000a 7A68     		ldr	r2, [r7, #4]
+ 438 000c 1A60     		str	r2, [r3]
+ 109:../../src/driver/WS2812B/WS2812B.c **** }
+ 439              		.loc 1 109 0
+ 440 000e BD46     		mov	sp, r7
+ 441 0010 02B0     		add	sp, sp, #8
+ 442              		@ sp needed
+ 443 0012 80BD     		pop	{r7, pc}
+ 444              	.L29:
+ 445              		.align	2
+ 446              	.L28:
+ 447 0014 00000000 		.word	numberOfActiveLeds
+ 448              		.cfi_endproc
+ 449              	.LFE38:
+ 451              		.section	.text.WS2812B_getNumberOfActiveLeds,"ax",%progbits
+ 452              		.align	2
+ 453              		.global	WS2812B_getNumberOfActiveLeds
+ 454              		.code	16
+ 455              		.thumb_func
+ 457              	WS2812B_getNumberOfActiveLeds:
+ 458              	.LFB39:
+ 110:../../src/driver/WS2812B/WS2812B.c **** 
+ 111:../../src/driver/WS2812B/WS2812B.c **** uint32_t WS2812B_getNumberOfActiveLeds(void) {
+ 459              		.loc 1 111 0
+ 460              		.cfi_startproc
+ 461 0000 80B5     		push	{r7, lr}
+ 462              		.cfi_def_cfa_offset 8
+ 463              		.cfi_offset 7, -8
+ 464              		.cfi_offset 14, -4
+ 465 0002 00AF     		add	r7, sp, #0
+ 466              		.cfi_def_cfa_register 7
+ 112:../../src/driver/WS2812B/WS2812B.c **** 	return numberOfActiveLeds;
+ 467              		.loc 1 112 0
+ 468 0004 024B     		ldr	r3, .L32
+ 469 0006 1B68     		ldr	r3, [r3]
+ 113:../../src/driver/WS2812B/WS2812B.c **** }
+ 470              		.loc 1 113 0
+ 471 0008 181C     		mov	r0, r3
+ 472 000a BD46     		mov	sp, r7
+ 473              		@ sp needed
+ 474 000c 80BD     		pop	{r7, pc}
+ 475              	.L33:
+ 476 000e C046     		.align	2
+ 477              	.L32:
+ 478 0010 00000000 		.word	numberOfActiveLeds
+ 479              		.cfi_endproc
+ 480              	.LFE39:
+ 482              		.global	__aeabi_uidivmod
+ 483              		.section	.text.WS2812B_tick,"ax",%progbits
+ 484              		.align	2
+ 485              		.global	WS2812B_tick
+ 486              		.code	16
+ 487              		.thumb_func
+ 489              	WS2812B_tick:
+ 490              	.LFB40:
+ 114:../../src/driver/WS2812B/WS2812B.c **** 
+ 115:../../src/driver/WS2812B/WS2812B.c **** void WS2812B_tick(uint32_t localtime) {
+ 491              		.loc 1 115 0
+ 492              		.cfi_startproc
+ 493 0000 80B5     		push	{r7, lr}
+ 494              		.cfi_def_cfa_offset 8
+ 495              		.cfi_offset 7, -8
+ 496              		.cfi_offset 14, -4
+ 497 0002 82B0     		sub	sp, sp, #8
+ 498              		.cfi_def_cfa_offset 16
+ 499 0004 00AF     		add	r7, sp, #0
+ 500              		.cfi_def_cfa_register 7
+ 501 0006 7860     		str	r0, [r7, #4]
+ 116:../../src/driver/WS2812B/WS2812B.c **** 	if (localtime % 50 == 0) {
+ 502              		.loc 1 116 0
+ 503 0008 7B68     		ldr	r3, [r7, #4]
+ 504 000a 181C     		mov	r0, r3
+ 505 000c 3221     		mov	r1, #50
+ 506 000e FFF7FEFF 		bl	__aeabi_uidivmod
+ 507 0012 0B1C     		mov	r3, r1
+ 508 0014 002B     		cmp	r3, #0
+ 509 0016 01D1     		bne	.L34
+ 117:../../src/driver/WS2812B/WS2812B.c **** 		updateDutyCycleBuffer();
+ 510              		.loc 1 117 0
+ 511 0018 FFF7FEFF 		bl	updateDutyCycleBuffer
+ 512              	.L34:
+ 118:../../src/driver/WS2812B/WS2812B.c **** 	}
+ 119:../../src/driver/WS2812B/WS2812B.c **** }
+ 513              		.loc 1 119 0
+ 514 001c BD46     		mov	sp, r7
+ 515 001e 02B0     		add	sp, sp, #8
+ 516              		@ sp needed
+ 517 0020 80BD     		pop	{r7, pc}
+ 518              		.cfi_endproc
+ 519              	.LFE40:
+ 521 0022 C046     		.section	.text.WS2812B_start,"ax",%progbits
+ 522              		.align	2
+ 523              		.global	WS2812B_start
+ 524              		.code	16
+ 525              		.thumb_func
+ 527              	WS2812B_start:
+ 528              	.LFB41:
+ 120:../../src/driver/WS2812B/WS2812B.c **** 
+ 121:../../src/driver/WS2812B/WS2812B.c **** void WS2812B_start(void) {
+ 529              		.loc 1 121 0
+ 530              		.cfi_startproc
+ 531 0000 80B5     		push	{r7, lr}
+ 532              		.cfi_def_cfa_offset 8
+ 533              		.cfi_offset 7, -8
+ 534              		.cfi_offset 14, -4
+ 535 0002 00AF     		add	r7, sp, #0
+ 536              		.cfi_def_cfa_register 7
+ 122:../../src/driver/WS2812B/WS2812B.c **** 	updateDutyCycleBuffer();
+ 537              		.loc 1 122 0
+ 538 0004 FFF7FEFF 		bl	updateDutyCycleBuffer
+ 123:../../src/driver/WS2812B/WS2812B.c **** 
+ 124:../../src/driver/WS2812B/WS2812B.c **** 	isRunning = true;
+ 539              		.loc 1 124 0
+ 540 0008 0B4B     		ldr	r3, .L37
+ 541 000a 0122     		mov	r2, #1
+ 542 000c 1A70     		strb	r2, [r3]
+ 125:../../src/driver/WS2812B/WS2812B.c **** 
+ 126:../../src/driver/WS2812B/WS2812B.c **** 	DMA_Cmd(DMA1_Channel2, DISABLE);
+ 543              		.loc 1 126 0
+ 544 000e 0B4B     		ldr	r3, .L37+4
+ 545 0010 181C     		mov	r0, r3
+ 546 0012 0021     		mov	r1, #0
+ 547 0014 FFF7FEFF 		bl	DMA_Cmd
+ 127:../../src/driver/WS2812B/WS2812B.c **** 	DMA_SetCurrDataCounter(DMA1_Channel2, currentDutyCycleBufferSize);
+ 548              		.loc 1 127 0
+ 549 0018 094B     		ldr	r3, .L37+8
+ 550 001a 1B88     		ldrh	r3, [r3]
+ 551 001c 9BB2     		uxth	r3, r3
+ 552 001e 074A     		ldr	r2, .L37+4
+ 553 0020 101C     		mov	r0, r2
+ 554 0022 191C     		mov	r1, r3
+ 555 0024 FFF7FEFF 		bl	DMA_SetCurrDataCounter
+ 128:../../src/driver/WS2812B/WS2812B.c **** 	DMA_Cmd(DMA1_Channel2, ENABLE);
+ 556              		.loc 1 128 0
+ 557 0028 044B     		ldr	r3, .L37+4
+ 558 002a 181C     		mov	r0, r3
+ 559 002c 0121     		mov	r1, #1
+ 560 002e FFF7FEFF 		bl	DMA_Cmd
+ 129:../../src/driver/WS2812B/WS2812B.c **** }
+ 561              		.loc 1 129 0
+ 562 0032 BD46     		mov	sp, r7
+ 563              		@ sp needed
+ 564 0034 80BD     		pop	{r7, pc}
+ 565              	.L38:
+ 566 0036 C046     		.align	2
+ 567              	.L37:
+ 568 0038 00000000 		.word	isRunning
+ 569 003c 1C000240 		.word	1073872924
+ 570 0040 00000000 		.word	currentDutyCycleBufferSize
+ 571              		.cfi_endproc
+ 572              	.LFE41:
+ 574              		.section	.text.WS2812B_stop,"ax",%progbits
+ 575              		.align	2
+ 576              		.global	WS2812B_stop
+ 577              		.code	16
+ 578              		.thumb_func
+ 580              	WS2812B_stop:
+ 581              	.LFB42:
+ 130:../../src/driver/WS2812B/WS2812B.c **** 
+ 131:../../src/driver/WS2812B/WS2812B.c **** void WS2812B_stop(void) {
+ 582              		.loc 1 131 0
+ 583              		.cfi_startproc
+ 584 0000 80B5     		push	{r7, lr}
+ 585              		.cfi_def_cfa_offset 8
+ 586              		.cfi_offset 7, -8
+ 587              		.cfi_offset 14, -4
+ 588 0002 00AF     		add	r7, sp, #0
+ 589              		.cfi_def_cfa_register 7
+ 132:../../src/driver/WS2812B/WS2812B.c **** 	isRunning = false;
+ 590              		.loc 1 132 0
+ 591 0004 024B     		ldr	r3, .L40
+ 592 0006 0022     		mov	r2, #0
+ 593 0008 1A70     		strb	r2, [r3]
+ 133:../../src/driver/WS2812B/WS2812B.c **** }
+ 594              		.loc 1 133 0
+ 595 000a BD46     		mov	sp, r7
+ 596              		@ sp needed
+ 597 000c 80BD     		pop	{r7, pc}
+ 598              	.L41:
+ 599 000e C046     		.align	2
+ 600              	.L40:
+ 601 0010 00000000 		.word	isRunning
+ 602              		.cfi_endproc
+ 603              	.LFE42:
+ 605              		.section	.text.updateDutyCycleBuffer,"ax",%progbits
+ 606              		.align	2
+ 607              		.code	16
+ 608              		.thumb_func
+ 610              	updateDutyCycleBuffer:
+ 611              	.LFB43:
+ 134:../../src/driver/WS2812B/WS2812B.c **** 
+ 135:../../src/driver/WS2812B/WS2812B.c **** /////////////////////////////////////
+ 136:../../src/driver/WS2812B/WS2812B.c **** // private functions
+ 137:../../src/driver/WS2812B/WS2812B.c **** /////////////////////////////////////
+ 138:../../src/driver/WS2812B/WS2812B.c **** 
+ 139:../../src/driver/WS2812B/WS2812B.c **** static void updateDutyCycleBuffer(void) {
+ 612              		.loc 1 139 0
+ 613              		.cfi_startproc
+ 614 0000 80B5     		push	{r7, lr}
+ 615              		.cfi_def_cfa_offset 8
+ 616              		.cfi_offset 7, -8
+ 617              		.cfi_offset 14, -4
+ 618 0002 84B0     		sub	sp, sp, #16
+ 619              		.cfi_def_cfa_offset 24
+ 620 0004 00AF     		add	r7, sp, #0
+ 621              		.cfi_def_cfa_register 7
+ 140:../../src/driver/WS2812B/WS2812B.c **** 	uint32_t i;
+ 141:../../src/driver/WS2812B/WS2812B.c **** 	uint8_t j;
+ 142:../../src/driver/WS2812B/WS2812B.c **** 
+ 143:../../src/driver/WS2812B/WS2812B.c **** 	uint32_t dcIndex = 0;
+ 622              		.loc 1 143 0
+ 623 0006 0023     		mov	r3, #0
+ 624 0008 7B60     		str	r3, [r7, #4]
+ 144:../../src/driver/WS2812B/WS2812B.c **** 
+ 145:../../src/driver/WS2812B/WS2812B.c **** 	for (i = 0; i < numberOfActiveLeds; i++) {
+ 625              		.loc 1 145 0
+ 626 000a 0023     		mov	r3, #0
+ 627 000c FB60     		str	r3, [r7, #12]
+ 628 000e 88E0     		b	.L43
+ 629              	.L56:
+ 146:../../src/driver/WS2812B/WS2812B.c **** 		for (j = 0; j < 8; j++) {
+ 630              		.loc 1 146 0
+ 631 0010 3B1C     		mov	r3, r7
+ 632 0012 0B33     		add	r3, r3, #11
+ 633 0014 0022     		mov	r2, #0
+ 634 0016 1A70     		strb	r2, [r3]
+ 635 0018 22E0     		b	.L44
+ 636              	.L47:
+ 147:../../src/driver/WS2812B/WS2812B.c **** 			if ((ledBuffer[i].green << j) & 0x80) {
+ 637              		.loc 1 147 0
+ 638 001a 5049     		ldr	r1, .L59
+ 639 001c FA68     		ldr	r2, [r7, #12]
+ 640 001e 131C     		mov	r3, r2
+ 641 0020 5B00     		lsl	r3, r3, #1
+ 642 0022 9B18     		add	r3, r3, r2
+ 643 0024 CB18     		add	r3, r1, r3
+ 644 0026 5B78     		ldrb	r3, [r3, #1]
+ 645 0028 1A1C     		mov	r2, r3
+ 646 002a 3B1C     		mov	r3, r7
+ 647 002c 0B33     		add	r3, r3, #11
+ 648 002e 1B78     		ldrb	r3, [r3]
+ 649 0030 9A40     		lsl	r2, r2, r3
+ 650 0032 8023     		mov	r3, #128
+ 651 0034 1340     		and	r3, r2
+ 652 0036 06D0     		beq	.L45
+ 148:../../src/driver/WS2812B/WS2812B.c **** 				dutyCycleBuffer[dcIndex++] = TIMER_1_DUTY_CYCLE;
+ 653              		.loc 1 148 0
+ 654 0038 7B68     		ldr	r3, [r7, #4]
+ 655 003a 5A1C     		add	r2, r3, #1
+ 656 003c 7A60     		str	r2, [r7, #4]
+ 657 003e 484A     		ldr	r2, .L59+4
+ 658 0040 2821     		mov	r1, #40
+ 659 0042 D154     		strb	r1, [r2, r3]
+ 660 0044 05E0     		b	.L46
+ 661              	.L45:
+ 149:../../src/driver/WS2812B/WS2812B.c **** 			} else {
+ 150:../../src/driver/WS2812B/WS2812B.c **** 				dutyCycleBuffer[dcIndex++] = TIMER_0_DUTY_CYCLE;
+ 662              		.loc 1 150 0
+ 663 0046 7B68     		ldr	r3, [r7, #4]
+ 664 0048 5A1C     		add	r2, r3, #1
+ 665 004a 7A60     		str	r2, [r7, #4]
+ 666 004c 444A     		ldr	r2, .L59+4
+ 667 004e 1421     		mov	r1, #20
+ 668 0050 D154     		strb	r1, [r2, r3]
+ 669              	.L46:
+ 146:../../src/driver/WS2812B/WS2812B.c **** 		for (j = 0; j < 8; j++) {
+ 670              		.loc 1 146 0
+ 671 0052 3B1C     		mov	r3, r7
+ 672 0054 0B33     		add	r3, r3, #11
+ 673 0056 1A78     		ldrb	r2, [r3]
+ 674 0058 3B1C     		mov	r3, r7
+ 675 005a 0B33     		add	r3, r3, #11
+ 676 005c 0132     		add	r2, r2, #1
+ 677 005e 1A70     		strb	r2, [r3]
+ 678              	.L44:
+ 146:../../src/driver/WS2812B/WS2812B.c **** 		for (j = 0; j < 8; j++) {
+ 679              		.loc 1 146 0 is_stmt 0 discriminator 1
+ 680 0060 3B1C     		mov	r3, r7
+ 681 0062 0B33     		add	r3, r3, #11
+ 682 0064 1B78     		ldrb	r3, [r3]
+ 683 0066 072B     		cmp	r3, #7
+ 684 0068 D7D9     		bls	.L47
+ 151:../../src/driver/WS2812B/WS2812B.c **** 			}
+ 152:../../src/driver/WS2812B/WS2812B.c **** 		}
+ 153:../../src/driver/WS2812B/WS2812B.c **** 		for (j = 0; j < 8; j++) {
+ 685              		.loc 1 153 0 is_stmt 1
+ 686 006a 3B1C     		mov	r3, r7
+ 687 006c 0B33     		add	r3, r3, #11
+ 688 006e 0022     		mov	r2, #0
+ 689 0070 1A70     		strb	r2, [r3]
+ 690 0072 21E0     		b	.L48
+ 691              	.L51:
+ 154:../../src/driver/WS2812B/WS2812B.c **** 			if ((ledBuffer[i].red << j) & 0x80) {
+ 692              		.loc 1 154 0
+ 693 0074 3949     		ldr	r1, .L59
+ 694 0076 FA68     		ldr	r2, [r7, #12]
+ 695 0078 131C     		mov	r3, r2
+ 696 007a 5B00     		lsl	r3, r3, #1
+ 697 007c 9B18     		add	r3, r3, r2
+ 698 007e 5B5C     		ldrb	r3, [r3, r1]
+ 699 0080 1A1C     		mov	r2, r3
+ 700 0082 3B1C     		mov	r3, r7
+ 701 0084 0B33     		add	r3, r3, #11
+ 702 0086 1B78     		ldrb	r3, [r3]
+ 703 0088 9A40     		lsl	r2, r2, r3
+ 704 008a 8023     		mov	r3, #128
+ 705 008c 1340     		and	r3, r2
+ 706 008e 06D0     		beq	.L49
+ 155:../../src/driver/WS2812B/WS2812B.c **** 				dutyCycleBuffer[dcIndex++] = TIMER_1_DUTY_CYCLE;
+ 707              		.loc 1 155 0
+ 708 0090 7B68     		ldr	r3, [r7, #4]
+ 709 0092 5A1C     		add	r2, r3, #1
+ 710 0094 7A60     		str	r2, [r7, #4]
+ 711 0096 324A     		ldr	r2, .L59+4
+ 712 0098 2821     		mov	r1, #40
+ 713 009a D154     		strb	r1, [r2, r3]
+ 714 009c 05E0     		b	.L50
+ 715              	.L49:
+ 156:../../src/driver/WS2812B/WS2812B.c **** 			} else {
+ 157:../../src/driver/WS2812B/WS2812B.c **** 				dutyCycleBuffer[dcIndex++] = TIMER_0_DUTY_CYCLE;
+ 716              		.loc 1 157 0
+ 717 009e 7B68     		ldr	r3, [r7, #4]
+ 718 00a0 5A1C     		add	r2, r3, #1
+ 719 00a2 7A60     		str	r2, [r7, #4]
+ 720 00a4 2E4A     		ldr	r2, .L59+4
+ 721 00a6 1421     		mov	r1, #20
+ 722 00a8 D154     		strb	r1, [r2, r3]
+ 723              	.L50:
+ 153:../../src/driver/WS2812B/WS2812B.c **** 		for (j = 0; j < 8; j++) {
+ 724              		.loc 1 153 0
+ 725 00aa 3B1C     		mov	r3, r7
+ 726 00ac 0B33     		add	r3, r3, #11
+ 727 00ae 1A78     		ldrb	r2, [r3]
+ 728 00b0 3B1C     		mov	r3, r7
+ 729 00b2 0B33     		add	r3, r3, #11
+ 730 00b4 0132     		add	r2, r2, #1
+ 731 00b6 1A70     		strb	r2, [r3]
+ 732              	.L48:
+ 153:../../src/driver/WS2812B/WS2812B.c **** 		for (j = 0; j < 8; j++) {
+ 733              		.loc 1 153 0 is_stmt 0 discriminator 1
+ 734 00b8 3B1C     		mov	r3, r7
+ 735 00ba 0B33     		add	r3, r3, #11
+ 736 00bc 1B78     		ldrb	r3, [r3]
+ 737 00be 072B     		cmp	r3, #7
+ 738 00c0 D8D9     		bls	.L51
+ 158:../../src/driver/WS2812B/WS2812B.c **** 			}
+ 159:../../src/driver/WS2812B/WS2812B.c **** 		}
+ 160:../../src/driver/WS2812B/WS2812B.c **** 		for (j = 0; j < 8; j++) {
+ 739              		.loc 1 160 0 is_stmt 1
+ 740 00c2 3B1C     		mov	r3, r7
+ 741 00c4 0B33     		add	r3, r3, #11
+ 742 00c6 0022     		mov	r2, #0
+ 743 00c8 1A70     		strb	r2, [r3]
+ 744 00ca 22E0     		b	.L52
+ 745              	.L55:
+ 161:../../src/driver/WS2812B/WS2812B.c **** 			if ((ledBuffer[i].blue << j) & 0x80) {
+ 746              		.loc 1 161 0
+ 747 00cc 2349     		ldr	r1, .L59
+ 748 00ce FA68     		ldr	r2, [r7, #12]
+ 749 00d0 131C     		mov	r3, r2
+ 750 00d2 5B00     		lsl	r3, r3, #1
+ 751 00d4 9B18     		add	r3, r3, r2
+ 752 00d6 CB18     		add	r3, r1, r3
+ 753 00d8 9B78     		ldrb	r3, [r3, #2]
+ 754 00da 1A1C     		mov	r2, r3
+ 755 00dc 3B1C     		mov	r3, r7
+ 756 00de 0B33     		add	r3, r3, #11
+ 757 00e0 1B78     		ldrb	r3, [r3]
+ 758 00e2 9A40     		lsl	r2, r2, r3
+ 759 00e4 8023     		mov	r3, #128
+ 760 00e6 1340     		and	r3, r2
+ 761 00e8 06D0     		beq	.L53
+ 162:../../src/driver/WS2812B/WS2812B.c **** 				dutyCycleBuffer[dcIndex++] = TIMER_1_DUTY_CYCLE;
+ 762              		.loc 1 162 0
+ 763 00ea 7B68     		ldr	r3, [r7, #4]
+ 764 00ec 5A1C     		add	r2, r3, #1
+ 765 00ee 7A60     		str	r2, [r7, #4]
+ 766 00f0 1B4A     		ldr	r2, .L59+4
+ 767 00f2 2821     		mov	r1, #40
+ 768 00f4 D154     		strb	r1, [r2, r3]
+ 769 00f6 05E0     		b	.L54
+ 770              	.L53:
+ 163:../../src/driver/WS2812B/WS2812B.c **** 			} else {
+ 164:../../src/driver/WS2812B/WS2812B.c **** 				dutyCycleBuffer[dcIndex++] = TIMER_0_DUTY_CYCLE;
+ 771              		.loc 1 164 0
+ 772 00f8 7B68     		ldr	r3, [r7, #4]
+ 773 00fa 5A1C     		add	r2, r3, #1
+ 774 00fc 7A60     		str	r2, [r7, #4]
+ 775 00fe 184A     		ldr	r2, .L59+4
+ 776 0100 1421     		mov	r1, #20
+ 777 0102 D154     		strb	r1, [r2, r3]
+ 778              	.L54:
+ 160:../../src/driver/WS2812B/WS2812B.c **** 		for (j = 0; j < 8; j++) {
+ 779              		.loc 1 160 0
+ 780 0104 3B1C     		mov	r3, r7
+ 781 0106 0B33     		add	r3, r3, #11
+ 782 0108 1A78     		ldrb	r2, [r3]
+ 783 010a 3B1C     		mov	r3, r7
+ 784 010c 0B33     		add	r3, r3, #11
+ 785 010e 0132     		add	r2, r2, #1
+ 786 0110 1A70     		strb	r2, [r3]
+ 787              	.L52:
+ 160:../../src/driver/WS2812B/WS2812B.c **** 		for (j = 0; j < 8; j++) {
+ 788              		.loc 1 160 0 is_stmt 0 discriminator 1
+ 789 0112 3B1C     		mov	r3, r7
+ 790 0114 0B33     		add	r3, r3, #11
+ 791 0116 1B78     		ldrb	r3, [r3]
+ 792 0118 072B     		cmp	r3, #7
+ 793 011a D7D9     		bls	.L55
+ 145:../../src/driver/WS2812B/WS2812B.c **** 	for (i = 0; i < numberOfActiveLeds; i++) {
+ 794              		.loc 1 145 0 is_stmt 1
+ 795 011c FB68     		ldr	r3, [r7, #12]
+ 796 011e 0133     		add	r3, r3, #1
+ 797 0120 FB60     		str	r3, [r7, #12]
+ 798              	.L43:
+ 145:../../src/driver/WS2812B/WS2812B.c **** 	for (i = 0; i < numberOfActiveLeds; i++) {
+ 799              		.loc 1 145 0 is_stmt 0 discriminator 1
+ 800 0122 104B     		ldr	r3, .L59+8
+ 801 0124 1B68     		ldr	r3, [r3]
+ 802 0126 FA68     		ldr	r2, [r7, #12]
+ 803 0128 9A42     		cmp	r2, r3
+ 804 012a 00D2     		bcs	.LCB697
+ 805 012c 70E7     		b	.L56	@long jump
+ 806              	.LCB697:
+ 165:../../src/driver/WS2812B/WS2812B.c **** 			}
+ 166:../../src/driver/WS2812B/WS2812B.c **** 		}
+ 167:../../src/driver/WS2812B/WS2812B.c **** 	}
+ 168:../../src/driver/WS2812B/WS2812B.c **** 
+ 169:../../src/driver/WS2812B/WS2812B.c **** 	for (i = 0; i < TIMER_RESET_REPEAT_COUNT; i++) {
+ 807              		.loc 1 169 0 is_stmt 1
+ 808 012e 0023     		mov	r3, #0
+ 809 0130 FB60     		str	r3, [r7, #12]
+ 810 0132 08E0     		b	.L57
+ 811              	.L58:
+ 170:../../src/driver/WS2812B/WS2812B.c **** 		dutyCycleBuffer[dcIndex++] = TIMER_RESET_DUTY_CYLCE;
+ 812              		.loc 1 170 0 discriminator 2
+ 813 0134 7B68     		ldr	r3, [r7, #4]
+ 814 0136 5A1C     		add	r2, r3, #1
+ 815 0138 7A60     		str	r2, [r7, #4]
+ 816 013a 094A     		ldr	r2, .L59+4
+ 817 013c 0021     		mov	r1, #0
+ 818 013e D154     		strb	r1, [r2, r3]
+ 169:../../src/driver/WS2812B/WS2812B.c **** 	for (i = 0; i < TIMER_RESET_REPEAT_COUNT; i++) {
+ 819              		.loc 1 169 0 discriminator 2
+ 820 0140 FB68     		ldr	r3, [r7, #12]
+ 821 0142 0133     		add	r3, r3, #1
+ 822 0144 FB60     		str	r3, [r7, #12]
+ 823              	.L57:
+ 169:../../src/driver/WS2812B/WS2812B.c **** 	for (i = 0; i < TIMER_RESET_REPEAT_COUNT; i++) {
+ 824              		.loc 1 169 0 is_stmt 0 discriminator 1
+ 825 0146 FB68     		ldr	r3, [r7, #12]
+ 826 0148 262B     		cmp	r3, #38
+ 827 014a F3D9     		bls	.L58
+ 171:../../src/driver/WS2812B/WS2812B.c **** 	}
+ 172:../../src/driver/WS2812B/WS2812B.c **** 
+ 173:../../src/driver/WS2812B/WS2812B.c **** 	currentDutyCycleBufferSize = dcIndex;
+ 828              		.loc 1 173 0 is_stmt 1
+ 829 014c 7B68     		ldr	r3, [r7, #4]
+ 830 014e 9AB2     		uxth	r2, r3
+ 831 0150 054B     		ldr	r3, .L59+12
+ 832 0152 1A80     		strh	r2, [r3]
+ 174:../../src/driver/WS2812B/WS2812B.c **** }
+ 833              		.loc 1 174 0
+ 834 0154 BD46     		mov	sp, r7
+ 835 0156 04B0     		add	sp, sp, #16
+ 836              		@ sp needed
+ 837 0158 80BD     		pop	{r7, pc}
+ 838              	.L60:
+ 839 015a C046     		.align	2
+ 840              	.L59:
+ 841 015c 00000000 		.word	ledBuffer
+ 842 0160 00000000 		.word	dutyCycleBuffer
+ 843 0164 00000000 		.word	numberOfActiveLeds
+ 844 0168 00000000 		.word	currentDutyCycleBufferSize
+ 845              		.cfi_endproc
+ 846              	.LFE43:
+ 848              		.section	.text.initGpio,"ax",%progbits
+ 849              		.align	2
+ 850              		.code	16
+ 851              		.thumb_func
+ 853              	initGpio:
+ 854              	.LFB44:
+ 175:../../src/driver/WS2812B/WS2812B.c **** 
+ 176:../../src/driver/WS2812B/WS2812B.c **** static void initGpio(void) {
+ 855              		.loc 1 176 0
+ 856              		.cfi_startproc
+ 857 0000 80B5     		push	{r7, lr}
+ 858              		.cfi_def_cfa_offset 8
+ 859              		.cfi_offset 7, -8
+ 860              		.cfi_offset 14, -4
+ 861 0002 82B0     		sub	sp, sp, #8
+ 862              		.cfi_def_cfa_offset 16
+ 863 0004 00AF     		add	r7, sp, #0
+ 864              		.cfi_def_cfa_register 7
+ 177:../../src/driver/WS2812B/WS2812B.c **** 	GPIO_InitTypeDef gpioInit;
+ 178:../../src/driver/WS2812B/WS2812B.c **** 
+ 179:../../src/driver/WS2812B/WS2812B.c **** 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+ 865              		.loc 1 179 0
+ 866 0006 8023     		mov	r3, #128
+ 867 0008 DB02     		lsl	r3, r3, #11
+ 868 000a 181C     		mov	r0, r3
+ 869 000c 0121     		mov	r1, #1
+ 870 000e FFF7FEFF 		bl	RCC_AHBPeriphClockCmd
+ 180:../../src/driver/WS2812B/WS2812B.c **** 
+ 181:../../src/driver/WS2812B/WS2812B.c **** 	gpioInit.GPIO_Mode = GPIO_Mode_AF;
+ 871              		.loc 1 181 0
+ 872 0012 3B1C     		mov	r3, r7
+ 873 0014 0222     		mov	r2, #2
+ 874 0016 1A71     		strb	r2, [r3, #4]
+ 182:../../src/driver/WS2812B/WS2812B.c **** 	gpioInit.GPIO_OType = GPIO_OType_PP;
+ 875              		.loc 1 182 0
+ 876 0018 3B1C     		mov	r3, r7
+ 877 001a 0022     		mov	r2, #0
+ 878 001c 9A71     		strb	r2, [r3, #6]
+ 183:../../src/driver/WS2812B/WS2812B.c **** 	gpioInit.GPIO_Pin = GPIO_Pin_0;
+ 879              		.loc 1 183 0
+ 880 001e 3B1C     		mov	r3, r7
+ 881 0020 0122     		mov	r2, #1
+ 882 0022 1A60     		str	r2, [r3]
+ 184:../../src/driver/WS2812B/WS2812B.c **** 	gpioInit.GPIO_PuPd = GPIO_PuPd_UP;
+ 883              		.loc 1 184 0
+ 884 0024 3B1C     		mov	r3, r7
+ 885 0026 0122     		mov	r2, #1
+ 886 0028 DA71     		strb	r2, [r3, #7]
+ 185:../../src/driver/WS2812B/WS2812B.c **** 	gpioInit.GPIO_Speed = GPIO_Speed_50MHz;
+ 887              		.loc 1 185 0
+ 888 002a 3B1C     		mov	r3, r7
+ 889 002c 0322     		mov	r2, #3
+ 890 002e 5A71     		strb	r2, [r3, #5]
+ 186:../../src/driver/WS2812B/WS2812B.c **** 	GPIO_Init(GPIOC, &gpioInit);
+ 891              		.loc 1 186 0
+ 892 0030 074A     		ldr	r2, .L62
+ 893 0032 3B1C     		mov	r3, r7
+ 894 0034 101C     		mov	r0, r2
+ 895 0036 191C     		mov	r1, r3
+ 896 0038 FFF7FEFF 		bl	GPIO_Init
+ 187:../../src/driver/WS2812B/WS2812B.c **** 
+ 188:../../src/driver/WS2812B/WS2812B.c **** 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource0, GPIO_AF_1);
+ 897              		.loc 1 188 0
+ 898 003c 054B     		ldr	r3, .L62+4
+ 899 003e 181C     		mov	r0, r3
+ 900 0040 0021     		mov	r1, #0
+ 901 0042 0122     		mov	r2, #1
+ 902 0044 FFF7FEFF 		bl	GPIO_PinAFConfig
+ 189:../../src/driver/WS2812B/WS2812B.c **** }
+ 903              		.loc 1 189 0
+ 904 0048 BD46     		mov	sp, r7
+ 905 004a 02B0     		add	sp, sp, #8
+ 906              		@ sp needed
+ 907 004c 80BD     		pop	{r7, pc}
+ 908              	.L63:
+ 909 004e C046     		.align	2
+ 910              	.L62:
+ 911 0050 00080048 		.word	1207961600
+ 912 0054 00040048 		.word	1207960576
+ 913              		.cfi_endproc
+ 914              	.LFE44:
+ 916              		.section	.text.initPwmTimer,"ax",%progbits
+ 917              		.align	2
+ 918              		.code	16
+ 919              		.thumb_func
+ 921              	initPwmTimer:
+ 922              	.LFB45:
+ 190:../../src/driver/WS2812B/WS2812B.c **** 
+ 191:../../src/driver/WS2812B/WS2812B.c **** static void initPwmTimer(void) {
+ 923              		.loc 1 191 0
+ 924              		.cfi_startproc
+ 925 0000 80B5     		push	{r7, lr}
+ 926              		.cfi_def_cfa_offset 8
+ 927              		.cfi_offset 7, -8
+ 928              		.cfi_offset 14, -4
+ 929 0002 88B0     		sub	sp, sp, #32
+ 930              		.cfi_def_cfa_offset 40
+ 931 0004 00AF     		add	r7, sp, #0
+ 932              		.cfi_def_cfa_register 7
+ 192:../../src/driver/WS2812B/WS2812B.c **** 	TIM_TimeBaseInitTypeDef timerTimeBaseInit;
+ 193:../../src/driver/WS2812B/WS2812B.c **** 	TIM_OCInitTypeDef timerOCInit;
+ 194:../../src/driver/WS2812B/WS2812B.c **** 
+ 195:../../src/driver/WS2812B/WS2812B.c **** 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+ 933              		.loc 1 195 0
+ 934 0006 0220     		mov	r0, #2
+ 935 0008 0121     		mov	r1, #1
+ 936 000a FFF7FEFF 		bl	RCC_APB1PeriphClockCmd
+ 196:../../src/driver/WS2812B/WS2812B.c **** 
+ 197:../../src/driver/WS2812B/WS2812B.c **** 	timerTimeBaseInit.TIM_Prescaler = 0;
+ 937              		.loc 1 197 0
+ 938 000e 3B1C     		mov	r3, r7
+ 939 0010 1433     		add	r3, r3, #20
+ 940 0012 0022     		mov	r2, #0
+ 941 0014 1A80     		strh	r2, [r3]
+ 198:../../src/driver/WS2812B/WS2812B.c **** 	timerTimeBaseInit.TIM_CounterMode = TIM_CounterMode_Up;
+ 942              		.loc 1 198 0
+ 943 0016 3B1C     		mov	r3, r7
+ 944 0018 1433     		add	r3, r3, #20
+ 945 001a 0022     		mov	r2, #0
+ 946 001c 5A80     		strh	r2, [r3, #2]
+ 199:../../src/driver/WS2812B/WS2812B.c **** 	timerTimeBaseInit.TIM_Period = TIMER_PERIOD;
+ 947              		.loc 1 199 0
+ 948 001e 3B1C     		mov	r3, r7
+ 949 0020 1433     		add	r3, r3, #20
+ 950 0022 3F22     		mov	r2, #63
+ 951 0024 5A60     		str	r2, [r3, #4]
+ 200:../../src/driver/WS2812B/WS2812B.c **** 	timerTimeBaseInit.TIM_ClockDivision = TIM_CKD_DIV1;
+ 952              		.loc 1 200 0
+ 953 0026 3B1C     		mov	r3, r7
+ 954 0028 1433     		add	r3, r3, #20
+ 955 002a 0022     		mov	r2, #0
+ 956 002c 1A81     		strh	r2, [r3, #8]
+ 201:../../src/driver/WS2812B/WS2812B.c **** 	timerTimeBaseInit.TIM_RepetitionCounter = 0;
+ 957              		.loc 1 201 0
+ 958 002e 3B1C     		mov	r3, r7
+ 959 0030 1433     		add	r3, r3, #20
+ 960 0032 0022     		mov	r2, #0
+ 961 0034 9A72     		strb	r2, [r3, #10]
+ 202:../../src/driver/WS2812B/WS2812B.c **** 	TIM_TimeBaseInit(TIM3, &timerTimeBaseInit);
+ 962              		.loc 1 202 0
+ 963 0036 184A     		ldr	r2, .L65
+ 964 0038 3B1C     		mov	r3, r7
+ 965 003a 1433     		add	r3, r3, #20
+ 966 003c 101C     		mov	r0, r2
+ 967 003e 191C     		mov	r1, r3
+ 968 0040 FFF7FEFF 		bl	TIM_TimeBaseInit
+ 203:../../src/driver/WS2812B/WS2812B.c **** 
+ 204:../../src/driver/WS2812B/WS2812B.c **** 	timerOCInit.TIM_OCMode = TIM_OCMode_PWM1;
+ 969              		.loc 1 204 0
+ 970 0044 3B1C     		mov	r3, r7
+ 971 0046 6022     		mov	r2, #96
+ 972 0048 1A80     		strh	r2, [r3]
+ 205:../../src/driver/WS2812B/WS2812B.c **** 	timerOCInit.TIM_OutputState = TIM_OutputState_Enable;
+ 973              		.loc 1 205 0
+ 974 004a 3B1C     		mov	r3, r7
+ 975 004c 0122     		mov	r2, #1
+ 976 004e 5A80     		strh	r2, [r3, #2]
+ 206:../../src/driver/WS2812B/WS2812B.c **** 	timerOCInit.TIM_OutputNState = TIM_OutputNState_Enable;
+ 977              		.loc 1 206 0
+ 978 0050 3B1C     		mov	r3, r7
+ 979 0052 0422     		mov	r2, #4
+ 980 0054 9A80     		strh	r2, [r3, #4]
+ 207:../../src/driver/WS2812B/WS2812B.c **** 	timerOCInit.TIM_OCPolarity = TIM_OCPolarity_Low;
+ 981              		.loc 1 207 0
+ 982 0056 3B1C     		mov	r3, r7
+ 983 0058 0222     		mov	r2, #2
+ 984 005a 9A81     		strh	r2, [r3, #12]
+ 208:../../src/driver/WS2812B/WS2812B.c **** 	timerOCInit.TIM_OCNPolarity = TIM_OCNPolarity_High;
+ 985              		.loc 1 208 0
+ 986 005c 3B1C     		mov	r3, r7
+ 987 005e 0022     		mov	r2, #0
+ 988 0060 DA81     		strh	r2, [r3, #14]
+ 209:../../src/driver/WS2812B/WS2812B.c **** 	timerOCInit.TIM_OCIdleState = TIM_OCIdleState_Set;
+ 989              		.loc 1 209 0
+ 990 0062 3B1C     		mov	r3, r7
+ 991 0064 8022     		mov	r2, #128
+ 992 0066 5200     		lsl	r2, r2, #1
+ 993 0068 1A82     		strh	r2, [r3, #16]
+ 210:../../src/driver/WS2812B/WS2812B.c **** 	timerOCInit.TIM_OCNIdleState = TIM_OCIdleState_Reset;
+ 994              		.loc 1 210 0
+ 995 006a 3B1C     		mov	r3, r7
+ 996 006c 0022     		mov	r2, #0
+ 997 006e 5A82     		strh	r2, [r3, #18]
+ 211:../../src/driver/WS2812B/WS2812B.c **** 	timerOCInit.TIM_Pulse = 0;
+ 998              		.loc 1 211 0
+ 999 0070 3B1C     		mov	r3, r7
+ 1000 0072 0022     		mov	r2, #0
+ 1001 0074 9A60     		str	r2, [r3, #8]
+ 212:../../src/driver/WS2812B/WS2812B.c **** 
+ 213:../../src/driver/WS2812B/WS2812B.c **** 	TIM_DMACmd(TIM3, TIM_DMA_CC3, ENABLE);
+ 1002              		.loc 1 213 0
+ 1003 0076 084A     		ldr	r2, .L65
+ 1004 0078 8023     		mov	r3, #128
+ 1005 007a 1B01     		lsl	r3, r3, #4
+ 1006 007c 101C     		mov	r0, r2
+ 1007 007e 191C     		mov	r1, r3
+ 1008 0080 0122     		mov	r2, #1
+ 1009 0082 FFF7FEFF 		bl	TIM_DMACmd
+ 214:../../src/driver/WS2812B/WS2812B.c **** 	TIM_Cmd(TIM3, ENABLE);
+ 1010              		.loc 1 214 0
+ 1011 0086 044B     		ldr	r3, .L65
+ 1012 0088 181C     		mov	r0, r3
+ 1013 008a 0121     		mov	r1, #1
+ 1014 008c FFF7FEFF 		bl	TIM_Cmd
+ 215:../../src/driver/WS2812B/WS2812B.c **** }
+ 1015              		.loc 1 215 0
+ 1016 0090 BD46     		mov	sp, r7
+ 1017 0092 08B0     		add	sp, sp, #32
+ 1018              		@ sp needed
+ 1019 0094 80BD     		pop	{r7, pc}
+ 1020              	.L66:
+ 1021 0096 C046     		.align	2
+ 1022              	.L65:
+ 1023 0098 00040040 		.word	1073742848
+ 1024              		.cfi_endproc
+ 1025              	.LFE45:
+ 1027              		.section	.text.initDma,"ax",%progbits
+ 1028              		.align	2
+ 1029              		.code	16
+ 1030              		.thumb_func
+ 1032              	initDma:
+ 1033              	.LFB46:
+ 216:../../src/driver/WS2812B/WS2812B.c **** 
+ 217:../../src/driver/WS2812B/WS2812B.c **** static void initDma(void) {
+ 1034              		.loc 1 217 0
+ 1035              		.cfi_startproc
+ 1036 0000 80B5     		push	{r7, lr}
+ 1037              		.cfi_def_cfa_offset 8
+ 1038              		.cfi_offset 7, -8
+ 1039              		.cfi_offset 14, -4
+ 1040 0002 8EB0     		sub	sp, sp, #56
+ 1041              		.cfi_def_cfa_offset 64
+ 1042 0004 02AF     		add	r7, sp, #8
+ 1043              		.cfi_def_cfa 7, 56
+ 218:../../src/driver/WS2812B/WS2812B.c **** 	DMA_InitTypeDef dmaInit;
+ 219:../../src/driver/WS2812B/WS2812B.c **** 	NVIC_InitTypeDef nvicInit;
+ 220:../../src/driver/WS2812B/WS2812B.c **** 
+ 221:../../src/driver/WS2812B/WS2812B.c **** 	DMA1_init();
+ 1044              		.loc 1 221 0
+ 1045 0006 FFF7FEFF 		bl	DMA1_init
+ 222:../../src/driver/WS2812B/WS2812B.c **** 
+ 223:../../src/driver/WS2812B/WS2812B.c **** 	DMA_DeInit(DMA1_Channel2);
+ 1046              		.loc 1 223 0
+ 1047 000a 264B     		ldr	r3, .L68
+ 1048 000c 181C     		mov	r0, r3
+ 1049 000e FFF7FEFF 		bl	DMA_DeInit
+ 224:../../src/driver/WS2812B/WS2812B.c **** 	dmaInit.DMA_BufferSize = 1;
+ 1050              		.loc 1 224 0
+ 1051 0012 3B1D     		add	r3, r7, #4
+ 1052 0014 0122     		mov	r2, #1
+ 1053 0016 DA60     		str	r2, [r3, #12]
+ 225:../../src/driver/WS2812B/WS2812B.c **** 	dmaInit.DMA_DIR = DMA_DIR_PeripheralDST;
+ 1054              		.loc 1 225 0
+ 1055 0018 3B1D     		add	r3, r7, #4
+ 1056 001a 1022     		mov	r2, #16
+ 1057 001c 9A60     		str	r2, [r3, #8]
+ 226:../../src/driver/WS2812B/WS2812B.c **** 	dmaInit.DMA_M2M = DMA_M2M_Disable;
+ 1058              		.loc 1 226 0
+ 1059 001e 3B1D     		add	r3, r7, #4
+ 1060 0020 0022     		mov	r2, #0
+ 1061 0022 9A62     		str	r2, [r3, #40]
+ 227:../../src/driver/WS2812B/WS2812B.c **** 	dmaInit.DMA_MemoryBaseAddr = (uint32_t) dutyCycleBuffer;
+ 1062              		.loc 1 227 0
+ 1063 0024 204A     		ldr	r2, .L68+4
+ 1064 0026 3B1D     		add	r3, r7, #4
+ 1065 0028 5A60     		str	r2, [r3, #4]
+ 228:../../src/driver/WS2812B/WS2812B.c **** 	dmaInit.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+ 1066              		.loc 1 228 0
+ 1067 002a 3B1D     		add	r3, r7, #4
+ 1068 002c 0022     		mov	r2, #0
+ 1069 002e DA61     		str	r2, [r3, #28]
+ 229:../../src/driver/WS2812B/WS2812B.c **** 	dmaInit.DMA_MemoryInc = DMA_MemoryInc_Enable;
+ 1070              		.loc 1 229 0
+ 1071 0030 3B1D     		add	r3, r7, #4
+ 1072 0032 8022     		mov	r2, #128
+ 1073 0034 5A61     		str	r2, [r3, #20]
+ 230:../../src/driver/WS2812B/WS2812B.c **** 	dmaInit.DMA_Mode = DMA_Mode_Normal;
+ 1074              		.loc 1 230 0
+ 1075 0036 3B1D     		add	r3, r7, #4
+ 1076 0038 0022     		mov	r2, #0
+ 1077 003a 1A62     		str	r2, [r3, #32]
+ 231:../../src/driver/WS2812B/WS2812B.c **** 	dmaInit.DMA_PeripheralBaseAddr = (uint32_t) &TIM3->CCR3;
+ 1078              		.loc 1 231 0
+ 1079 003c 3B1D     		add	r3, r7, #4
+ 1080 003e 1B4A     		ldr	r2, .L68+8
+ 1081 0040 1A60     		str	r2, [r3]
+ 232:../../src/driver/WS2812B/WS2812B.c **** 	dmaInit.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+ 1082              		.loc 1 232 0
+ 1083 0042 3B1D     		add	r3, r7, #4
+ 1084 0044 0022     		mov	r2, #0
+ 1085 0046 9A61     		str	r2, [r3, #24]
+ 233:../../src/driver/WS2812B/WS2812B.c **** 	dmaInit.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+ 1086              		.loc 1 233 0
+ 1087 0048 3B1D     		add	r3, r7, #4
+ 1088 004a 0022     		mov	r2, #0
+ 1089 004c 1A61     		str	r2, [r3, #16]
+ 234:../../src/driver/WS2812B/WS2812B.c **** 	dmaInit.DMA_Priority = DMA_Priority_High;
+ 1090              		.loc 1 234 0
+ 1091 004e 3B1D     		add	r3, r7, #4
+ 1092 0050 8022     		mov	r2, #128
+ 1093 0052 9201     		lsl	r2, r2, #6
+ 1094 0054 5A62     		str	r2, [r3, #36]
+ 235:../../src/driver/WS2812B/WS2812B.c **** 	DMA_Init(DMA1_Channel2, &dmaInit);
+ 1095              		.loc 1 235 0
+ 1096 0056 134A     		ldr	r2, .L68
+ 1097 0058 3B1D     		add	r3, r7, #4
+ 1098 005a 101C     		mov	r0, r2
+ 1099 005c 191C     		mov	r1, r3
+ 1100 005e FFF7FEFF 		bl	DMA_Init
+ 236:../../src/driver/WS2812B/WS2812B.c **** 
+ 237:../../src/driver/WS2812B/WS2812B.c **** 	DMA_ITConfig(DMA1_Channel2, DMA_IT_TC | DMA_IT_TE, ENABLE);
+ 1101              		.loc 1 237 0
+ 1102 0062 104B     		ldr	r3, .L68
+ 1103 0064 181C     		mov	r0, r3
+ 1104 0066 0A21     		mov	r1, #10
+ 1105 0068 0122     		mov	r2, #1
+ 1106 006a FFF7FEFF 		bl	DMA_ITConfig
+ 238:../../src/driver/WS2812B/WS2812B.c **** 	DMA1_setCallbacks(&dmaTransferCompleteHandler, NULL, &dmaErrorHandler, NULL, 1);
+ 1107              		.loc 1 238 0
+ 1108 006e 104A     		ldr	r2, .L68+12
+ 1109 0070 104B     		ldr	r3, .L68+16
+ 1110 0072 0121     		mov	r1, #1
+ 1111 0074 0091     		str	r1, [sp]
+ 1112 0076 101C     		mov	r0, r2
+ 1113 0078 0021     		mov	r1, #0
+ 1114 007a 1A1C     		mov	r2, r3
+ 1115 007c 0023     		mov	r3, #0
+ 1116 007e FFF7FEFF 		bl	DMA1_setCallbacks
+ 239:../../src/driver/WS2812B/WS2812B.c **** 
+ 240:../../src/driver/WS2812B/WS2812B.c **** 	nvicInit.NVIC_IRQChannel = DMA1_Channel2_3_IRQn;
+ 1117              		.loc 1 240 0
+ 1118 0082 3B1C     		mov	r3, r7
+ 1119 0084 0A22     		mov	r2, #10
+ 1120 0086 1A70     		strb	r2, [r3]
+ 241:../../src/driver/WS2812B/WS2812B.c **** 	nvicInit.NVIC_IRQChannelCmd = ENABLE;
+ 1121              		.loc 1 241 0
+ 1122 0088 3B1C     		mov	r3, r7
+ 1123 008a 0122     		mov	r2, #1
+ 1124 008c 9A70     		strb	r2, [r3, #2]
+ 242:../../src/driver/WS2812B/WS2812B.c **** 	nvicInit.NVIC_IRQChannelPriority = 1;
+ 1125              		.loc 1 242 0
+ 1126 008e 3B1C     		mov	r3, r7
+ 1127 0090 0122     		mov	r2, #1
+ 1128 0092 5A70     		strb	r2, [r3, #1]
+ 243:../../src/driver/WS2812B/WS2812B.c **** 	NVIC_Init(&nvicInit);
+ 1129              		.loc 1 243 0
+ 1130 0094 3B1C     		mov	r3, r7
+ 1131 0096 181C     		mov	r0, r3
+ 1132 0098 FFF7FEFF 		bl	NVIC_Init
+ 244:../../src/driver/WS2812B/WS2812B.c **** }
+ 1133              		.loc 1 244 0
+ 1134 009c BD46     		mov	sp, r7
+ 1135 009e 0CB0     		add	sp, sp, #48
+ 1136              		@ sp needed
+ 1137 00a0 80BD     		pop	{r7, pc}
+ 1138              	.L69:
+ 1139 00a2 C046     		.align	2
+ 1140              	.L68:
+ 1141 00a4 1C000240 		.word	1073872924
+ 1142 00a8 00000000 		.word	dutyCycleBuffer
+ 1143 00ac 3C040040 		.word	1073742908
+ 1144 00b0 00000000 		.word	dmaTransferCompleteHandler
+ 1145 00b4 00000000 		.word	dmaErrorHandler
+ 1146              		.cfi_endproc
+ 1147              	.LFE46:
+ 1149              		.section	.text.dmaTransferCompleteHandler,"ax",%progbits
+ 1150              		.align	2
+ 1151              		.code	16
+ 1152              		.thumb_func
+ 1154              	dmaTransferCompleteHandler:
+ 1155              	.LFB47:
+ 245:../../src/driver/WS2812B/WS2812B.c **** 
+ 246:../../src/driver/WS2812B/WS2812B.c **** static void dmaTransferCompleteHandler(void* arg) {
+ 1156              		.loc 1 246 0
+ 1157              		.cfi_startproc
+ 1158 0000 80B5     		push	{r7, lr}
+ 1159              		.cfi_def_cfa_offset 8
+ 1160              		.cfi_offset 7, -8
+ 1161              		.cfi_offset 14, -4
+ 1162 0002 82B0     		sub	sp, sp, #8
+ 1163              		.cfi_def_cfa_offset 16
+ 1164 0004 00AF     		add	r7, sp, #0
+ 1165              		.cfi_def_cfa_register 7
+ 1166 0006 7860     		str	r0, [r7, #4]
+ 247:../../src/driver/WS2812B/WS2812B.c **** 	DMA_Cmd(DMA1_Channel2, DISABLE);
+ 1167              		.loc 1 247 0
+ 1168 0008 0C4B     		ldr	r3, .L72
+ 1169 000a 181C     		mov	r0, r3
+ 1170 000c 0021     		mov	r1, #0
+ 1171 000e FFF7FEFF 		bl	DMA_Cmd
+ 248:../../src/driver/WS2812B/WS2812B.c **** 
+ 249:../../src/driver/WS2812B/WS2812B.c **** 	if (isRunning) {
+ 1172              		.loc 1 249 0
+ 1173 0012 0B4B     		ldr	r3, .L72+4
+ 1174 0014 1B78     		ldrb	r3, [r3]
+ 1175 0016 DBB2     		uxtb	r3, r3
+ 1176 0018 002B     		cmp	r3, #0
+ 1177 001a 0CD0     		beq	.L70
+ 250:../../src/driver/WS2812B/WS2812B.c **** 		DMA_SetCurrDataCounter(DMA1_Channel2, currentDutyCycleBufferSize);
+ 1178              		.loc 1 250 0
+ 1179 001c 094B     		ldr	r3, .L72+8
+ 1180 001e 1B88     		ldrh	r3, [r3]
+ 1181 0020 9BB2     		uxth	r3, r3
+ 1182 0022 064A     		ldr	r2, .L72
+ 1183 0024 101C     		mov	r0, r2
+ 1184 0026 191C     		mov	r1, r3
+ 1185 0028 FFF7FEFF 		bl	DMA_SetCurrDataCounter
+ 251:../../src/driver/WS2812B/WS2812B.c **** 		DMA_Cmd(DMA1_Channel2, ENABLE);
+ 1186              		.loc 1 251 0
+ 1187 002c 034B     		ldr	r3, .L72
+ 1188 002e 181C     		mov	r0, r3
+ 1189 0030 0121     		mov	r1, #1
+ 1190 0032 FFF7FEFF 		bl	DMA_Cmd
+ 1191              	.L70:
+ 252:../../src/driver/WS2812B/WS2812B.c **** 	}
+ 253:../../src/driver/WS2812B/WS2812B.c **** }
+ 1192              		.loc 1 253 0
+ 1193 0036 BD46     		mov	sp, r7
+ 1194 0038 02B0     		add	sp, sp, #8
+ 1195              		@ sp needed
+ 1196 003a 80BD     		pop	{r7, pc}
+ 1197              	.L73:
+ 1198              		.align	2
+ 1199              	.L72:
+ 1200 003c 1C000240 		.word	1073872924
+ 1201 0040 00000000 		.word	isRunning
+ 1202 0044 00000000 		.word	currentDutyCycleBufferSize
+ 1203              		.cfi_endproc
+ 1204              	.LFE47:
+ 1206              		.section	.text.dmaErrorHandler,"ax",%progbits
+ 1207              		.align	2
+ 1208              		.code	16
+ 1209              		.thumb_func
+ 1211              	dmaErrorHandler:
+ 1212              	.LFB48:
+ 254:../../src/driver/WS2812B/WS2812B.c **** 
+ 255:../../src/driver/WS2812B/WS2812B.c **** static void dmaErrorHandler(void* arg) {
+ 1213              		.loc 1 255 0
+ 1214              		.cfi_startproc
+ 1215 0000 80B5     		push	{r7, lr}
+ 1216              		.cfi_def_cfa_offset 8
+ 1217              		.cfi_offset 7, -8
+ 1218              		.cfi_offset 14, -4
+ 1219 0002 82B0     		sub	sp, sp, #8
+ 1220              		.cfi_def_cfa_offset 16
+ 1221 0004 00AF     		add	r7, sp, #0
+ 1222              		.cfi_def_cfa_register 7
+ 1223 0006 7860     		str	r0, [r7, #4]
+ 1224              	.L75:
+ 256:../../src/driver/WS2812B/WS2812B.c **** 	while (1)
+ 257:../../src/driver/WS2812B/WS2812B.c **** 		;
+ 1225              		.loc 1 257 0 discriminator 1
+ 1226 0008 FEE7     		b	.L75
+ 1227              		.cfi_endproc
+ 1228              	.LFE48:
+ 1230 000a C046     		.text
+ 1231              	.Letext0:
+ 1232              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+ 1233              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+ 1234              		.file 4 "../../ext-src/CMSIS/ST/STM32F0xx/Include/stm32f0xx.h"
+ 1235              		.file 5 "../../ext-src/STM32F0xx_StdPeriph_Driver/inc/stm32f0xx_dma.h"
+ 1236              		.file 6 "../../ext-src/STM32F0xx_StdPeriph_Driver/inc/stm32f0xx_gpio.h"
+ 1237              		.file 7 "../../ext-src/STM32F0xx_StdPeriph_Driver/inc/stm32f0xx_tim.h"
+ 1238              		.file 8 "../../ext-src/STM32F0xx_StdPeriph_Driver/inc/stm32f0xx_misc.h"
+ 1239              		.file 9 "../../src/lib/Color.h"
+ 1240              		.file 10 "../../src/driver/WS2812B/WS2812B.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 WS2812B.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:18     .bss.ledBuffer:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:21     .bss.ledBuffer:0000000000000000 ledBuffer
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:24     .bss.dutyCycleBuffer:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:27     .bss.dutyCycleBuffer:0000000000000000 dutyCycleBuffer
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:30     .bss.numberOfActiveLeds:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:33     .bss.numberOfActiveLeds:0000000000000000 numberOfActiveLeds
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:36     .bss.currentDutyCycleBufferSize:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:39     .bss.currentDutyCycleBufferSize:0000000000000000 currentDutyCycleBufferSize
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:44     .bss.isRunning:0000000000000000 isRunning
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:45     .bss.isRunning:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:47     .text.WS2812B_init:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:52     .text.WS2812B_init:0000000000000000 WS2812B_init
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:853    .text.initGpio:0000000000000000 initGpio
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:921    .text.initPwmTimer:0000000000000000 initPwmTimer
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:1032   .text.initDma:0000000000000000 initDma
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:88     .text.WS2812B_init:0000000000000028 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:95     .text.WS2812B_getLedDescription:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:100    .text.WS2812B_getLedDescription:0000000000000000 WS2812B_getLedDescription
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:138    .text.WS2812B_getLedDescription:000000000000002c $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:143    .text.WS2812B_setLedColor:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:148    .text.WS2812B_setLedColor:0000000000000000 WS2812B_setLedColor
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:207    .text.WS2812B_setLedColor:0000000000000050 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:212    .text.WS2812B_getLedColor:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:217    .text.WS2812B_getLedColor:0000000000000000 WS2812B_getLedColor
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:255    .text.WS2812B_getLedColor:0000000000000028 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:260    .text.WS2812B_fillColor:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:265    .text.WS2812B_fillColor:0000000000000000 WS2812B_fillColor
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:332    .text.WS2812B_fillColor:000000000000005c $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:337    .text.WS2812B_fillSectionColor:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:342    .text.WS2812B_fillSectionColor:0000000000000000 WS2812B_fillSectionColor
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:412    .text.WS2812B_fillSectionColor:0000000000000060 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:417    .text.WS2812B_setNumberOfActiveLeds:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:422    .text.WS2812B_setNumberOfActiveLeds:0000000000000000 WS2812B_setNumberOfActiveLeds
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:447    .text.WS2812B_setNumberOfActiveLeds:0000000000000014 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:452    .text.WS2812B_getNumberOfActiveLeds:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:457    .text.WS2812B_getNumberOfActiveLeds:0000000000000000 WS2812B_getNumberOfActiveLeds
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:478    .text.WS2812B_getNumberOfActiveLeds:0000000000000010 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:484    .text.WS2812B_tick:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:489    .text.WS2812B_tick:0000000000000000 WS2812B_tick
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:610    .text.updateDutyCycleBuffer:0000000000000000 updateDutyCycleBuffer
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:522    .text.WS2812B_start:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:527    .text.WS2812B_start:0000000000000000 WS2812B_start
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:568    .text.WS2812B_start:0000000000000038 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:575    .text.WS2812B_stop:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:580    .text.WS2812B_stop:0000000000000000 WS2812B_stop
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:601    .text.WS2812B_stop:0000000000000010 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:606    .text.updateDutyCycleBuffer:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:841    .text.updateDutyCycleBuffer:000000000000015c $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:849    .text.initGpio:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:911    .text.initGpio:0000000000000050 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:917    .text.initPwmTimer:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:1023   .text.initPwmTimer:0000000000000098 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:1028   .text.initDma:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:1141   .text.initDma:00000000000000a4 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:1154   .text.dmaTransferCompleteHandler:0000000000000000 dmaTransferCompleteHandler
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:1211   .text.dmaErrorHandler:0000000000000000 dmaErrorHandler
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:1150   .text.dmaTransferCompleteHandler:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:1200   .text.dmaTransferCompleteHandler:000000000000003c $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//cc13Mv9s.s:1207   .text.dmaErrorHandler:0000000000000000 $t
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.TypesAndMacros.h.9.011452ff864ebe38011f65d1081174f8
+
+UNDEFINED SYMBOLS
+__aeabi_uidivmod
+DMA_Cmd
+DMA_SetCurrDataCounter
+RCC_AHBPeriphClockCmd
+GPIO_Init
+GPIO_PinAFConfig
+RCC_APB1PeriphClockCmd
+TIM_TimeBaseInit
+TIM_DMACmd
+TIM_Cmd
+DMA1_init
+DMA_DeInit
+DMA_Init
+DMA_ITConfig
+DMA1_setCallbacks
+NVIC_Init

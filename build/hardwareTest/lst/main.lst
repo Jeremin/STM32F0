@@ -1,0 +1,340 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.main,"ax",%progbits
+  18              		.align	2
+  19              		.global	main
+  20              		.code	16
+  21              		.thumb_func
+  23              	main:
+  24              	.LFB32:
+  25              		.file 1 "../../src/mains/hardwareTest/main.c"
+   1:../../src/mains/hardwareTest/main.c **** /* Includes ------------------------------------------------------------------*/
+   2:../../src/mains/hardwareTest/main.c **** #include "System.h"
+   3:../../src/mains/hardwareTest/main.c **** 
+   4:../../src/mains/hardwareTest/main.c **** #include "stm32f0xx.h"
+   5:../../src/mains/hardwareTest/main.c **** #include "stm32f0_discovery.h"
+   6:../../src/mains/hardwareTest/main.c **** #include "stm32f0xx_gpio.h"
+   7:../../src/mains/hardwareTest/main.c **** #include "stm32f0xx_rcc.h"
+   8:../../src/mains/hardwareTest/main.c **** #include "stm32f0xx_tim.h"
+   9:../../src/mains/hardwareTest/main.c **** 
+  10:../../src/mains/hardwareTest/main.c **** int main(void) {
+  26              		.loc 1 10 0
+  27              		.cfi_startproc
+  28 0000 80B5     		push	{r7, lr}
+  29              		.cfi_def_cfa_offset 8
+  30              		.cfi_offset 7, -8
+  31              		.cfi_offset 14, -4
+  32 0002 8AB0     		sub	sp, sp, #40
+  33              		.cfi_def_cfa_offset 48
+  34 0004 00AF     		add	r7, sp, #0
+  35              		.cfi_def_cfa_register 7
+  11:../../src/mains/hardwareTest/main.c **** 	GPIO_InitTypeDef gpioInit;
+  12:../../src/mains/hardwareTest/main.c **** 	TIM_TimeBaseInitTypeDef timerTimeBaseInit;
+  13:../../src/mains/hardwareTest/main.c **** 	TIM_OCInitTypeDef timerOCInit;
+  14:../../src/mains/hardwareTest/main.c **** 
+  15:../../src/mains/hardwareTest/main.c **** 	System_init();
+  36              		.loc 1 15 0
+  37 0006 FFF7FEFF 		bl	System_init
+  16:../../src/mains/hardwareTest/main.c **** 
+  17:../../src/mains/hardwareTest/main.c **** /*	STM_EVAL_LEDInit(LED3);
+  18:../../src/mains/hardwareTest/main.c **** 	STM_EVAL_LEDOn(LED3);
+  19:../../src/mains/hardwareTest/main.c **** 	while(1);*/
+  20:../../src/mains/hardwareTest/main.c **** 
+  21:../../src/mains/hardwareTest/main.c **** 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+  38              		.loc 1 21 0
+  39 000a 0220     		mov	r0, #2
+  40 000c 0121     		mov	r1, #1
+  41 000e FFF7FEFF 		bl	RCC_APB1PeriphClockCmd
+  22:../../src/mains/hardwareTest/main.c **** 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+  42              		.loc 1 22 0
+  43 0012 8023     		mov	r3, #128
+  44 0014 1B03     		lsl	r3, r3, #12
+  45 0016 181C     		mov	r0, r3
+  46 0018 0121     		mov	r1, #1
+  47 001a FFF7FEFF 		bl	RCC_AHBPeriphClockCmd
+  23:../../src/mains/hardwareTest/main.c **** 
+  24:../../src/mains/hardwareTest/main.c **** 	gpioInit.GPIO_Mode = GPIO_Mode_AF;
+  48              		.loc 1 24 0
+  49 001e 3B1C     		mov	r3, r7
+  50 0020 2033     		add	r3, r3, #32
+  51 0022 0222     		mov	r2, #2
+  52 0024 1A71     		strb	r2, [r3, #4]
+  25:../../src/mains/hardwareTest/main.c **** 	gpioInit.GPIO_OType = GPIO_OType_PP;
+  53              		.loc 1 25 0
+  54 0026 3B1C     		mov	r3, r7
+  55 0028 2033     		add	r3, r3, #32
+  56 002a 0022     		mov	r2, #0
+  57 002c 9A71     		strb	r2, [r3, #6]
+  26:../../src/mains/hardwareTest/main.c **** 	gpioInit.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
+  58              		.loc 1 26 0
+  59 002e 3B1C     		mov	r3, r7
+  60 0030 2033     		add	r3, r3, #32
+  61 0032 C022     		mov	r2, #192
+  62 0034 9200     		lsl	r2, r2, #2
+  63 0036 1A60     		str	r2, [r3]
+  27:../../src/mains/hardwareTest/main.c **** 	gpioInit.GPIO_PuPd = GPIO_PuPd_UP;
+  64              		.loc 1 27 0
+  65 0038 3B1C     		mov	r3, r7
+  66 003a 2033     		add	r3, r3, #32
+  67 003c 0122     		mov	r2, #1
+  68 003e DA71     		strb	r2, [r3, #7]
+  28:../../src/mains/hardwareTest/main.c **** 	gpioInit.GPIO_Speed = GPIO_Speed_50MHz;
+  69              		.loc 1 28 0
+  70 0040 3B1C     		mov	r3, r7
+  71 0042 2033     		add	r3, r3, #32
+  72 0044 0322     		mov	r2, #3
+  73 0046 5A71     		strb	r2, [r3, #5]
+  29:../../src/mains/hardwareTest/main.c **** 	GPIO_Init(GPIOC, &gpioInit);
+  74              		.loc 1 29 0
+  75 0048 2C4A     		ldr	r2, .L3
+  76 004a 3B1C     		mov	r3, r7
+  77 004c 2033     		add	r3, r3, #32
+  78 004e 101C     		mov	r0, r2
+  79 0050 191C     		mov	r1, r3
+  80 0052 FFF7FEFF 		bl	GPIO_Init
+  30:../../src/mains/hardwareTest/main.c **** 
+  31:../../src/mains/hardwareTest/main.c **** 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_1);
+  81              		.loc 1 31 0
+  82 0056 294B     		ldr	r3, .L3
+  83 0058 181C     		mov	r0, r3
+  84 005a 0821     		mov	r1, #8
+  85 005c 0122     		mov	r2, #1
+  86 005e FFF7FEFF 		bl	GPIO_PinAFConfig
+  32:../../src/mains/hardwareTest/main.c **** 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_1);
+  87              		.loc 1 32 0
+  88 0062 264B     		ldr	r3, .L3
+  89 0064 181C     		mov	r0, r3
+  90 0066 0921     		mov	r1, #9
+  91 0068 0122     		mov	r2, #1
+  92 006a FFF7FEFF 		bl	GPIO_PinAFConfig
+  33:../../src/mains/hardwareTest/main.c **** 
+  34:../../src/mains/hardwareTest/main.c **** 	timerTimeBaseInit.TIM_Prescaler = 0;
+  93              		.loc 1 34 0
+  94 006e 3B1C     		mov	r3, r7
+  95 0070 1433     		add	r3, r3, #20
+  96 0072 0022     		mov	r2, #0
+  97 0074 1A80     		strh	r2, [r3]
+  35:../../src/mains/hardwareTest/main.c **** 	timerTimeBaseInit.TIM_CounterMode = TIM_CounterMode_Up;
+  98              		.loc 1 35 0
+  99 0076 3B1C     		mov	r3, r7
+ 100 0078 1433     		add	r3, r3, #20
+ 101 007a 0022     		mov	r2, #0
+ 102 007c 5A80     		strh	r2, [r3, #2]
+  36:../../src/mains/hardwareTest/main.c **** 	timerTimeBaseInit.TIM_Period = 500;
+ 103              		.loc 1 36 0
+ 104 007e 3B1C     		mov	r3, r7
+ 105 0080 1433     		add	r3, r3, #20
+ 106 0082 FA22     		mov	r2, #250
+ 107 0084 5200     		lsl	r2, r2, #1
+ 108 0086 5A60     		str	r2, [r3, #4]
+  37:../../src/mains/hardwareTest/main.c **** 	timerTimeBaseInit.TIM_ClockDivision = TIM_CKD_DIV1;
+ 109              		.loc 1 37 0
+ 110 0088 3B1C     		mov	r3, r7
+ 111 008a 1433     		add	r3, r3, #20
+ 112 008c 0022     		mov	r2, #0
+ 113 008e 1A81     		strh	r2, [r3, #8]
+  38:../../src/mains/hardwareTest/main.c **** 	timerTimeBaseInit.TIM_RepetitionCounter = 0;
+ 114              		.loc 1 38 0
+ 115 0090 3B1C     		mov	r3, r7
+ 116 0092 1433     		add	r3, r3, #20
+ 117 0094 0022     		mov	r2, #0
+ 118 0096 9A72     		strb	r2, [r3, #10]
+  39:../../src/mains/hardwareTest/main.c **** 	TIM_TimeBaseInit(TIM3, &timerTimeBaseInit);
+ 119              		.loc 1 39 0
+ 120 0098 194A     		ldr	r2, .L3+4
+ 121 009a 3B1C     		mov	r3, r7
+ 122 009c 1433     		add	r3, r3, #20
+ 123 009e 101C     		mov	r0, r2
+ 124 00a0 191C     		mov	r1, r3
+ 125 00a2 FFF7FEFF 		bl	TIM_TimeBaseInit
+  40:../../src/mains/hardwareTest/main.c **** 
+  41:../../src/mains/hardwareTest/main.c **** 	timerOCInit.TIM_OCMode = TIM_OCMode_PWM1;
+ 126              		.loc 1 41 0
+ 127 00a6 3B1C     		mov	r3, r7
+ 128 00a8 6022     		mov	r2, #96
+ 129 00aa 1A80     		strh	r2, [r3]
+  42:../../src/mains/hardwareTest/main.c **** 	timerOCInit.TIM_OutputState = TIM_OutputState_Enable;
+ 130              		.loc 1 42 0
+ 131 00ac 3B1C     		mov	r3, r7
+ 132 00ae 0122     		mov	r2, #1
+ 133 00b0 5A80     		strh	r2, [r3, #2]
+  43:../../src/mains/hardwareTest/main.c **** 	timerOCInit.TIM_OutputNState = TIM_OutputNState_Enable;
+ 134              		.loc 1 43 0
+ 135 00b2 3B1C     		mov	r3, r7
+ 136 00b4 0422     		mov	r2, #4
+ 137 00b6 9A80     		strh	r2, [r3, #4]
+  44:../../src/mains/hardwareTest/main.c **** 	timerOCInit.TIM_OCPolarity = TIM_OCPolarity_Low;
+ 138              		.loc 1 44 0
+ 139 00b8 3B1C     		mov	r3, r7
+ 140 00ba 0222     		mov	r2, #2
+ 141 00bc 9A81     		strh	r2, [r3, #12]
+  45:../../src/mains/hardwareTest/main.c **** 	timerOCInit.TIM_OCNPolarity = TIM_OCNPolarity_High;
+ 142              		.loc 1 45 0
+ 143 00be 3B1C     		mov	r3, r7
+ 144 00c0 0022     		mov	r2, #0
+ 145 00c2 DA81     		strh	r2, [r3, #14]
+  46:../../src/mains/hardwareTest/main.c **** 	timerOCInit.TIM_OCIdleState = TIM_OCIdleState_Set;
+ 146              		.loc 1 46 0
+ 147 00c4 3B1C     		mov	r3, r7
+ 148 00c6 8022     		mov	r2, #128
+ 149 00c8 5200     		lsl	r2, r2, #1
+ 150 00ca 1A82     		strh	r2, [r3, #16]
+  47:../../src/mains/hardwareTest/main.c **** 	timerOCInit.TIM_OCNIdleState = TIM_OCIdleState_Reset;
+ 151              		.loc 1 47 0
+ 152 00cc 3B1C     		mov	r3, r7
+ 153 00ce 0022     		mov	r2, #0
+ 154 00d0 5A82     		strh	r2, [r3, #18]
+  48:../../src/mains/hardwareTest/main.c **** 	timerOCInit.TIM_Pulse = 400;
+ 155              		.loc 1 48 0
+ 156 00d2 3B1C     		mov	r3, r7
+ 157 00d4 C822     		mov	r2, #200
+ 158 00d6 5200     		lsl	r2, r2, #1
+ 159 00d8 9A60     		str	r2, [r3, #8]
+  49:../../src/mains/hardwareTest/main.c **** 
+  50:../../src/mains/hardwareTest/main.c **** 	TIM_OC3Init(TIM3, &timerOCInit);
+ 160              		.loc 1 50 0
+ 161 00da 094A     		ldr	r2, .L3+4
+ 162 00dc 3B1C     		mov	r3, r7
+ 163 00de 101C     		mov	r0, r2
+ 164 00e0 191C     		mov	r1, r3
+ 165 00e2 FFF7FEFF 		bl	TIM_OC3Init
+  51:../../src/mains/hardwareTest/main.c **** 
+  52:../../src/mains/hardwareTest/main.c **** 	TIM_Cmd(TIM3, ENABLE);
+ 166              		.loc 1 52 0
+ 167 00e6 064B     		ldr	r3, .L3+4
+ 168 00e8 181C     		mov	r0, r3
+ 169 00ea 0121     		mov	r1, #1
+ 170 00ec FFF7FEFF 		bl	TIM_Cmd
+  53:../../src/mains/hardwareTest/main.c **** 	TIM_CtrlPWMOutputs(TIM3, ENABLE);
+ 171              		.loc 1 53 0
+ 172 00f0 034B     		ldr	r3, .L3+4
+ 173 00f2 181C     		mov	r0, r3
+ 174 00f4 0121     		mov	r1, #1
+ 175 00f6 FFF7FEFF 		bl	TIM_CtrlPWMOutputs
+ 176              	.L2:
+  54:../../src/mains/hardwareTest/main.c **** 
+  55:../../src/mains/hardwareTest/main.c **** 	while (1) {
+  56:../../src/mains/hardwareTest/main.c **** 
+  57:../../src/mains/hardwareTest/main.c **** 	}
+ 177              		.loc 1 57 0 discriminator 1
+ 178 00fa FEE7     		b	.L2
+ 179              	.L4:
+ 180              		.align	2
+ 181              	.L3:
+ 182 00fc 00080048 		.word	1207961600
+ 183 0100 00040040 		.word	1073742848
+ 184              		.cfi_endproc
+ 185              	.LFE32:
+ 187              		.section	.text.assert_failed,"ax",%progbits
+ 188              		.align	2
+ 189              		.global	assert_failed
+ 190              		.code	16
+ 191              		.thumb_func
+ 193              	assert_failed:
+ 194              	.LFB33:
+  58:../../src/mains/hardwareTest/main.c **** }
+  59:../../src/mains/hardwareTest/main.c **** 
+  60:../../src/mains/hardwareTest/main.c **** #ifdef  USE_FULL_ASSERT
+  61:../../src/mains/hardwareTest/main.c **** 
+  62:../../src/mains/hardwareTest/main.c **** /**
+  63:../../src/mains/hardwareTest/main.c ****  * @brief  Reports the name of the source file and the source line number
+  64:../../src/mains/hardwareTest/main.c ****  *   where the assert_param error has occurred.
+  65:../../src/mains/hardwareTest/main.c ****  * @param  file: pointer to the source file name
+  66:../../src/mains/hardwareTest/main.c ****  * @param  line: assert_param error line source number
+  67:../../src/mains/hardwareTest/main.c ****  * @retval None
+  68:../../src/mains/hardwareTest/main.c ****  */
+  69:../../src/mains/hardwareTest/main.c **** void assert_failed(uint8_t* file, uint32_t line)
+  70:../../src/mains/hardwareTest/main.c **** {
+ 195              		.loc 1 70 0
+ 196              		.cfi_startproc
+ 197 0000 80B5     		push	{r7, lr}
+ 198              		.cfi_def_cfa_offset 8
+ 199              		.cfi_offset 7, -8
+ 200              		.cfi_offset 14, -4
+ 201 0002 82B0     		sub	sp, sp, #8
+ 202              		.cfi_def_cfa_offset 16
+ 203 0004 00AF     		add	r7, sp, #0
+ 204              		.cfi_def_cfa_register 7
+ 205 0006 7860     		str	r0, [r7, #4]
+ 206 0008 3960     		str	r1, [r7]
+ 207              	.L6:
+  71:../../src/mains/hardwareTest/main.c **** 	/* User can add his own implementation to report the file name and line number,
+  72:../../src/mains/hardwareTest/main.c **** 	 ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  73:../../src/mains/hardwareTest/main.c **** 
+  74:../../src/mains/hardwareTest/main.c **** 	/* Infinite loop */
+  75:../../src/mains/hardwareTest/main.c **** 	while (1)
+  76:../../src/mains/hardwareTest/main.c **** 	{}
+ 208              		.loc 1 76 0 discriminator 1
+ 209 000a FEE7     		b	.L6
+ 210              		.cfi_endproc
+ 211              	.LFE33:
+ 213              		.text
+ 214              	.Letext0:
+ 215              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+ 216              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+ 217              		.file 4 "../../ext-src/CMSIS/ST/STM32F0xx/Include/stm32f0xx.h"
+ 218              		.file 5 "../../ext-src/STM32F0xx_StdPeriph_Driver/inc/stm32f0xx_gpio.h"
+ 219              		.file 6 "../../ext-src/STM32F0xx_StdPeriph_Driver/inc/stm32f0xx_tim.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccu6F9PC.s:18     .text.main:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccu6F9PC.s:23     .text.main:0000000000000000 main
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccu6F9PC.s:182    .text.main:00000000000000fc $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccu6F9PC.s:188    .text.assert_failed:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccu6F9PC.s:193    .text.assert_failed:0000000000000000 assert_failed
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.stm32f0_discovery.h.31.e789d35d5b8d932521435944555b7e70
+
+UNDEFINED SYMBOLS
+System_init
+RCC_APB1PeriphClockCmd
+RCC_AHBPeriphClockCmd
+GPIO_Init
+GPIO_PinAFConfig
+TIM_TimeBaseInit
+TIM_OC3Init
+TIM_Cmd
+TIM_CtrlPWMOutputs

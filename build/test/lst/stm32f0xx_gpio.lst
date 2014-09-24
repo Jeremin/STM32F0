@@ -1,0 +1,2395 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"stm32f0xx_gpio.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.rodata
+  18              		.align	2
+  19              	.LC0:
+  20 0000 2E2E2F2E 		.ascii	"../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f"
+  20      2E2F6578 
+  20      742D7372 
+  20      632F5354 
+  20      4D333246 
+  21 0033 3078785F 		.ascii	"0xx_gpio.c\000"
+  21      6770696F 
+  21      2E6300
+  22 003e 0000     		.section	.text.GPIO_DeInit,"ax",%progbits
+  23              		.align	2
+  24              		.global	GPIO_DeInit
+  25              		.code	16
+  26              		.thumb_func
+  28              	GPIO_DeInit:
+  29              	.LFB32:
+  30              		.file 1 "../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c"
+   1:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+   2:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   ******************************************************************************
+   3:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @file    stm32f0xx_gpio.c
+   4:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @author  MCD Application Team
+   5:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @version V1.0.0
+   6:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @date    23-March-2012
+   7:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief   This file provides firmware functions to manage the following 
+   8:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *          functionalities of the GPIO peripheral:
+   9:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *           + Initialization and Configuration functions
+  10:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *           + GPIO Read and Write functions
+  11:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *           + GPIO Alternate functions configuration functions
+  12:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *
+  13:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *  @verbatim
+  14:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *
+  15:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *
+  16:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     ===========================================================================
+  17:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****                          ##### How to use this driver #####
+  18:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     ===========================================================================
+  19:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       [..]
+  20:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       (#) Enable the GPIO AHB clock using RCC_AHBPeriphClockCmd()
+  21:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       (#) Configure the GPIO pin(s) using GPIO_Init()
+  22:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****           Four possible configuration are available for each pin:
+  23:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****          (++) Input: Floating, Pull-up, Pull-down.
+  24:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****          (++) Output: Push-Pull (Pull-up, Pull-down or no Pull)
+  25:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****                       Open Drain (Pull-up, Pull-down or no Pull).
+  26:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****               In output mode, the speed is configurable: Low, Medium, Fast or High.
+  27:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****          (++) Alternate Function: Push-Pull (Pull-up, Pull-down or no Pull)
+  28:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****                                   Open Drain (Pull-up, Pull-down or no Pull).
+  29:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****          (++) Analog: required mode when a pin is to be used as ADC channel,
+  30:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****               DAC output or comparator input.
+  31:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       (#) Peripherals alternate function:
+  32:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****          (++) For ADC, DAC and comparators, configure the desired pin in analog 
+  33:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****               mode using GPIO_InitStruct->GPIO_Mode = GPIO_Mode_AN
+  34:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****          (++) For other peripherals (TIM, USART...):
+  35:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****               (+++) Connect the pin to the desired peripherals' Alternate 
+  36:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****                     Function (AF) using GPIO_PinAFConfig() function. For PortC, 
+  37:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****                     PortD and PortF, no configuration is needed.
+  38:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****               (+++) Configure the desired pin in alternate function mode using
+  39:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****                     GPIO_InitStruct->GPIO_Mode = GPIO_Mode_AF
+  40:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****               (+++) Select the type, pull-up/pull-down and output speed via 
+  41:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****                     GPIO_PuPd, GPIO_OType and GPIO_Speed members
+  42:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****               (+++) Call GPIO_Init() function
+  43:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       (#) To get the level of a pin configured in input mode use GPIO_ReadInputDataBit()
+  44:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       (#) To set/reset the level of a pin configured in output mode use
+  45:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****           GPIO_SetBits()/GPIO_ResetBits()
+  46:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       (#) During and just after reset, the alternate functions are not active and 
+  47:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****           the GPIO pins are configured in input floating mode (except JTAG pins).
+  48:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       (#) The LSE oscillator pins OSC32_IN and OSC32_OUT can be used as 
+  49:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****           general-purpose (PC14 and PC15, respectively) when the LSE oscillator 
+  50:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****           is off. The LSE has priority over the GPIO function.
+  51:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       (#) The HSE oscillator pins OSC_IN/OSC_OUT can be used as general-purpose 
+  52:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****           PD0 and PD1, respectively, when the HSE oscillator is off. The HSE has 
+  53:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****           priority over the GPIO function.
+  54:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     @endverbatim
+  55:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   ******************************************************************************
+  56:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @attention
+  57:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *
+  58:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  59:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *
+  60:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  61:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * You may not use this file except in compliance with the License.
+  62:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * You may obtain a copy of the License at:
+  63:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *
+  64:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *        http://www.st.com/software_license_agreement_liberty_v2
+  65:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *
+  66:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * Unless required by applicable law or agreed to in writing, software 
+  67:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * distributed under the License is distributed on an "AS IS" BASIS, 
+  68:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  69:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * See the License for the specific language governing permissions and
+  70:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * limitations under the License.
+  71:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *
+  72:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   ******************************************************************************
+  73:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+  74:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+  75:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /* Includes ------------------------------------------------------------------*/
+  76:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** #include "stm32f0xx_gpio.h"
+  77:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** #include "stm32f0xx_rcc.h"
+  78:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+  79:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /** @addtogroup STM32F0xx_StdPeriph_Driver
+  80:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @{
+  81:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+  82:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+  83:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /** @defgroup GPIO 
+  84:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief GPIO driver modules
+  85:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @{
+  86:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+  87:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+  88:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /* Private typedef -----------------------------------------------------------*/
+  89:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /* Private define ------------------------------------------------------------*/
+  90:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /* Private macro -------------------------------------------------------------*/
+  91:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /* Private variables ---------------------------------------------------------*/
+  92:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /* Private function prototypes -----------------------------------------------*/
+  93:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /* Private functions ---------------------------------------------------------*/
+  94:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+  95:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /** @defgroup GPIO_Private_Functions 
+  96:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @{
+  97:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+  98:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+  99:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /** @defgroup GPIO_Group1 Initialization and Configuration
+ 100:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *  @brief   Initialization and Configuration
+ 101:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *
+ 102:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** @verbatim
+ 103:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  ===============================================================================
+ 104:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****                     ##### Initialization and Configuration #####
+ 105:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  ===============================================================================
+ 106:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 107:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** @endverbatim
+ 108:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @{
+ 109:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 110:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 111:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 112:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Deinitializes the GPIOx peripheral registers to their default reset 
+ 113:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         values.
+ 114:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A, B, C, D or F) to select the GPIO peripheral.
+ 115:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval None
+ 116:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 117:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** void GPIO_DeInit(GPIO_TypeDef* GPIOx)
+ 118:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+  31              		.loc 1 118 0
+  32              		.cfi_startproc
+  33 0000 80B5     		push	{r7, lr}
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 7, -8
+  36              		.cfi_offset 14, -4
+  37 0002 82B0     		sub	sp, sp, #8
+  38              		.cfi_def_cfa_offset 16
+  39 0004 00AF     		add	r7, sp, #0
+  40              		.cfi_def_cfa_register 7
+  41 0006 7860     		str	r0, [r7, #4]
+ 119:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 120:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+  42              		.loc 1 120 0
+  43 0008 7A68     		ldr	r2, [r7, #4]
+  44 000a 9023     		mov	r3, #144
+  45 000c DB05     		lsl	r3, r3, #23
+  46 000e 9A42     		cmp	r2, r3
+  47 0010 14D0     		beq	.L2
+  48              		.loc 1 120 0 is_stmt 0 discriminator 1
+  49 0012 7A68     		ldr	r2, [r7, #4]
+  50 0014 354B     		ldr	r3, .L8
+  51 0016 9A42     		cmp	r2, r3
+  52 0018 10D0     		beq	.L2
+  53 001a 7A68     		ldr	r2, [r7, #4]
+  54 001c 344B     		ldr	r3, .L8+4
+  55 001e 9A42     		cmp	r2, r3
+  56 0020 0CD0     		beq	.L2
+  57 0022 7A68     		ldr	r2, [r7, #4]
+  58 0024 334B     		ldr	r3, .L8+8
+  59 0026 9A42     		cmp	r2, r3
+  60 0028 08D0     		beq	.L2
+  61 002a 7A68     		ldr	r2, [r7, #4]
+  62 002c 324B     		ldr	r3, .L8+12
+  63 002e 9A42     		cmp	r2, r3
+  64 0030 04D0     		beq	.L2
+  65 0032 324B     		ldr	r3, .L8+16
+  66 0034 181C     		mov	r0, r3
+  67 0036 7821     		mov	r1, #120
+  68 0038 FFF7FEFF 		bl	assert_failed
+  69              	.L2:
+ 121:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 122:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   if(GPIOx == GPIOA)
+  70              		.loc 1 122 0 is_stmt 1
+  71 003c 7A68     		ldr	r2, [r7, #4]
+  72 003e 9023     		mov	r3, #144
+  73 0040 DB05     		lsl	r3, r3, #23
+  74 0042 9A42     		cmp	r2, r3
+  75 0044 0CD1     		bne	.L3
+ 123:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 124:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+  76              		.loc 1 124 0
+  77 0046 8023     		mov	r3, #128
+  78 0048 9B02     		lsl	r3, r3, #10
+  79 004a 181C     		mov	r0, r3
+  80 004c 0121     		mov	r1, #1
+  81 004e FFF7FEFF 		bl	RCC_AHBPeriphResetCmd
+ 125:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOA, DISABLE);
+  82              		.loc 1 125 0
+  83 0052 8023     		mov	r3, #128
+  84 0054 9B02     		lsl	r3, r3, #10
+  85 0056 181C     		mov	r0, r3
+  86 0058 0021     		mov	r1, #0
+  87 005a FFF7FEFF 		bl	RCC_AHBPeriphResetCmd
+  88 005e 42E0     		b	.L1
+  89              	.L3:
+ 126:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 127:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   else if(GPIOx == GPIOB)
+  90              		.loc 1 127 0
+  91 0060 7A68     		ldr	r2, [r7, #4]
+  92 0062 224B     		ldr	r3, .L8
+  93 0064 9A42     		cmp	r2, r3
+  94 0066 0CD1     		bne	.L5
+ 128:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 129:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+  95              		.loc 1 129 0
+  96 0068 8023     		mov	r3, #128
+  97 006a DB02     		lsl	r3, r3, #11
+  98 006c 181C     		mov	r0, r3
+  99 006e 0121     		mov	r1, #1
+ 100 0070 FFF7FEFF 		bl	RCC_AHBPeriphResetCmd
+ 130:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOB, DISABLE);
+ 101              		.loc 1 130 0
+ 102 0074 8023     		mov	r3, #128
+ 103 0076 DB02     		lsl	r3, r3, #11
+ 104 0078 181C     		mov	r0, r3
+ 105 007a 0021     		mov	r1, #0
+ 106 007c FFF7FEFF 		bl	RCC_AHBPeriphResetCmd
+ 107 0080 31E0     		b	.L1
+ 108              	.L5:
+ 131:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 132:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   else if(GPIOx == GPIOC)
+ 109              		.loc 1 132 0
+ 110 0082 7A68     		ldr	r2, [r7, #4]
+ 111 0084 1A4B     		ldr	r3, .L8+4
+ 112 0086 9A42     		cmp	r2, r3
+ 113 0088 0CD1     		bne	.L6
+ 133:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 134:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+ 114              		.loc 1 134 0
+ 115 008a 8023     		mov	r3, #128
+ 116 008c 1B03     		lsl	r3, r3, #12
+ 117 008e 181C     		mov	r0, r3
+ 118 0090 0121     		mov	r1, #1
+ 119 0092 FFF7FEFF 		bl	RCC_AHBPeriphResetCmd
+ 135:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOC, DISABLE);
+ 120              		.loc 1 135 0
+ 121 0096 8023     		mov	r3, #128
+ 122 0098 1B03     		lsl	r3, r3, #12
+ 123 009a 181C     		mov	r0, r3
+ 124 009c 0021     		mov	r1, #0
+ 125 009e FFF7FEFF 		bl	RCC_AHBPeriphResetCmd
+ 126 00a2 20E0     		b	.L1
+ 127              	.L6:
+ 136:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 137:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   else if(GPIOx == GPIOD)
+ 128              		.loc 1 137 0
+ 129 00a4 7A68     		ldr	r2, [r7, #4]
+ 130 00a6 134B     		ldr	r3, .L8+8
+ 131 00a8 9A42     		cmp	r2, r3
+ 132 00aa 0CD1     		bne	.L7
+ 138:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 139:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOD, ENABLE);
+ 133              		.loc 1 139 0
+ 134 00ac 8023     		mov	r3, #128
+ 135 00ae 5B03     		lsl	r3, r3, #13
+ 136 00b0 181C     		mov	r0, r3
+ 137 00b2 0121     		mov	r1, #1
+ 138 00b4 FFF7FEFF 		bl	RCC_AHBPeriphResetCmd
+ 140:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOD, DISABLE);
+ 139              		.loc 1 140 0
+ 140 00b8 8023     		mov	r3, #128
+ 141 00ba 5B03     		lsl	r3, r3, #13
+ 142 00bc 181C     		mov	r0, r3
+ 143 00be 0021     		mov	r1, #0
+ 144 00c0 FFF7FEFF 		bl	RCC_AHBPeriphResetCmd
+ 145 00c4 0FE0     		b	.L1
+ 146              	.L7:
+ 141:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 142:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   else
+ 143:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 144:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     if(GPIOx == GPIOF)
+ 147              		.loc 1 144 0
+ 148 00c6 7A68     		ldr	r2, [r7, #4]
+ 149 00c8 0B4B     		ldr	r3, .L8+12
+ 150 00ca 9A42     		cmp	r2, r3
+ 151 00cc 0BD1     		bne	.L1
+ 145:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     {
+ 146:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOF, ENABLE);
+ 152              		.loc 1 146 0
+ 153 00ce 8023     		mov	r3, #128
+ 154 00d0 DB03     		lsl	r3, r3, #15
+ 155 00d2 181C     		mov	r0, r3
+ 156 00d4 0121     		mov	r1, #1
+ 157 00d6 FFF7FEFF 		bl	RCC_AHBPeriphResetCmd
+ 147:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       RCC_AHBPeriphResetCmd(RCC_AHBPeriph_GPIOF, DISABLE);
+ 158              		.loc 1 147 0
+ 159 00da 8023     		mov	r3, #128
+ 160 00dc DB03     		lsl	r3, r3, #15
+ 161 00de 181C     		mov	r0, r3
+ 162 00e0 0021     		mov	r1, #0
+ 163 00e2 FFF7FEFF 		bl	RCC_AHBPeriphResetCmd
+ 164              	.L1:
+ 148:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     }
+ 149:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 150:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 165              		.loc 1 150 0
+ 166 00e6 BD46     		mov	sp, r7
+ 167 00e8 02B0     		add	sp, sp, #8
+ 168              		@ sp needed
+ 169 00ea 80BD     		pop	{r7, pc}
+ 170              	.L9:
+ 171              		.align	2
+ 172              	.L8:
+ 173 00ec 00040048 		.word	1207960576
+ 174 00f0 00080048 		.word	1207961600
+ 175 00f4 000C0048 		.word	1207962624
+ 176 00f8 00140048 		.word	1207964672
+ 177 00fc 00000000 		.word	.LC0
+ 178              		.cfi_endproc
+ 179              	.LFE32:
+ 181              		.section	.text.GPIO_Init,"ax",%progbits
+ 182              		.align	2
+ 183              		.global	GPIO_Init
+ 184              		.code	16
+ 185              		.thumb_func
+ 187              	GPIO_Init:
+ 188              	.LFB33:
+ 151:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 152:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 153:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Initializes the GPIOx peripheral according to the specified 
+ 154:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         parameters in the GPIO_InitStruct.
+ 155:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A, B, C, D or F) to select the GPIO peripheral.
+ 156:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIO_InitStruct: pointer to a GPIO_InitTypeDef structure that contains
+ 157:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         the configuration information for the specified GPIO peripheral.
+ 158:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @note   The configured pins can be: GPIO_Pin_0 -> GPIO_Pin_15 for GPIOA, GPIOB and GPIOC,
+ 159:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         GPIO_Pin_0 -> GPIO_Pin_2 for GPIOD, GPIO_Pin_0 -> GPIO_Pin_3 for GPIOF.
+ 160:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval None
+ 161:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 162:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
+ 163:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 189              		.loc 1 163 0
+ 190              		.cfi_startproc
+ 191 0000 80B5     		push	{r7, lr}
+ 192              		.cfi_def_cfa_offset 8
+ 193              		.cfi_offset 7, -8
+ 194              		.cfi_offset 14, -4
+ 195 0002 86B0     		sub	sp, sp, #24
+ 196              		.cfi_def_cfa_offset 32
+ 197 0004 00AF     		add	r7, sp, #0
+ 198              		.cfi_def_cfa_register 7
+ 199 0006 7860     		str	r0, [r7, #4]
+ 200 0008 3960     		str	r1, [r7]
+ 164:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   uint32_t pinpos = 0x00, pos = 0x00 , currentpin = 0x00;
+ 201              		.loc 1 164 0
+ 202 000a 0023     		mov	r3, #0
+ 203 000c 7B61     		str	r3, [r7, #20]
+ 204 000e 0023     		mov	r3, #0
+ 205 0010 3B61     		str	r3, [r7, #16]
+ 206 0012 0023     		mov	r3, #0
+ 207 0014 FB60     		str	r3, [r7, #12]
+ 165:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 166:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 167:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+ 208              		.loc 1 167 0
+ 209 0016 7A68     		ldr	r2, [r7, #4]
+ 210 0018 9023     		mov	r3, #144
+ 211 001a DB05     		lsl	r3, r3, #23
+ 212 001c 9A42     		cmp	r2, r3
+ 213 001e 14D0     		beq	.L11
+ 214              		.loc 1 167 0 is_stmt 0 discriminator 1
+ 215 0020 7A68     		ldr	r2, [r7, #4]
+ 216 0022 794B     		ldr	r3, .L22
+ 217 0024 9A42     		cmp	r2, r3
+ 218 0026 10D0     		beq	.L11
+ 219 0028 7A68     		ldr	r2, [r7, #4]
+ 220 002a 784B     		ldr	r3, .L22+4
+ 221 002c 9A42     		cmp	r2, r3
+ 222 002e 0CD0     		beq	.L11
+ 223 0030 7A68     		ldr	r2, [r7, #4]
+ 224 0032 774B     		ldr	r3, .L22+8
+ 225 0034 9A42     		cmp	r2, r3
+ 226 0036 08D0     		beq	.L11
+ 227 0038 7A68     		ldr	r2, [r7, #4]
+ 228 003a 764B     		ldr	r3, .L22+12
+ 229 003c 9A42     		cmp	r2, r3
+ 230 003e 04D0     		beq	.L11
+ 231 0040 754B     		ldr	r3, .L22+16
+ 232 0042 181C     		mov	r0, r3
+ 233 0044 A721     		mov	r1, #167
+ 234 0046 FFF7FEFF 		bl	assert_failed
+ 235              	.L11:
+ 168:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_PIN(GPIO_InitStruct->GPIO_Pin));
+ 236              		.loc 1 168 0 is_stmt 1
+ 237 004a 3B68     		ldr	r3, [r7]
+ 238 004c 1B68     		ldr	r3, [r3]
+ 239 004e 002B     		cmp	r3, #0
+ 240 0050 04D1     		bne	.L12
+ 241              		.loc 1 168 0 is_stmt 0 discriminator 1
+ 242 0052 714B     		ldr	r3, .L22+16
+ 243 0054 181C     		mov	r0, r3
+ 244 0056 A821     		mov	r1, #168
+ 245 0058 FFF7FEFF 		bl	assert_failed
+ 246              	.L12:
+ 169:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_MODE(GPIO_InitStruct->GPIO_Mode));
+ 247              		.loc 1 169 0 is_stmt 1
+ 248 005c 3B68     		ldr	r3, [r7]
+ 249 005e 1B79     		ldrb	r3, [r3, #4]
+ 250 0060 002B     		cmp	r3, #0
+ 251 0062 10D0     		beq	.L13
+ 252              		.loc 1 169 0 is_stmt 0 discriminator 1
+ 253 0064 3B68     		ldr	r3, [r7]
+ 254 0066 1B79     		ldrb	r3, [r3, #4]
+ 255 0068 012B     		cmp	r3, #1
+ 256 006a 0CD0     		beq	.L13
+ 257 006c 3B68     		ldr	r3, [r7]
+ 258 006e 1B79     		ldrb	r3, [r3, #4]
+ 259 0070 022B     		cmp	r3, #2
+ 260 0072 08D0     		beq	.L13
+ 261 0074 3B68     		ldr	r3, [r7]
+ 262 0076 1B79     		ldrb	r3, [r3, #4]
+ 263 0078 032B     		cmp	r3, #3
+ 264 007a 04D0     		beq	.L13
+ 265 007c 664B     		ldr	r3, .L22+16
+ 266 007e 181C     		mov	r0, r3
+ 267 0080 A921     		mov	r1, #169
+ 268 0082 FFF7FEFF 		bl	assert_failed
+ 269              	.L13:
+ 170:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_PUPD(GPIO_InitStruct->GPIO_PuPd));
+ 270              		.loc 1 170 0 is_stmt 1
+ 271 0086 3B68     		ldr	r3, [r7]
+ 272 0088 DB79     		ldrb	r3, [r3, #7]
+ 273 008a 002B     		cmp	r3, #0
+ 274 008c 0CD0     		beq	.L14
+ 275              		.loc 1 170 0 is_stmt 0 discriminator 1
+ 276 008e 3B68     		ldr	r3, [r7]
+ 277 0090 DB79     		ldrb	r3, [r3, #7]
+ 278 0092 012B     		cmp	r3, #1
+ 279 0094 08D0     		beq	.L14
+ 280 0096 3B68     		ldr	r3, [r7]
+ 281 0098 DB79     		ldrb	r3, [r3, #7]
+ 282 009a 022B     		cmp	r3, #2
+ 283 009c 04D0     		beq	.L14
+ 284 009e 5E4B     		ldr	r3, .L22+16
+ 285 00a0 181C     		mov	r0, r3
+ 286 00a2 AA21     		mov	r1, #170
+ 287 00a4 FFF7FEFF 		bl	assert_failed
+ 288              	.L14:
+ 171:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 172:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /*-------------------------- Configure the port pins -----------------------*/
+ 173:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /*-- GPIO Mode Configuration --*/
+ 174:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   for (pinpos = 0x00; pinpos < 0x10; pinpos++)
+ 289              		.loc 1 174 0 is_stmt 1
+ 290 00a8 0023     		mov	r3, #0
+ 291 00aa 7B61     		str	r3, [r7, #20]
+ 292 00ac A4E0     		b	.L15
+ 293              	.L21:
+ 175:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 176:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     pos = ((uint32_t)0x01) << pinpos;
+ 294              		.loc 1 176 0
+ 295 00ae 7B69     		ldr	r3, [r7, #20]
+ 296 00b0 0122     		mov	r2, #1
+ 297 00b2 101C     		mov	r0, r2
+ 298 00b4 9840     		lsl	r0, r0, r3
+ 299 00b6 031C     		mov	r3, r0
+ 300 00b8 3B61     		str	r3, [r7, #16]
+ 177:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 178:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     /* Get the port pins position */
+ 179:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     currentpin = (GPIO_InitStruct->GPIO_Pin) & pos;
+ 301              		.loc 1 179 0
+ 302 00ba 3B68     		ldr	r3, [r7]
+ 303 00bc 1B68     		ldr	r3, [r3]
+ 304 00be 3A69     		ldr	r2, [r7, #16]
+ 305 00c0 1340     		and	r3, r2
+ 306 00c2 FB60     		str	r3, [r7, #12]
+ 180:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 181:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     if (currentpin == pos)
+ 307              		.loc 1 181 0
+ 308 00c4 FA68     		ldr	r2, [r7, #12]
+ 309 00c6 3B69     		ldr	r3, [r7, #16]
+ 310 00c8 9A42     		cmp	r2, r3
+ 311 00ca 00D0     		beq	.LCB265
+ 312 00cc 91E0     		b	.L16	@long jump
+ 313              	.LCB265:
+ 182:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     {
+ 183:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       if ((GPIO_InitStruct->GPIO_Mode == GPIO_Mode_OUT) || (GPIO_InitStruct->GPIO_Mode == GPIO_Mode
+ 314              		.loc 1 183 0
+ 315 00ce 3B68     		ldr	r3, [r7]
+ 316 00d0 1B79     		ldrb	r3, [r3, #4]
+ 317 00d2 012B     		cmp	r3, #1
+ 318 00d4 03D0     		beq	.L17
+ 319              		.loc 1 183 0 is_stmt 0 discriminator 1
+ 320 00d6 3B68     		ldr	r3, [r7]
+ 321 00d8 1B79     		ldrb	r3, [r3, #4]
+ 322 00da 022B     		cmp	r3, #2
+ 323 00dc 56D1     		bne	.L18
+ 324              	.L17:
+ 184:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       {
+ 185:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****         /* Check Speed mode parameters */
+ 186:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****         assert_param(IS_GPIO_SPEED(GPIO_InitStruct->GPIO_Speed));
+ 325              		.loc 1 186 0 is_stmt 1
+ 326 00de 3B68     		ldr	r3, [r7]
+ 327 00e0 5B79     		ldrb	r3, [r3, #5]
+ 328 00e2 012B     		cmp	r3, #1
+ 329 00e4 0CD0     		beq	.L19
+ 330              		.loc 1 186 0 is_stmt 0 discriminator 1
+ 331 00e6 3B68     		ldr	r3, [r7]
+ 332 00e8 5B79     		ldrb	r3, [r3, #5]
+ 333 00ea 022B     		cmp	r3, #2
+ 334 00ec 08D0     		beq	.L19
+ 335 00ee 3B68     		ldr	r3, [r7]
+ 336 00f0 5B79     		ldrb	r3, [r3, #5]
+ 337 00f2 032B     		cmp	r3, #3
+ 338 00f4 04D0     		beq	.L19
+ 339 00f6 484B     		ldr	r3, .L22+16
+ 340 00f8 181C     		mov	r0, r3
+ 341 00fa BA21     		mov	r1, #186
+ 342 00fc FFF7FEFF 		bl	assert_failed
+ 343              	.L19:
+ 187:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 188:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****         /* Speed mode configuration */
+ 189:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****         GPIOx->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR0 << (pinpos * 2));
+ 344              		.loc 1 189 0 is_stmt 1
+ 345 0100 7B68     		ldr	r3, [r7, #4]
+ 346 0102 9B68     		ldr	r3, [r3, #8]
+ 347 0104 7A69     		ldr	r2, [r7, #20]
+ 348 0106 5200     		lsl	r2, r2, #1
+ 349 0108 0321     		mov	r1, #3
+ 350 010a 081C     		mov	r0, r1
+ 351 010c 9040     		lsl	r0, r0, r2
+ 352 010e 021C     		mov	r2, r0
+ 353 0110 D243     		mvn	r2, r2
+ 354 0112 1A40     		and	r2, r3
+ 355 0114 7B68     		ldr	r3, [r7, #4]
+ 356 0116 9A60     		str	r2, [r3, #8]
+ 190:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****         GPIOx->OSPEEDR |= ((uint32_t)(GPIO_InitStruct->GPIO_Speed) << (pinpos * 2));
+ 357              		.loc 1 190 0
+ 358 0118 7B68     		ldr	r3, [r7, #4]
+ 359 011a 9A68     		ldr	r2, [r3, #8]
+ 360 011c 3B68     		ldr	r3, [r7]
+ 361 011e 5B79     		ldrb	r3, [r3, #5]
+ 362 0120 191C     		mov	r1, r3
+ 363 0122 7B69     		ldr	r3, [r7, #20]
+ 364 0124 5B00     		lsl	r3, r3, #1
+ 365 0126 081C     		mov	r0, r1
+ 366 0128 9840     		lsl	r0, r0, r3
+ 367 012a 031C     		mov	r3, r0
+ 368 012c 1A43     		orr	r2, r3
+ 369 012e 7B68     		ldr	r3, [r7, #4]
+ 370 0130 9A60     		str	r2, [r3, #8]
+ 191:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 192:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****         /* Check Output mode parameters */
+ 193:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****         assert_param(IS_GPIO_OTYPE(GPIO_InitStruct->GPIO_OType));
+ 371              		.loc 1 193 0
+ 372 0132 3B68     		ldr	r3, [r7]
+ 373 0134 9B79     		ldrb	r3, [r3, #6]
+ 374 0136 002B     		cmp	r3, #0
+ 375 0138 08D0     		beq	.L20
+ 376              		.loc 1 193 0 is_stmt 0 discriminator 1
+ 377 013a 3B68     		ldr	r3, [r7]
+ 378 013c 9B79     		ldrb	r3, [r3, #6]
+ 379 013e 012B     		cmp	r3, #1
+ 380 0140 04D0     		beq	.L20
+ 381 0142 354B     		ldr	r3, .L22+16
+ 382 0144 181C     		mov	r0, r3
+ 383 0146 C121     		mov	r1, #193
+ 384 0148 FFF7FEFF 		bl	assert_failed
+ 385              	.L20:
+ 194:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 195:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****         /* Output mode configuration */
+ 196:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****         GPIOx->OTYPER &= ~((GPIO_OTYPER_OT_0) << ((uint16_t)pinpos));
+ 386              		.loc 1 196 0 is_stmt 1
+ 387 014c 7B68     		ldr	r3, [r7, #4]
+ 388 014e 9B88     		ldrh	r3, [r3, #4]
+ 389 0150 9BB2     		uxth	r3, r3
+ 390 0152 7A69     		ldr	r2, [r7, #20]
+ 391 0154 92B2     		uxth	r2, r2
+ 392 0156 0121     		mov	r1, #1
+ 393 0158 081C     		mov	r0, r1
+ 394 015a 9040     		lsl	r0, r0, r2
+ 395 015c 021C     		mov	r2, r0
+ 396 015e 92B2     		uxth	r2, r2
+ 397 0160 D243     		mvn	r2, r2
+ 398 0162 92B2     		uxth	r2, r2
+ 399 0164 1340     		and	r3, r2
+ 400 0166 9AB2     		uxth	r2, r3
+ 401 0168 7B68     		ldr	r3, [r7, #4]
+ 402 016a 9A80     		strh	r2, [r3, #4]
+ 197:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****         GPIOx->OTYPER |= (uint16_t)(((uint16_t)GPIO_InitStruct->GPIO_OType) << ((uint16_t)pinpos));
+ 403              		.loc 1 197 0
+ 404 016c 7B68     		ldr	r3, [r7, #4]
+ 405 016e 9B88     		ldrh	r3, [r3, #4]
+ 406 0170 9AB2     		uxth	r2, r3
+ 407 0172 3B68     		ldr	r3, [r7]
+ 408 0174 9B79     		ldrb	r3, [r3, #6]
+ 409 0176 191C     		mov	r1, r3
+ 410 0178 7B69     		ldr	r3, [r7, #20]
+ 411 017a 9BB2     		uxth	r3, r3
+ 412 017c 081C     		mov	r0, r1
+ 413 017e 9840     		lsl	r0, r0, r3
+ 414 0180 031C     		mov	r3, r0
+ 415 0182 9BB2     		uxth	r3, r3
+ 416 0184 1343     		orr	r3, r2
+ 417 0186 9AB2     		uxth	r2, r3
+ 418 0188 7B68     		ldr	r3, [r7, #4]
+ 419 018a 9A80     		strh	r2, [r3, #4]
+ 420              	.L18:
+ 198:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       }
+ 199:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 200:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       GPIOx->MODER  &= ~(GPIO_MODER_MODER0 << (pinpos * 2));
+ 421              		.loc 1 200 0
+ 422 018c 7B68     		ldr	r3, [r7, #4]
+ 423 018e 1B68     		ldr	r3, [r3]
+ 424 0190 7A69     		ldr	r2, [r7, #20]
+ 425 0192 5200     		lsl	r2, r2, #1
+ 426 0194 0321     		mov	r1, #3
+ 427 0196 081C     		mov	r0, r1
+ 428 0198 9040     		lsl	r0, r0, r2
+ 429 019a 021C     		mov	r2, r0
+ 430 019c D243     		mvn	r2, r2
+ 431 019e 1A40     		and	r2, r3
+ 432 01a0 7B68     		ldr	r3, [r7, #4]
+ 433 01a2 1A60     		str	r2, [r3]
+ 201:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 202:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       GPIOx->MODER |= (((uint32_t)GPIO_InitStruct->GPIO_Mode) << (pinpos * 2));
+ 434              		.loc 1 202 0
+ 435 01a4 7B68     		ldr	r3, [r7, #4]
+ 436 01a6 1A68     		ldr	r2, [r3]
+ 437 01a8 3B68     		ldr	r3, [r7]
+ 438 01aa 1B79     		ldrb	r3, [r3, #4]
+ 439 01ac 191C     		mov	r1, r3
+ 440 01ae 7B69     		ldr	r3, [r7, #20]
+ 441 01b0 5B00     		lsl	r3, r3, #1
+ 442 01b2 081C     		mov	r0, r1
+ 443 01b4 9840     		lsl	r0, r0, r3
+ 444 01b6 031C     		mov	r3, r0
+ 445 01b8 1A43     		orr	r2, r3
+ 446 01ba 7B68     		ldr	r3, [r7, #4]
+ 447 01bc 1A60     		str	r2, [r3]
+ 203:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 204:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       /* Pull-up Pull down resistor configuration */
+ 205:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPDR0 << ((uint16_t)pinpos * 2));
+ 448              		.loc 1 205 0
+ 449 01be 7B68     		ldr	r3, [r7, #4]
+ 450 01c0 DB68     		ldr	r3, [r3, #12]
+ 451 01c2 7A69     		ldr	r2, [r7, #20]
+ 452 01c4 92B2     		uxth	r2, r2
+ 453 01c6 5200     		lsl	r2, r2, #1
+ 454 01c8 0321     		mov	r1, #3
+ 455 01ca 081C     		mov	r0, r1
+ 456 01cc 9040     		lsl	r0, r0, r2
+ 457 01ce 021C     		mov	r2, r0
+ 458 01d0 D243     		mvn	r2, r2
+ 459 01d2 1A40     		and	r2, r3
+ 460 01d4 7B68     		ldr	r3, [r7, #4]
+ 461 01d6 DA60     		str	r2, [r3, #12]
+ 206:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****       GPIOx->PUPDR |= (((uint32_t)GPIO_InitStruct->GPIO_PuPd) << (pinpos * 2));
+ 462              		.loc 1 206 0
+ 463 01d8 7B68     		ldr	r3, [r7, #4]
+ 464 01da DA68     		ldr	r2, [r3, #12]
+ 465 01dc 3B68     		ldr	r3, [r7]
+ 466 01de DB79     		ldrb	r3, [r3, #7]
+ 467 01e0 191C     		mov	r1, r3
+ 468 01e2 7B69     		ldr	r3, [r7, #20]
+ 469 01e4 5B00     		lsl	r3, r3, #1
+ 470 01e6 081C     		mov	r0, r1
+ 471 01e8 9840     		lsl	r0, r0, r3
+ 472 01ea 031C     		mov	r3, r0
+ 473 01ec 1A43     		orr	r2, r3
+ 474 01ee 7B68     		ldr	r3, [r7, #4]
+ 475 01f0 DA60     		str	r2, [r3, #12]
+ 476              	.L16:
+ 174:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   for (pinpos = 0x00; pinpos < 0x10; pinpos++)
+ 477              		.loc 1 174 0
+ 478 01f2 7B69     		ldr	r3, [r7, #20]
+ 479 01f4 0133     		add	r3, r3, #1
+ 480 01f6 7B61     		str	r3, [r7, #20]
+ 481              	.L15:
+ 174:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   for (pinpos = 0x00; pinpos < 0x10; pinpos++)
+ 482              		.loc 1 174 0 is_stmt 0 discriminator 1
+ 483 01f8 7B69     		ldr	r3, [r7, #20]
+ 484 01fa 0F2B     		cmp	r3, #15
+ 485 01fc 00D8     		bhi	.LCB426
+ 486 01fe 56E7     		b	.L21	@long jump
+ 487              	.LCB426:
+ 207:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     }
+ 208:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 209:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 488              		.loc 1 209 0 is_stmt 1
+ 489 0200 BD46     		mov	sp, r7
+ 490 0202 06B0     		add	sp, sp, #24
+ 491              		@ sp needed
+ 492 0204 80BD     		pop	{r7, pc}
+ 493              	.L23:
+ 494 0206 C046     		.align	2
+ 495              	.L22:
+ 496 0208 00040048 		.word	1207960576
+ 497 020c 00080048 		.word	1207961600
+ 498 0210 000C0048 		.word	1207962624
+ 499 0214 00140048 		.word	1207964672
+ 500 0218 00000000 		.word	.LC0
+ 501              		.cfi_endproc
+ 502              	.LFE33:
+ 504              		.section	.text.GPIO_StructInit,"ax",%progbits
+ 505              		.align	2
+ 506              		.global	GPIO_StructInit
+ 507              		.code	16
+ 508              		.thumb_func
+ 510              	GPIO_StructInit:
+ 511              	.LFB34:
+ 210:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 211:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 212:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Fills each GPIO_InitStruct member with its default value.
+ 213:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIO_InitStruct: pointer to a GPIO_InitTypeDef structure which will 
+ 214:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         be initialized.
+ 215:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval None
+ 216:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 217:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** void GPIO_StructInit(GPIO_InitTypeDef* GPIO_InitStruct)
+ 218:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 512              		.loc 1 218 0
+ 513              		.cfi_startproc
+ 514 0000 80B5     		push	{r7, lr}
+ 515              		.cfi_def_cfa_offset 8
+ 516              		.cfi_offset 7, -8
+ 517              		.cfi_offset 14, -4
+ 518 0002 82B0     		sub	sp, sp, #8
+ 519              		.cfi_def_cfa_offset 16
+ 520 0004 00AF     		add	r7, sp, #0
+ 521              		.cfi_def_cfa_register 7
+ 522 0006 7860     		str	r0, [r7, #4]
+ 219:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Reset GPIO init structure parameters values */
+ 220:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIO_InitStruct->GPIO_Pin  = GPIO_Pin_All;
+ 523              		.loc 1 220 0
+ 524 0008 7B68     		ldr	r3, [r7, #4]
+ 525 000a 084A     		ldr	r2, .L25
+ 526 000c 1A60     		str	r2, [r3]
+ 221:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIO_InitStruct->GPIO_Mode = GPIO_Mode_IN;
+ 527              		.loc 1 221 0
+ 528 000e 7B68     		ldr	r3, [r7, #4]
+ 529 0010 0022     		mov	r2, #0
+ 530 0012 1A71     		strb	r2, [r3, #4]
+ 222:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIO_InitStruct->GPIO_Speed = GPIO_Speed_Level_2;
+ 531              		.loc 1 222 0
+ 532 0014 7B68     		ldr	r3, [r7, #4]
+ 533 0016 0222     		mov	r2, #2
+ 534 0018 5A71     		strb	r2, [r3, #5]
+ 223:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIO_InitStruct->GPIO_OType = GPIO_OType_PP;
+ 535              		.loc 1 223 0
+ 536 001a 7B68     		ldr	r3, [r7, #4]
+ 537 001c 0022     		mov	r2, #0
+ 538 001e 9A71     		strb	r2, [r3, #6]
+ 224:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIO_InitStruct->GPIO_PuPd = GPIO_PuPd_NOPULL;
+ 539              		.loc 1 224 0
+ 540 0020 7B68     		ldr	r3, [r7, #4]
+ 541 0022 0022     		mov	r2, #0
+ 542 0024 DA71     		strb	r2, [r3, #7]
+ 225:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 543              		.loc 1 225 0
+ 544 0026 BD46     		mov	sp, r7
+ 545 0028 02B0     		add	sp, sp, #8
+ 546              		@ sp needed
+ 547 002a 80BD     		pop	{r7, pc}
+ 548              	.L26:
+ 549              		.align	2
+ 550              	.L25:
+ 551 002c FFFF0000 		.word	65535
+ 552              		.cfi_endproc
+ 553              	.LFE34:
+ 555              		.section	.text.GPIO_PinLockConfig,"ax",%progbits
+ 556              		.align	2
+ 557              		.global	GPIO_PinLockConfig
+ 558              		.code	16
+ 559              		.thumb_func
+ 561              	GPIO_PinLockConfig:
+ 562              	.LFB35:
+ 226:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 227:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 228:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Locks GPIO Pins configuration registers.
+ 229:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         The locked registers are GPIOx_MODER, GPIOx_OTYPER, GPIOx_OSPEEDR,
+ 230:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         GPIOx_PUPDR, GPIOx_AFRL and GPIOx_AFRH.
+ 231:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @note   The configuration of the locked GPIO pins can no longer be modified
+ 232:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         until the next reset.
+ 233:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A or B) to select the GPIO peripheral.
+ 234:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIO_Pin: specifies the port bit to be written.
+ 235:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *   This parameter can be any combination of GPIO_Pin_x where x can be (0..15).
+ 236:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval None
+ 237:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 238:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** void GPIO_PinLockConfig(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+ 239:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 563              		.loc 1 239 0
+ 564              		.cfi_startproc
+ 565 0000 80B5     		push	{r7, lr}
+ 566              		.cfi_def_cfa_offset 8
+ 567              		.cfi_offset 7, -8
+ 568              		.cfi_offset 14, -4
+ 569 0002 84B0     		sub	sp, sp, #16
+ 570              		.cfi_def_cfa_offset 24
+ 571 0004 00AF     		add	r7, sp, #0
+ 572              		.cfi_def_cfa_register 7
+ 573 0006 7860     		str	r0, [r7, #4]
+ 574 0008 0A1C     		mov	r2, r1
+ 575 000a BB1C     		add	r3, r7, #2
+ 576 000c 1A80     		strh	r2, [r3]
+ 240:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   __IO uint32_t tmp = 0x00010000;
+ 577              		.loc 1 240 0
+ 578 000e 8023     		mov	r3, #128
+ 579 0010 5B02     		lsl	r3, r3, #9
+ 580 0012 FB60     		str	r3, [r7, #12]
+ 241:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 242:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 243:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_LIST_PERIPH(GPIOx));
+ 581              		.loc 1 243 0
+ 582 0014 7A68     		ldr	r2, [r7, #4]
+ 583 0016 9023     		mov	r3, #144
+ 584 0018 DB05     		lsl	r3, r3, #23
+ 585 001a 9A42     		cmp	r2, r3
+ 586 001c 08D0     		beq	.L28
+ 587              		.loc 1 243 0 is_stmt 0 discriminator 1
+ 588 001e 7A68     		ldr	r2, [r7, #4]
+ 589 0020 144B     		ldr	r3, .L30
+ 590 0022 9A42     		cmp	r2, r3
+ 591 0024 04D0     		beq	.L28
+ 592 0026 144B     		ldr	r3, .L30+4
+ 593 0028 181C     		mov	r0, r3
+ 594 002a F321     		mov	r1, #243
+ 595 002c FFF7FEFF 		bl	assert_failed
+ 596              	.L28:
+ 244:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_PIN(GPIO_Pin));
+ 597              		.loc 1 244 0 is_stmt 1
+ 598 0030 BB1C     		add	r3, r7, #2
+ 599 0032 1B88     		ldrh	r3, [r3]
+ 600 0034 002B     		cmp	r3, #0
+ 601 0036 04D1     		bne	.L29
+ 602              		.loc 1 244 0 is_stmt 0 discriminator 1
+ 603 0038 0F4B     		ldr	r3, .L30+4
+ 604 003a 181C     		mov	r0, r3
+ 605 003c F421     		mov	r1, #244
+ 606 003e FFF7FEFF 		bl	assert_failed
+ 607              	.L29:
+ 245:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 246:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   tmp |= GPIO_Pin;
+ 608              		.loc 1 246 0 is_stmt 1
+ 609 0042 BB1C     		add	r3, r7, #2
+ 610 0044 1A88     		ldrh	r2, [r3]
+ 611 0046 FB68     		ldr	r3, [r7, #12]
+ 612 0048 1343     		orr	r3, r2
+ 613 004a FB60     		str	r3, [r7, #12]
+ 247:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Set LCKK bit */
+ 248:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIOx->LCKR = tmp;
+ 614              		.loc 1 248 0
+ 615 004c FA68     		ldr	r2, [r7, #12]
+ 616 004e 7B68     		ldr	r3, [r7, #4]
+ 617 0050 DA61     		str	r2, [r3, #28]
+ 249:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Reset LCKK bit */
+ 250:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIOx->LCKR =  GPIO_Pin;
+ 618              		.loc 1 250 0
+ 619 0052 BB1C     		add	r3, r7, #2
+ 620 0054 1A88     		ldrh	r2, [r3]
+ 621 0056 7B68     		ldr	r3, [r7, #4]
+ 622 0058 DA61     		str	r2, [r3, #28]
+ 251:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Set LCKK bit */
+ 252:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIOx->LCKR = tmp;
+ 623              		.loc 1 252 0
+ 624 005a FA68     		ldr	r2, [r7, #12]
+ 625 005c 7B68     		ldr	r3, [r7, #4]
+ 626 005e DA61     		str	r2, [r3, #28]
+ 253:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Read LCKK bit */
+ 254:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   tmp = GPIOx->LCKR;
+ 627              		.loc 1 254 0
+ 628 0060 7B68     		ldr	r3, [r7, #4]
+ 629 0062 DB69     		ldr	r3, [r3, #28]
+ 630 0064 FB60     		str	r3, [r7, #12]
+ 255:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Read LCKK bit */
+ 256:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   tmp = GPIOx->LCKR;
+ 631              		.loc 1 256 0
+ 632 0066 7B68     		ldr	r3, [r7, #4]
+ 633 0068 DB69     		ldr	r3, [r3, #28]
+ 634 006a FB60     		str	r3, [r7, #12]
+ 257:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 635              		.loc 1 257 0
+ 636 006c BD46     		mov	sp, r7
+ 637 006e 04B0     		add	sp, sp, #16
+ 638              		@ sp needed
+ 639 0070 80BD     		pop	{r7, pc}
+ 640              	.L31:
+ 641 0072 C046     		.align	2
+ 642              	.L30:
+ 643 0074 00040048 		.word	1207960576
+ 644 0078 00000000 		.word	.LC0
+ 645              		.cfi_endproc
+ 646              	.LFE35:
+ 648              		.section	.text.GPIO_ReadInputDataBit,"ax",%progbits
+ 649              		.align	2
+ 650              		.global	GPIO_ReadInputDataBit
+ 651              		.code	16
+ 652              		.thumb_func
+ 654              	GPIO_ReadInputDataBit:
+ 655              	.LFB36:
+ 258:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 259:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 260:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @}
+ 261:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 262:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 263:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /** @defgroup GPIO_Group2 GPIO Read and Write
+ 264:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *  @brief   GPIO Read and Write
+ 265:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *
+ 266:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** @verbatim   
+ 267:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  ===============================================================================
+ 268:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****                       ##### GPIO Read and Write #####
+ 269:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  ===============================================================================  
+ 270:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 271:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** @endverbatim
+ 272:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @{
+ 273:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 274:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 275:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 276:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Reads the specified input port pin.
+ 277:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A, B, C, D or F) to select the GPIO peripheral.
+ 278:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIO_Pin: specifies the port bit to read.
+ 279:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @note   This parameter can be GPIO_Pin_x where x can be:(0..15) for GPIOA, 
+ 280:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         GPIOB or GPIOC,(0..2) for GPIOD and(0..3) for GPIOF.
+ 281:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval The input port pin value.
+ 282:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 283:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** uint8_t GPIO_ReadInputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+ 284:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 656              		.loc 1 284 0
+ 657              		.cfi_startproc
+ 658 0000 80B5     		push	{r7, lr}
+ 659              		.cfi_def_cfa_offset 8
+ 660              		.cfi_offset 7, -8
+ 661              		.cfi_offset 14, -4
+ 662 0002 84B0     		sub	sp, sp, #16
+ 663              		.cfi_def_cfa_offset 24
+ 664 0004 00AF     		add	r7, sp, #0
+ 665              		.cfi_def_cfa_register 7
+ 666 0006 7860     		str	r0, [r7, #4]
+ 667 0008 0A1C     		mov	r2, r1
+ 668 000a BB1C     		add	r3, r7, #2
+ 669 000c 1A80     		strh	r2, [r3]
+ 285:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   uint8_t bitstatus = 0x00;
+ 670              		.loc 1 285 0
+ 671 000e 3B1C     		mov	r3, r7
+ 672 0010 0F33     		add	r3, r3, #15
+ 673 0012 0022     		mov	r2, #0
+ 674 0014 1A70     		strb	r2, [r3]
+ 286:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 287:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 288:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+ 675              		.loc 1 288 0
+ 676 0016 7A68     		ldr	r2, [r7, #4]
+ 677 0018 9023     		mov	r3, #144
+ 678 001a DB05     		lsl	r3, r3, #23
+ 679 001c 9A42     		cmp	r2, r3
+ 680 001e 16D0     		beq	.L33
+ 681              		.loc 1 288 0 is_stmt 0 discriminator 1
+ 682 0020 7A68     		ldr	r2, [r7, #4]
+ 683 0022 434B     		ldr	r3, .L38
+ 684 0024 9A42     		cmp	r2, r3
+ 685 0026 12D0     		beq	.L33
+ 686 0028 7A68     		ldr	r2, [r7, #4]
+ 687 002a 424B     		ldr	r3, .L38+4
+ 688 002c 9A42     		cmp	r2, r3
+ 689 002e 0ED0     		beq	.L33
+ 690 0030 7A68     		ldr	r2, [r7, #4]
+ 691 0032 414B     		ldr	r3, .L38+8
+ 692 0034 9A42     		cmp	r2, r3
+ 693 0036 0AD0     		beq	.L33
+ 694 0038 7A68     		ldr	r2, [r7, #4]
+ 695 003a 404B     		ldr	r3, .L38+12
+ 696 003c 9A42     		cmp	r2, r3
+ 697 003e 06D0     		beq	.L33
+ 698 0040 3F4A     		ldr	r2, .L38+16
+ 699 0042 9023     		mov	r3, #144
+ 700 0044 5B00     		lsl	r3, r3, #1
+ 701 0046 101C     		mov	r0, r2
+ 702 0048 191C     		mov	r1, r3
+ 703 004a FFF7FEFF 		bl	assert_failed
+ 704              	.L33:
+ 289:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GET_GPIO_PIN(GPIO_Pin));
+ 705              		.loc 1 289 0 is_stmt 1
+ 706 004e BB1C     		add	r3, r7, #2
+ 707 0050 1B88     		ldrh	r3, [r3]
+ 708 0052 012B     		cmp	r3, #1
+ 709 0054 52D0     		beq	.L34
+ 710              		.loc 1 289 0 is_stmt 0 discriminator 1
+ 711 0056 BB1C     		add	r3, r7, #2
+ 712 0058 1B88     		ldrh	r3, [r3]
+ 713 005a 022B     		cmp	r3, #2
+ 714 005c 4ED0     		beq	.L34
+ 715 005e BB1C     		add	r3, r7, #2
+ 716 0060 1B88     		ldrh	r3, [r3]
+ 717 0062 042B     		cmp	r3, #4
+ 718 0064 4AD0     		beq	.L34
+ 719 0066 BB1C     		add	r3, r7, #2
+ 720 0068 1B88     		ldrh	r3, [r3]
+ 721 006a 082B     		cmp	r3, #8
+ 722 006c 46D0     		beq	.L34
+ 723 006e BB1C     		add	r3, r7, #2
+ 724 0070 1B88     		ldrh	r3, [r3]
+ 725 0072 102B     		cmp	r3, #16
+ 726 0074 42D0     		beq	.L34
+ 727 0076 BB1C     		add	r3, r7, #2
+ 728 0078 1B88     		ldrh	r3, [r3]
+ 729 007a 202B     		cmp	r3, #32
+ 730 007c 3ED0     		beq	.L34
+ 731 007e BB1C     		add	r3, r7, #2
+ 732 0080 1B88     		ldrh	r3, [r3]
+ 733 0082 402B     		cmp	r3, #64
+ 734 0084 3AD0     		beq	.L34
+ 735 0086 BB1C     		add	r3, r7, #2
+ 736 0088 1B88     		ldrh	r3, [r3]
+ 737 008a 802B     		cmp	r3, #128
+ 738 008c 36D0     		beq	.L34
+ 739 008e BB1C     		add	r3, r7, #2
+ 740 0090 1A88     		ldrh	r2, [r3]
+ 741 0092 8023     		mov	r3, #128
+ 742 0094 5B00     		lsl	r3, r3, #1
+ 743 0096 9A42     		cmp	r2, r3
+ 744 0098 30D0     		beq	.L34
+ 745 009a BB1C     		add	r3, r7, #2
+ 746 009c 1A88     		ldrh	r2, [r3]
+ 747 009e 8023     		mov	r3, #128
+ 748 00a0 9B00     		lsl	r3, r3, #2
+ 749 00a2 9A42     		cmp	r2, r3
+ 750 00a4 2AD0     		beq	.L34
+ 751 00a6 BB1C     		add	r3, r7, #2
+ 752 00a8 1A88     		ldrh	r2, [r3]
+ 753 00aa 8023     		mov	r3, #128
+ 754 00ac DB00     		lsl	r3, r3, #3
+ 755 00ae 9A42     		cmp	r2, r3
+ 756 00b0 24D0     		beq	.L34
+ 757 00b2 BB1C     		add	r3, r7, #2
+ 758 00b4 1A88     		ldrh	r2, [r3]
+ 759 00b6 8023     		mov	r3, #128
+ 760 00b8 1B01     		lsl	r3, r3, #4
+ 761 00ba 9A42     		cmp	r2, r3
+ 762 00bc 1ED0     		beq	.L34
+ 763 00be BB1C     		add	r3, r7, #2
+ 764 00c0 1A88     		ldrh	r2, [r3]
+ 765 00c2 8023     		mov	r3, #128
+ 766 00c4 5B01     		lsl	r3, r3, #5
+ 767 00c6 9A42     		cmp	r2, r3
+ 768 00c8 18D0     		beq	.L34
+ 769 00ca BB1C     		add	r3, r7, #2
+ 770 00cc 1A88     		ldrh	r2, [r3]
+ 771 00ce 8023     		mov	r3, #128
+ 772 00d0 9B01     		lsl	r3, r3, #6
+ 773 00d2 9A42     		cmp	r2, r3
+ 774 00d4 12D0     		beq	.L34
+ 775 00d6 BB1C     		add	r3, r7, #2
+ 776 00d8 1A88     		ldrh	r2, [r3]
+ 777 00da 8023     		mov	r3, #128
+ 778 00dc DB01     		lsl	r3, r3, #7
+ 779 00de 9A42     		cmp	r2, r3
+ 780 00e0 0CD0     		beq	.L34
+ 781 00e2 BB1C     		add	r3, r7, #2
+ 782 00e4 1A88     		ldrh	r2, [r3]
+ 783 00e6 8023     		mov	r3, #128
+ 784 00e8 1B02     		lsl	r3, r3, #8
+ 785 00ea 9A42     		cmp	r2, r3
+ 786 00ec 06D0     		beq	.L34
+ 787 00ee 144A     		ldr	r2, .L38+16
+ 788 00f0 2223     		mov	r3, #34
+ 789 00f2 FF33     		add	r3, r3, #255
+ 790 00f4 101C     		mov	r0, r2
+ 791 00f6 191C     		mov	r1, r3
+ 792 00f8 FFF7FEFF 		bl	assert_failed
+ 793              	.L34:
+ 290:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 291:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   if ((GPIOx->IDR & GPIO_Pin) != (uint32_t)Bit_RESET)
+ 794              		.loc 1 291 0 is_stmt 1
+ 795 00fc 7B68     		ldr	r3, [r7, #4]
+ 796 00fe 1B8A     		ldrh	r3, [r3, #16]
+ 797 0100 9BB2     		uxth	r3, r3
+ 798 0102 BA1C     		add	r2, r7, #2
+ 799 0104 1288     		ldrh	r2, [r2]
+ 800 0106 1340     		and	r3, r2
+ 801 0108 9BB2     		uxth	r3, r3
+ 802 010a 002B     		cmp	r3, #0
+ 803 010c 04D0     		beq	.L35
+ 292:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 293:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     bitstatus = (uint8_t)Bit_SET;
+ 804              		.loc 1 293 0
+ 805 010e 3B1C     		mov	r3, r7
+ 806 0110 0F33     		add	r3, r3, #15
+ 807 0112 0122     		mov	r2, #1
+ 808 0114 1A70     		strb	r2, [r3]
+ 809 0116 03E0     		b	.L36
+ 810              	.L35:
+ 294:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 295:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   else
+ 296:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 297:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     bitstatus = (uint8_t)Bit_RESET;
+ 811              		.loc 1 297 0
+ 812 0118 3B1C     		mov	r3, r7
+ 813 011a 0F33     		add	r3, r3, #15
+ 814 011c 0022     		mov	r2, #0
+ 815 011e 1A70     		strb	r2, [r3]
+ 816              	.L36:
+ 298:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 299:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   return bitstatus;
+ 817              		.loc 1 299 0
+ 818 0120 3B1C     		mov	r3, r7
+ 819 0122 0F33     		add	r3, r3, #15
+ 820 0124 1B78     		ldrb	r3, [r3]
+ 300:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 821              		.loc 1 300 0
+ 822 0126 181C     		mov	r0, r3
+ 823 0128 BD46     		mov	sp, r7
+ 824 012a 04B0     		add	sp, sp, #16
+ 825              		@ sp needed
+ 826 012c 80BD     		pop	{r7, pc}
+ 827              	.L39:
+ 828 012e C046     		.align	2
+ 829              	.L38:
+ 830 0130 00040048 		.word	1207960576
+ 831 0134 00080048 		.word	1207961600
+ 832 0138 000C0048 		.word	1207962624
+ 833 013c 00140048 		.word	1207964672
+ 834 0140 00000000 		.word	.LC0
+ 835              		.cfi_endproc
+ 836              	.LFE36:
+ 838              		.section	.text.GPIO_ReadInputData,"ax",%progbits
+ 839              		.align	2
+ 840              		.global	GPIO_ReadInputData
+ 841              		.code	16
+ 842              		.thumb_func
+ 844              	GPIO_ReadInputData:
+ 845              	.LFB37:
+ 301:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 302:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 303:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Reads the specified input port pin.
+ 304:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A, B, C, D or F) to select the GPIO peripheral.
+ 305:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval The input port pin value.
+ 306:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 307:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** uint16_t GPIO_ReadInputData(GPIO_TypeDef* GPIOx)
+ 308:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 846              		.loc 1 308 0
+ 847              		.cfi_startproc
+ 848 0000 80B5     		push	{r7, lr}
+ 849              		.cfi_def_cfa_offset 8
+ 850              		.cfi_offset 7, -8
+ 851              		.cfi_offset 14, -4
+ 852 0002 82B0     		sub	sp, sp, #8
+ 853              		.cfi_def_cfa_offset 16
+ 854 0004 00AF     		add	r7, sp, #0
+ 855              		.cfi_def_cfa_register 7
+ 856 0006 7860     		str	r0, [r7, #4]
+ 309:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 310:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+ 857              		.loc 1 310 0
+ 858 0008 7A68     		ldr	r2, [r7, #4]
+ 859 000a 9023     		mov	r3, #144
+ 860 000c DB05     		lsl	r3, r3, #23
+ 861 000e 9A42     		cmp	r2, r3
+ 862 0010 16D0     		beq	.L41
+ 863              		.loc 1 310 0 is_stmt 0 discriminator 1
+ 864 0012 7A68     		ldr	r2, [r7, #4]
+ 865 0014 0E4B     		ldr	r3, .L43
+ 866 0016 9A42     		cmp	r2, r3
+ 867 0018 12D0     		beq	.L41
+ 868 001a 7A68     		ldr	r2, [r7, #4]
+ 869 001c 0D4B     		ldr	r3, .L43+4
+ 870 001e 9A42     		cmp	r2, r3
+ 871 0020 0ED0     		beq	.L41
+ 872 0022 7A68     		ldr	r2, [r7, #4]
+ 873 0024 0C4B     		ldr	r3, .L43+8
+ 874 0026 9A42     		cmp	r2, r3
+ 875 0028 0AD0     		beq	.L41
+ 876 002a 7A68     		ldr	r2, [r7, #4]
+ 877 002c 0B4B     		ldr	r3, .L43+12
+ 878 002e 9A42     		cmp	r2, r3
+ 879 0030 06D0     		beq	.L41
+ 880 0032 0B4A     		ldr	r2, .L43+16
+ 881 0034 9B23     		mov	r3, #155
+ 882 0036 5B00     		lsl	r3, r3, #1
+ 883 0038 101C     		mov	r0, r2
+ 884 003a 191C     		mov	r1, r3
+ 885 003c FFF7FEFF 		bl	assert_failed
+ 886              	.L41:
+ 311:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 312:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   return ((uint16_t)GPIOx->IDR);
+ 887              		.loc 1 312 0 is_stmt 1
+ 888 0040 7B68     		ldr	r3, [r7, #4]
+ 889 0042 1B8A     		ldrh	r3, [r3, #16]
+ 890 0044 9BB2     		uxth	r3, r3
+ 313:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 891              		.loc 1 313 0
+ 892 0046 181C     		mov	r0, r3
+ 893 0048 BD46     		mov	sp, r7
+ 894 004a 02B0     		add	sp, sp, #8
+ 895              		@ sp needed
+ 896 004c 80BD     		pop	{r7, pc}
+ 897              	.L44:
+ 898 004e C046     		.align	2
+ 899              	.L43:
+ 900 0050 00040048 		.word	1207960576
+ 901 0054 00080048 		.word	1207961600
+ 902 0058 000C0048 		.word	1207962624
+ 903 005c 00140048 		.word	1207964672
+ 904 0060 00000000 		.word	.LC0
+ 905              		.cfi_endproc
+ 906              	.LFE37:
+ 908              		.section	.text.GPIO_ReadOutputDataBit,"ax",%progbits
+ 909              		.align	2
+ 910              		.global	GPIO_ReadOutputDataBit
+ 911              		.code	16
+ 912              		.thumb_func
+ 914              	GPIO_ReadOutputDataBit:
+ 915              	.LFB38:
+ 314:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 315:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 316:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Reads the specified output data port bit.
+ 317:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A, B, C, D or F) to select the GPIO peripheral.
+ 318:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIO_Pin: Specifies the port bit to read.
+ 319:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @note   This parameter can be GPIO_Pin_x where x can be:(0..15) for GPIOA, 
+ 320:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         GPIOB or GPIOC,(0..2) for GPIOD and(0..3) for GPIOF.
+ 321:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval The output port pin value.
+ 322:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 323:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** uint8_t GPIO_ReadOutputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+ 324:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 916              		.loc 1 324 0
+ 917              		.cfi_startproc
+ 918 0000 80B5     		push	{r7, lr}
+ 919              		.cfi_def_cfa_offset 8
+ 920              		.cfi_offset 7, -8
+ 921              		.cfi_offset 14, -4
+ 922 0002 84B0     		sub	sp, sp, #16
+ 923              		.cfi_def_cfa_offset 24
+ 924 0004 00AF     		add	r7, sp, #0
+ 925              		.cfi_def_cfa_register 7
+ 926 0006 7860     		str	r0, [r7, #4]
+ 927 0008 0A1C     		mov	r2, r1
+ 928 000a BB1C     		add	r3, r7, #2
+ 929 000c 1A80     		strh	r2, [r3]
+ 325:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   uint8_t bitstatus = 0x00;
+ 930              		.loc 1 325 0
+ 931 000e 3B1C     		mov	r3, r7
+ 932 0010 0F33     		add	r3, r3, #15
+ 933 0012 0022     		mov	r2, #0
+ 934 0014 1A70     		strb	r2, [r3]
+ 326:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 327:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 328:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+ 935              		.loc 1 328 0
+ 936 0016 7A68     		ldr	r2, [r7, #4]
+ 937 0018 9023     		mov	r3, #144
+ 938 001a DB05     		lsl	r3, r3, #23
+ 939 001c 9A42     		cmp	r2, r3
+ 940 001e 16D0     		beq	.L46
+ 941              		.loc 1 328 0 is_stmt 0 discriminator 1
+ 942 0020 7A68     		ldr	r2, [r7, #4]
+ 943 0022 434B     		ldr	r3, .L51
+ 944 0024 9A42     		cmp	r2, r3
+ 945 0026 12D0     		beq	.L46
+ 946 0028 7A68     		ldr	r2, [r7, #4]
+ 947 002a 424B     		ldr	r3, .L51+4
+ 948 002c 9A42     		cmp	r2, r3
+ 949 002e 0ED0     		beq	.L46
+ 950 0030 7A68     		ldr	r2, [r7, #4]
+ 951 0032 414B     		ldr	r3, .L51+8
+ 952 0034 9A42     		cmp	r2, r3
+ 953 0036 0AD0     		beq	.L46
+ 954 0038 7A68     		ldr	r2, [r7, #4]
+ 955 003a 404B     		ldr	r3, .L51+12
+ 956 003c 9A42     		cmp	r2, r3
+ 957 003e 06D0     		beq	.L46
+ 958 0040 3F4A     		ldr	r2, .L51+16
+ 959 0042 A423     		mov	r3, #164
+ 960 0044 5B00     		lsl	r3, r3, #1
+ 961 0046 101C     		mov	r0, r2
+ 962 0048 191C     		mov	r1, r3
+ 963 004a FFF7FEFF 		bl	assert_failed
+ 964              	.L46:
+ 329:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GET_GPIO_PIN(GPIO_Pin));
+ 965              		.loc 1 329 0 is_stmt 1
+ 966 004e BB1C     		add	r3, r7, #2
+ 967 0050 1B88     		ldrh	r3, [r3]
+ 968 0052 012B     		cmp	r3, #1
+ 969 0054 52D0     		beq	.L47
+ 970              		.loc 1 329 0 is_stmt 0 discriminator 1
+ 971 0056 BB1C     		add	r3, r7, #2
+ 972 0058 1B88     		ldrh	r3, [r3]
+ 973 005a 022B     		cmp	r3, #2
+ 974 005c 4ED0     		beq	.L47
+ 975 005e BB1C     		add	r3, r7, #2
+ 976 0060 1B88     		ldrh	r3, [r3]
+ 977 0062 042B     		cmp	r3, #4
+ 978 0064 4AD0     		beq	.L47
+ 979 0066 BB1C     		add	r3, r7, #2
+ 980 0068 1B88     		ldrh	r3, [r3]
+ 981 006a 082B     		cmp	r3, #8
+ 982 006c 46D0     		beq	.L47
+ 983 006e BB1C     		add	r3, r7, #2
+ 984 0070 1B88     		ldrh	r3, [r3]
+ 985 0072 102B     		cmp	r3, #16
+ 986 0074 42D0     		beq	.L47
+ 987 0076 BB1C     		add	r3, r7, #2
+ 988 0078 1B88     		ldrh	r3, [r3]
+ 989 007a 202B     		cmp	r3, #32
+ 990 007c 3ED0     		beq	.L47
+ 991 007e BB1C     		add	r3, r7, #2
+ 992 0080 1B88     		ldrh	r3, [r3]
+ 993 0082 402B     		cmp	r3, #64
+ 994 0084 3AD0     		beq	.L47
+ 995 0086 BB1C     		add	r3, r7, #2
+ 996 0088 1B88     		ldrh	r3, [r3]
+ 997 008a 802B     		cmp	r3, #128
+ 998 008c 36D0     		beq	.L47
+ 999 008e BB1C     		add	r3, r7, #2
+ 1000 0090 1A88     		ldrh	r2, [r3]
+ 1001 0092 8023     		mov	r3, #128
+ 1002 0094 5B00     		lsl	r3, r3, #1
+ 1003 0096 9A42     		cmp	r2, r3
+ 1004 0098 30D0     		beq	.L47
+ 1005 009a BB1C     		add	r3, r7, #2
+ 1006 009c 1A88     		ldrh	r2, [r3]
+ 1007 009e 8023     		mov	r3, #128
+ 1008 00a0 9B00     		lsl	r3, r3, #2
+ 1009 00a2 9A42     		cmp	r2, r3
+ 1010 00a4 2AD0     		beq	.L47
+ 1011 00a6 BB1C     		add	r3, r7, #2
+ 1012 00a8 1A88     		ldrh	r2, [r3]
+ 1013 00aa 8023     		mov	r3, #128
+ 1014 00ac DB00     		lsl	r3, r3, #3
+ 1015 00ae 9A42     		cmp	r2, r3
+ 1016 00b0 24D0     		beq	.L47
+ 1017 00b2 BB1C     		add	r3, r7, #2
+ 1018 00b4 1A88     		ldrh	r2, [r3]
+ 1019 00b6 8023     		mov	r3, #128
+ 1020 00b8 1B01     		lsl	r3, r3, #4
+ 1021 00ba 9A42     		cmp	r2, r3
+ 1022 00bc 1ED0     		beq	.L47
+ 1023 00be BB1C     		add	r3, r7, #2
+ 1024 00c0 1A88     		ldrh	r2, [r3]
+ 1025 00c2 8023     		mov	r3, #128
+ 1026 00c4 5B01     		lsl	r3, r3, #5
+ 1027 00c6 9A42     		cmp	r2, r3
+ 1028 00c8 18D0     		beq	.L47
+ 1029 00ca BB1C     		add	r3, r7, #2
+ 1030 00cc 1A88     		ldrh	r2, [r3]
+ 1031 00ce 8023     		mov	r3, #128
+ 1032 00d0 9B01     		lsl	r3, r3, #6
+ 1033 00d2 9A42     		cmp	r2, r3
+ 1034 00d4 12D0     		beq	.L47
+ 1035 00d6 BB1C     		add	r3, r7, #2
+ 1036 00d8 1A88     		ldrh	r2, [r3]
+ 1037 00da 8023     		mov	r3, #128
+ 1038 00dc DB01     		lsl	r3, r3, #7
+ 1039 00de 9A42     		cmp	r2, r3
+ 1040 00e0 0CD0     		beq	.L47
+ 1041 00e2 BB1C     		add	r3, r7, #2
+ 1042 00e4 1A88     		ldrh	r2, [r3]
+ 1043 00e6 8023     		mov	r3, #128
+ 1044 00e8 1B02     		lsl	r3, r3, #8
+ 1045 00ea 9A42     		cmp	r2, r3
+ 1046 00ec 06D0     		beq	.L47
+ 1047 00ee 144A     		ldr	r2, .L51+16
+ 1048 00f0 4A23     		mov	r3, #74
+ 1049 00f2 FF33     		add	r3, r3, #255
+ 1050 00f4 101C     		mov	r0, r2
+ 1051 00f6 191C     		mov	r1, r3
+ 1052 00f8 FFF7FEFF 		bl	assert_failed
+ 1053              	.L47:
+ 330:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 331:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   if ((GPIOx->ODR & GPIO_Pin) != (uint32_t)Bit_RESET)
+ 1054              		.loc 1 331 0 is_stmt 1
+ 1055 00fc 7B68     		ldr	r3, [r7, #4]
+ 1056 00fe 9B8A     		ldrh	r3, [r3, #20]
+ 1057 0100 9BB2     		uxth	r3, r3
+ 1058 0102 BA1C     		add	r2, r7, #2
+ 1059 0104 1288     		ldrh	r2, [r2]
+ 1060 0106 1340     		and	r3, r2
+ 1061 0108 9BB2     		uxth	r3, r3
+ 1062 010a 002B     		cmp	r3, #0
+ 1063 010c 04D0     		beq	.L48
+ 332:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 333:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     bitstatus = (uint8_t)Bit_SET;
+ 1064              		.loc 1 333 0
+ 1065 010e 3B1C     		mov	r3, r7
+ 1066 0110 0F33     		add	r3, r3, #15
+ 1067 0112 0122     		mov	r2, #1
+ 1068 0114 1A70     		strb	r2, [r3]
+ 1069 0116 03E0     		b	.L49
+ 1070              	.L48:
+ 334:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 335:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   else
+ 336:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 337:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     bitstatus = (uint8_t)Bit_RESET;
+ 1071              		.loc 1 337 0
+ 1072 0118 3B1C     		mov	r3, r7
+ 1073 011a 0F33     		add	r3, r3, #15
+ 1074 011c 0022     		mov	r2, #0
+ 1075 011e 1A70     		strb	r2, [r3]
+ 1076              	.L49:
+ 338:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 339:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   return bitstatus;
+ 1077              		.loc 1 339 0
+ 1078 0120 3B1C     		mov	r3, r7
+ 1079 0122 0F33     		add	r3, r3, #15
+ 1080 0124 1B78     		ldrb	r3, [r3]
+ 340:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 1081              		.loc 1 340 0
+ 1082 0126 181C     		mov	r0, r3
+ 1083 0128 BD46     		mov	sp, r7
+ 1084 012a 04B0     		add	sp, sp, #16
+ 1085              		@ sp needed
+ 1086 012c 80BD     		pop	{r7, pc}
+ 1087              	.L52:
+ 1088 012e C046     		.align	2
+ 1089              	.L51:
+ 1090 0130 00040048 		.word	1207960576
+ 1091 0134 00080048 		.word	1207961600
+ 1092 0138 000C0048 		.word	1207962624
+ 1093 013c 00140048 		.word	1207964672
+ 1094 0140 00000000 		.word	.LC0
+ 1095              		.cfi_endproc
+ 1096              	.LFE38:
+ 1098              		.section	.text.GPIO_ReadOutputData,"ax",%progbits
+ 1099              		.align	2
+ 1100              		.global	GPIO_ReadOutputData
+ 1101              		.code	16
+ 1102              		.thumb_func
+ 1104              	GPIO_ReadOutputData:
+ 1105              	.LFB39:
+ 341:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 342:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 343:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Reads the specified GPIO output data port.
+ 344:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A, B, C, D or F) to select the GPIO peripheral.
+ 345:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval GPIO output data port value.
+ 346:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 347:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** uint16_t GPIO_ReadOutputData(GPIO_TypeDef* GPIOx)
+ 348:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 1106              		.loc 1 348 0
+ 1107              		.cfi_startproc
+ 1108 0000 80B5     		push	{r7, lr}
+ 1109              		.cfi_def_cfa_offset 8
+ 1110              		.cfi_offset 7, -8
+ 1111              		.cfi_offset 14, -4
+ 1112 0002 82B0     		sub	sp, sp, #8
+ 1113              		.cfi_def_cfa_offset 16
+ 1114 0004 00AF     		add	r7, sp, #0
+ 1115              		.cfi_def_cfa_register 7
+ 1116 0006 7860     		str	r0, [r7, #4]
+ 349:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 350:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+ 1117              		.loc 1 350 0
+ 1118 0008 7A68     		ldr	r2, [r7, #4]
+ 1119 000a 9023     		mov	r3, #144
+ 1120 000c DB05     		lsl	r3, r3, #23
+ 1121 000e 9A42     		cmp	r2, r3
+ 1122 0010 16D0     		beq	.L54
+ 1123              		.loc 1 350 0 is_stmt 0 discriminator 1
+ 1124 0012 7A68     		ldr	r2, [r7, #4]
+ 1125 0014 0E4B     		ldr	r3, .L56
+ 1126 0016 9A42     		cmp	r2, r3
+ 1127 0018 12D0     		beq	.L54
+ 1128 001a 7A68     		ldr	r2, [r7, #4]
+ 1129 001c 0D4B     		ldr	r3, .L56+4
+ 1130 001e 9A42     		cmp	r2, r3
+ 1131 0020 0ED0     		beq	.L54
+ 1132 0022 7A68     		ldr	r2, [r7, #4]
+ 1133 0024 0C4B     		ldr	r3, .L56+8
+ 1134 0026 9A42     		cmp	r2, r3
+ 1135 0028 0AD0     		beq	.L54
+ 1136 002a 7A68     		ldr	r2, [r7, #4]
+ 1137 002c 0B4B     		ldr	r3, .L56+12
+ 1138 002e 9A42     		cmp	r2, r3
+ 1139 0030 06D0     		beq	.L54
+ 1140 0032 0B4A     		ldr	r2, .L56+16
+ 1141 0034 AF23     		mov	r3, #175
+ 1142 0036 5B00     		lsl	r3, r3, #1
+ 1143 0038 101C     		mov	r0, r2
+ 1144 003a 191C     		mov	r1, r3
+ 1145 003c FFF7FEFF 		bl	assert_failed
+ 1146              	.L54:
+ 351:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 352:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   return ((uint16_t)GPIOx->ODR);
+ 1147              		.loc 1 352 0 is_stmt 1
+ 1148 0040 7B68     		ldr	r3, [r7, #4]
+ 1149 0042 9B8A     		ldrh	r3, [r3, #20]
+ 1150 0044 9BB2     		uxth	r3, r3
+ 353:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 1151              		.loc 1 353 0
+ 1152 0046 181C     		mov	r0, r3
+ 1153 0048 BD46     		mov	sp, r7
+ 1154 004a 02B0     		add	sp, sp, #8
+ 1155              		@ sp needed
+ 1156 004c 80BD     		pop	{r7, pc}
+ 1157              	.L57:
+ 1158 004e C046     		.align	2
+ 1159              	.L56:
+ 1160 0050 00040048 		.word	1207960576
+ 1161 0054 00080048 		.word	1207961600
+ 1162 0058 000C0048 		.word	1207962624
+ 1163 005c 00140048 		.word	1207964672
+ 1164 0060 00000000 		.word	.LC0
+ 1165              		.cfi_endproc
+ 1166              	.LFE39:
+ 1168              		.section	.text.GPIO_SetBits,"ax",%progbits
+ 1169              		.align	2
+ 1170              		.global	GPIO_SetBits
+ 1171              		.code	16
+ 1172              		.thumb_func
+ 1174              	GPIO_SetBits:
+ 1175              	.LFB40:
+ 354:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 355:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 356:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Sets the selected data port bits.
+ 357:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A, B, C, D or F) to select the GPIO peripheral.
+ 358:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIO_Pin: specifies the port bits to be written.
+ 359:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @note   This parameter can be GPIO_Pin_x where x can be:(0..15) for GPIOA, 
+ 360:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         GPIOB or GPIOC,(0..2) for GPIOD and(0..3) for GPIOF.
+ 361:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval None
+ 362:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 363:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** void GPIO_SetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+ 364:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 1176              		.loc 1 364 0
+ 1177              		.cfi_startproc
+ 1178 0000 80B5     		push	{r7, lr}
+ 1179              		.cfi_def_cfa_offset 8
+ 1180              		.cfi_offset 7, -8
+ 1181              		.cfi_offset 14, -4
+ 1182 0002 82B0     		sub	sp, sp, #8
+ 1183              		.cfi_def_cfa_offset 16
+ 1184 0004 00AF     		add	r7, sp, #0
+ 1185              		.cfi_def_cfa_register 7
+ 1186 0006 7860     		str	r0, [r7, #4]
+ 1187 0008 0A1C     		mov	r2, r1
+ 1188 000a BB1C     		add	r3, r7, #2
+ 1189 000c 1A80     		strh	r2, [r3]
+ 365:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 366:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+ 1190              		.loc 1 366 0
+ 1191 000e 7A68     		ldr	r2, [r7, #4]
+ 1192 0010 9023     		mov	r3, #144
+ 1193 0012 DB05     		lsl	r3, r3, #23
+ 1194 0014 9A42     		cmp	r2, r3
+ 1195 0016 16D0     		beq	.L59
+ 1196              		.loc 1 366 0 is_stmt 0 discriminator 1
+ 1197 0018 7A68     		ldr	r2, [r7, #4]
+ 1198 001a 144B     		ldr	r3, .L61
+ 1199 001c 9A42     		cmp	r2, r3
+ 1200 001e 12D0     		beq	.L59
+ 1201 0020 7A68     		ldr	r2, [r7, #4]
+ 1202 0022 134B     		ldr	r3, .L61+4
+ 1203 0024 9A42     		cmp	r2, r3
+ 1204 0026 0ED0     		beq	.L59
+ 1205 0028 7A68     		ldr	r2, [r7, #4]
+ 1206 002a 124B     		ldr	r3, .L61+8
+ 1207 002c 9A42     		cmp	r2, r3
+ 1208 002e 0AD0     		beq	.L59
+ 1209 0030 7A68     		ldr	r2, [r7, #4]
+ 1210 0032 114B     		ldr	r3, .L61+12
+ 1211 0034 9A42     		cmp	r2, r3
+ 1212 0036 06D0     		beq	.L59
+ 1213 0038 104A     		ldr	r2, .L61+16
+ 1214 003a B723     		mov	r3, #183
+ 1215 003c 5B00     		lsl	r3, r3, #1
+ 1216 003e 101C     		mov	r0, r2
+ 1217 0040 191C     		mov	r1, r3
+ 1218 0042 FFF7FEFF 		bl	assert_failed
+ 1219              	.L59:
+ 367:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_PIN(GPIO_Pin));
+ 1220              		.loc 1 367 0 is_stmt 1
+ 1221 0046 BB1C     		add	r3, r7, #2
+ 1222 0048 1B88     		ldrh	r3, [r3]
+ 1223 004a 002B     		cmp	r3, #0
+ 1224 004c 06D1     		bne	.L60
+ 1225              		.loc 1 367 0 is_stmt 0 discriminator 1
+ 1226 004e 0B4A     		ldr	r2, .L61+16
+ 1227 0050 7023     		mov	r3, #112
+ 1228 0052 FF33     		add	r3, r3, #255
+ 1229 0054 101C     		mov	r0, r2
+ 1230 0056 191C     		mov	r1, r3
+ 1231 0058 FFF7FEFF 		bl	assert_failed
+ 1232              	.L60:
+ 368:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 369:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIOx->BSRR = GPIO_Pin;
+ 1233              		.loc 1 369 0 is_stmt 1
+ 1234 005c BB1C     		add	r3, r7, #2
+ 1235 005e 1A88     		ldrh	r2, [r3]
+ 1236 0060 7B68     		ldr	r3, [r7, #4]
+ 1237 0062 9A61     		str	r2, [r3, #24]
+ 370:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 1238              		.loc 1 370 0
+ 1239 0064 BD46     		mov	sp, r7
+ 1240 0066 02B0     		add	sp, sp, #8
+ 1241              		@ sp needed
+ 1242 0068 80BD     		pop	{r7, pc}
+ 1243              	.L62:
+ 1244 006a C046     		.align	2
+ 1245              	.L61:
+ 1246 006c 00040048 		.word	1207960576
+ 1247 0070 00080048 		.word	1207961600
+ 1248 0074 000C0048 		.word	1207962624
+ 1249 0078 00140048 		.word	1207964672
+ 1250 007c 00000000 		.word	.LC0
+ 1251              		.cfi_endproc
+ 1252              	.LFE40:
+ 1254              		.section	.text.GPIO_ResetBits,"ax",%progbits
+ 1255              		.align	2
+ 1256              		.global	GPIO_ResetBits
+ 1257              		.code	16
+ 1258              		.thumb_func
+ 1260              	GPIO_ResetBits:
+ 1261              	.LFB41:
+ 371:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 372:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 373:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Clears the selected data port bits.
+ 374:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A, B, C, D or F) to select the GPIO peripheral.
+ 375:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIO_Pin: specifies the port bits to be written.
+ 376:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @note   This parameter can be GPIO_Pin_x where x can be: (0..15) for GPIOA, 
+ 377:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         GPIOB or GPIOC,(0..2) for GPIOD and(0..3) for GPIOF.
+ 378:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval None
+ 379:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 380:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** void GPIO_ResetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+ 381:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 1262              		.loc 1 381 0
+ 1263              		.cfi_startproc
+ 1264 0000 80B5     		push	{r7, lr}
+ 1265              		.cfi_def_cfa_offset 8
+ 1266              		.cfi_offset 7, -8
+ 1267              		.cfi_offset 14, -4
+ 1268 0002 82B0     		sub	sp, sp, #8
+ 1269              		.cfi_def_cfa_offset 16
+ 1270 0004 00AF     		add	r7, sp, #0
+ 1271              		.cfi_def_cfa_register 7
+ 1272 0006 7860     		str	r0, [r7, #4]
+ 1273 0008 0A1C     		mov	r2, r1
+ 1274 000a BB1C     		add	r3, r7, #2
+ 1275 000c 1A80     		strh	r2, [r3]
+ 382:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 383:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+ 1276              		.loc 1 383 0
+ 1277 000e 7A68     		ldr	r2, [r7, #4]
+ 1278 0010 9023     		mov	r3, #144
+ 1279 0012 DB05     		lsl	r3, r3, #23
+ 1280 0014 9A42     		cmp	r2, r3
+ 1281 0016 16D0     		beq	.L64
+ 1282              		.loc 1 383 0 is_stmt 0 discriminator 1
+ 1283 0018 7A68     		ldr	r2, [r7, #4]
+ 1284 001a 144B     		ldr	r3, .L66
+ 1285 001c 9A42     		cmp	r2, r3
+ 1286 001e 12D0     		beq	.L64
+ 1287 0020 7A68     		ldr	r2, [r7, #4]
+ 1288 0022 134B     		ldr	r3, .L66+4
+ 1289 0024 9A42     		cmp	r2, r3
+ 1290 0026 0ED0     		beq	.L64
+ 1291 0028 7A68     		ldr	r2, [r7, #4]
+ 1292 002a 124B     		ldr	r3, .L66+8
+ 1293 002c 9A42     		cmp	r2, r3
+ 1294 002e 0AD0     		beq	.L64
+ 1295 0030 7A68     		ldr	r2, [r7, #4]
+ 1296 0032 114B     		ldr	r3, .L66+12
+ 1297 0034 9A42     		cmp	r2, r3
+ 1298 0036 06D0     		beq	.L64
+ 1299 0038 104A     		ldr	r2, .L66+16
+ 1300 003a 8023     		mov	r3, #128
+ 1301 003c FF33     		add	r3, r3, #255
+ 1302 003e 101C     		mov	r0, r2
+ 1303 0040 191C     		mov	r1, r3
+ 1304 0042 FFF7FEFF 		bl	assert_failed
+ 1305              	.L64:
+ 384:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_PIN(GPIO_Pin));
+ 1306              		.loc 1 384 0 is_stmt 1
+ 1307 0046 BB1C     		add	r3, r7, #2
+ 1308 0048 1B88     		ldrh	r3, [r3]
+ 1309 004a 002B     		cmp	r3, #0
+ 1310 004c 06D1     		bne	.L65
+ 1311              		.loc 1 384 0 is_stmt 0 discriminator 1
+ 1312 004e 0B4A     		ldr	r2, .L66+16
+ 1313 0050 C023     		mov	r3, #192
+ 1314 0052 5B00     		lsl	r3, r3, #1
+ 1315 0054 101C     		mov	r0, r2
+ 1316 0056 191C     		mov	r1, r3
+ 1317 0058 FFF7FEFF 		bl	assert_failed
+ 1318              	.L65:
+ 385:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 386:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIOx->BRR = GPIO_Pin;
+ 1319              		.loc 1 386 0 is_stmt 1
+ 1320 005c 7B68     		ldr	r3, [r7, #4]
+ 1321 005e BA1C     		add	r2, r7, #2
+ 1322 0060 1288     		ldrh	r2, [r2]
+ 1323 0062 1A85     		strh	r2, [r3, #40]
+ 387:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 1324              		.loc 1 387 0
+ 1325 0064 BD46     		mov	sp, r7
+ 1326 0066 02B0     		add	sp, sp, #8
+ 1327              		@ sp needed
+ 1328 0068 80BD     		pop	{r7, pc}
+ 1329              	.L67:
+ 1330 006a C046     		.align	2
+ 1331              	.L66:
+ 1332 006c 00040048 		.word	1207960576
+ 1333 0070 00080048 		.word	1207961600
+ 1334 0074 000C0048 		.word	1207962624
+ 1335 0078 00140048 		.word	1207964672
+ 1336 007c 00000000 		.word	.LC0
+ 1337              		.cfi_endproc
+ 1338              	.LFE41:
+ 1340              		.section	.text.GPIO_WriteBit,"ax",%progbits
+ 1341              		.align	2
+ 1342              		.global	GPIO_WriteBit
+ 1343              		.code	16
+ 1344              		.thumb_func
+ 1346              	GPIO_WriteBit:
+ 1347              	.LFB42:
+ 388:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 389:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 390:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Sets or clears the selected data port bit.
+ 391:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A, B, C, D or F) to select the GPIO peripheral.
+ 392:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIO_Pin: specifies the port bit to be written.
+ 393:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  BitVal: specifies the value to be written to the selected bit.
+ 394:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *   This parameter can be one of the BitAction enumeration values:
+ 395:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *     @arg Bit_RESET: to clear the port pin
+ 396:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *     @arg Bit_SET: to set the port pin
+ 397:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @note   The GPIO_Pin parameter can be GPIO_Pin_x where x can be: (0..15) for GPIOA, 
+ 398:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *         GPIOB or GPIOC,(0..2) for GPIOD and(0..3) for GPIOF.  
+ 399:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval None
+ 400:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 401:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** void GPIO_WriteBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, BitAction BitVal)
+ 402:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 1348              		.loc 1 402 0
+ 1349              		.cfi_startproc
+ 1350 0000 80B5     		push	{r7, lr}
+ 1351              		.cfi_def_cfa_offset 8
+ 1352              		.cfi_offset 7, -8
+ 1353              		.cfi_offset 14, -4
+ 1354 0002 82B0     		sub	sp, sp, #8
+ 1355              		.cfi_def_cfa_offset 16
+ 1356 0004 00AF     		add	r7, sp, #0
+ 1357              		.cfi_def_cfa_register 7
+ 1358 0006 7860     		str	r0, [r7, #4]
+ 1359 0008 BB1C     		add	r3, r7, #2
+ 1360 000a 1980     		strh	r1, [r3]
+ 1361 000c 7B1C     		add	r3, r7, #1
+ 1362 000e 1A70     		strb	r2, [r3]
+ 403:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 404:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+ 1363              		.loc 1 404 0
+ 1364 0010 7A68     		ldr	r2, [r7, #4]
+ 1365 0012 9023     		mov	r3, #144
+ 1366 0014 DB05     		lsl	r3, r3, #23
+ 1367 0016 9A42     		cmp	r2, r3
+ 1368 0018 16D0     		beq	.L69
+ 1369              		.loc 1 404 0 is_stmt 0 discriminator 1
+ 1370 001a 7A68     		ldr	r2, [r7, #4]
+ 1371 001c 454B     		ldr	r3, .L74
+ 1372 001e 9A42     		cmp	r2, r3
+ 1373 0020 12D0     		beq	.L69
+ 1374 0022 7A68     		ldr	r2, [r7, #4]
+ 1375 0024 444B     		ldr	r3, .L74+4
+ 1376 0026 9A42     		cmp	r2, r3
+ 1377 0028 0ED0     		beq	.L69
+ 1378 002a 7A68     		ldr	r2, [r7, #4]
+ 1379 002c 434B     		ldr	r3, .L74+8
+ 1380 002e 9A42     		cmp	r2, r3
+ 1381 0030 0AD0     		beq	.L69
+ 1382 0032 7A68     		ldr	r2, [r7, #4]
+ 1383 0034 424B     		ldr	r3, .L74+12
+ 1384 0036 9A42     		cmp	r2, r3
+ 1385 0038 06D0     		beq	.L69
+ 1386 003a 424A     		ldr	r2, .L74+16
+ 1387 003c CA23     		mov	r3, #202
+ 1388 003e 5B00     		lsl	r3, r3, #1
+ 1389 0040 101C     		mov	r0, r2
+ 1390 0042 191C     		mov	r1, r3
+ 1391 0044 FFF7FEFF 		bl	assert_failed
+ 1392              	.L69:
+ 405:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GET_GPIO_PIN(GPIO_Pin));
+ 1393              		.loc 1 405 0 is_stmt 1
+ 1394 0048 BB1C     		add	r3, r7, #2
+ 1395 004a 1B88     		ldrh	r3, [r3]
+ 1396 004c 012B     		cmp	r3, #1
+ 1397 004e 52D0     		beq	.L70
+ 1398              		.loc 1 405 0 is_stmt 0 discriminator 1
+ 1399 0050 BB1C     		add	r3, r7, #2
+ 1400 0052 1B88     		ldrh	r3, [r3]
+ 1401 0054 022B     		cmp	r3, #2
+ 1402 0056 4ED0     		beq	.L70
+ 1403 0058 BB1C     		add	r3, r7, #2
+ 1404 005a 1B88     		ldrh	r3, [r3]
+ 1405 005c 042B     		cmp	r3, #4
+ 1406 005e 4AD0     		beq	.L70
+ 1407 0060 BB1C     		add	r3, r7, #2
+ 1408 0062 1B88     		ldrh	r3, [r3]
+ 1409 0064 082B     		cmp	r3, #8
+ 1410 0066 46D0     		beq	.L70
+ 1411 0068 BB1C     		add	r3, r7, #2
+ 1412 006a 1B88     		ldrh	r3, [r3]
+ 1413 006c 102B     		cmp	r3, #16
+ 1414 006e 42D0     		beq	.L70
+ 1415 0070 BB1C     		add	r3, r7, #2
+ 1416 0072 1B88     		ldrh	r3, [r3]
+ 1417 0074 202B     		cmp	r3, #32
+ 1418 0076 3ED0     		beq	.L70
+ 1419 0078 BB1C     		add	r3, r7, #2
+ 1420 007a 1B88     		ldrh	r3, [r3]
+ 1421 007c 402B     		cmp	r3, #64
+ 1422 007e 3AD0     		beq	.L70
+ 1423 0080 BB1C     		add	r3, r7, #2
+ 1424 0082 1B88     		ldrh	r3, [r3]
+ 1425 0084 802B     		cmp	r3, #128
+ 1426 0086 36D0     		beq	.L70
+ 1427 0088 BB1C     		add	r3, r7, #2
+ 1428 008a 1A88     		ldrh	r2, [r3]
+ 1429 008c 8023     		mov	r3, #128
+ 1430 008e 5B00     		lsl	r3, r3, #1
+ 1431 0090 9A42     		cmp	r2, r3
+ 1432 0092 30D0     		beq	.L70
+ 1433 0094 BB1C     		add	r3, r7, #2
+ 1434 0096 1A88     		ldrh	r2, [r3]
+ 1435 0098 8023     		mov	r3, #128
+ 1436 009a 9B00     		lsl	r3, r3, #2
+ 1437 009c 9A42     		cmp	r2, r3
+ 1438 009e 2AD0     		beq	.L70
+ 1439 00a0 BB1C     		add	r3, r7, #2
+ 1440 00a2 1A88     		ldrh	r2, [r3]
+ 1441 00a4 8023     		mov	r3, #128
+ 1442 00a6 DB00     		lsl	r3, r3, #3
+ 1443 00a8 9A42     		cmp	r2, r3
+ 1444 00aa 24D0     		beq	.L70
+ 1445 00ac BB1C     		add	r3, r7, #2
+ 1446 00ae 1A88     		ldrh	r2, [r3]
+ 1447 00b0 8023     		mov	r3, #128
+ 1448 00b2 1B01     		lsl	r3, r3, #4
+ 1449 00b4 9A42     		cmp	r2, r3
+ 1450 00b6 1ED0     		beq	.L70
+ 1451 00b8 BB1C     		add	r3, r7, #2
+ 1452 00ba 1A88     		ldrh	r2, [r3]
+ 1453 00bc 8023     		mov	r3, #128
+ 1454 00be 5B01     		lsl	r3, r3, #5
+ 1455 00c0 9A42     		cmp	r2, r3
+ 1456 00c2 18D0     		beq	.L70
+ 1457 00c4 BB1C     		add	r3, r7, #2
+ 1458 00c6 1A88     		ldrh	r2, [r3]
+ 1459 00c8 8023     		mov	r3, #128
+ 1460 00ca 9B01     		lsl	r3, r3, #6
+ 1461 00cc 9A42     		cmp	r2, r3
+ 1462 00ce 12D0     		beq	.L70
+ 1463 00d0 BB1C     		add	r3, r7, #2
+ 1464 00d2 1A88     		ldrh	r2, [r3]
+ 1465 00d4 8023     		mov	r3, #128
+ 1466 00d6 DB01     		lsl	r3, r3, #7
+ 1467 00d8 9A42     		cmp	r2, r3
+ 1468 00da 0CD0     		beq	.L70
+ 1469 00dc BB1C     		add	r3, r7, #2
+ 1470 00de 1A88     		ldrh	r2, [r3]
+ 1471 00e0 8023     		mov	r3, #128
+ 1472 00e2 1B02     		lsl	r3, r3, #8
+ 1473 00e4 9A42     		cmp	r2, r3
+ 1474 00e6 06D0     		beq	.L70
+ 1475 00e8 164A     		ldr	r2, .L74+16
+ 1476 00ea 9623     		mov	r3, #150
+ 1477 00ec FF33     		add	r3, r3, #255
+ 1478 00ee 101C     		mov	r0, r2
+ 1479 00f0 191C     		mov	r1, r3
+ 1480 00f2 FFF7FEFF 		bl	assert_failed
+ 1481              	.L70:
+ 406:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_BIT_ACTION(BitVal));
+ 1482              		.loc 1 406 0 is_stmt 1
+ 1483 00f6 7B1C     		add	r3, r7, #1
+ 1484 00f8 1B78     		ldrb	r3, [r3]
+ 1485 00fa 002B     		cmp	r3, #0
+ 1486 00fc 0AD0     		beq	.L71
+ 1487              		.loc 1 406 0 is_stmt 0 discriminator 1
+ 1488 00fe 7B1C     		add	r3, r7, #1
+ 1489 0100 1B78     		ldrb	r3, [r3]
+ 1490 0102 012B     		cmp	r3, #1
+ 1491 0104 06D0     		beq	.L71
+ 1492 0106 0F4A     		ldr	r2, .L74+16
+ 1493 0108 CB23     		mov	r3, #203
+ 1494 010a 5B00     		lsl	r3, r3, #1
+ 1495 010c 101C     		mov	r0, r2
+ 1496 010e 191C     		mov	r1, r3
+ 1497 0110 FFF7FEFF 		bl	assert_failed
+ 1498              	.L71:
+ 407:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 408:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   if (BitVal != Bit_RESET)
+ 1499              		.loc 1 408 0 is_stmt 1
+ 1500 0114 7B1C     		add	r3, r7, #1
+ 1501 0116 1B78     		ldrb	r3, [r3]
+ 1502 0118 002B     		cmp	r3, #0
+ 1503 011a 04D0     		beq	.L72
+ 409:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 410:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     GPIOx->BSRR = GPIO_Pin;
+ 1504              		.loc 1 410 0
+ 1505 011c BB1C     		add	r3, r7, #2
+ 1506 011e 1A88     		ldrh	r2, [r3]
+ 1507 0120 7B68     		ldr	r3, [r7, #4]
+ 1508 0122 9A61     		str	r2, [r3, #24]
+ 1509 0124 03E0     		b	.L68
+ 1510              	.L72:
+ 411:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 412:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   else
+ 413:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   {
+ 414:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****     GPIOx->BRR = GPIO_Pin ;
+ 1511              		.loc 1 414 0
+ 1512 0126 7B68     		ldr	r3, [r7, #4]
+ 1513 0128 BA1C     		add	r2, r7, #2
+ 1514 012a 1288     		ldrh	r2, [r2]
+ 1515 012c 1A85     		strh	r2, [r3, #40]
+ 1516              	.L68:
+ 415:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   }
+ 416:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 1517              		.loc 1 416 0
+ 1518 012e BD46     		mov	sp, r7
+ 1519 0130 02B0     		add	sp, sp, #8
+ 1520              		@ sp needed
+ 1521 0132 80BD     		pop	{r7, pc}
+ 1522              	.L75:
+ 1523              		.align	2
+ 1524              	.L74:
+ 1525 0134 00040048 		.word	1207960576
+ 1526 0138 00080048 		.word	1207961600
+ 1527 013c 000C0048 		.word	1207962624
+ 1528 0140 00140048 		.word	1207964672
+ 1529 0144 00000000 		.word	.LC0
+ 1530              		.cfi_endproc
+ 1531              	.LFE42:
+ 1533              		.section	.text.GPIO_Write,"ax",%progbits
+ 1534              		.align	2
+ 1535              		.global	GPIO_Write
+ 1536              		.code	16
+ 1537              		.thumb_func
+ 1539              	GPIO_Write:
+ 1540              	.LFB43:
+ 417:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 418:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 419:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Writes data to the specified GPIO data port.
+ 420:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A, B, C, D or F) to select the GPIO peripheral.
+ 421:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  PortVal: specifies the value to be written to the port output data 
+ 422:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *                  register.
+ 423:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @retval None
+ 424:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 425:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** void GPIO_Write(GPIO_TypeDef* GPIOx, uint16_t PortVal)
+ 426:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 1541              		.loc 1 426 0
+ 1542              		.cfi_startproc
+ 1543 0000 80B5     		push	{r7, lr}
+ 1544              		.cfi_def_cfa_offset 8
+ 1545              		.cfi_offset 7, -8
+ 1546              		.cfi_offset 14, -4
+ 1547 0002 82B0     		sub	sp, sp, #8
+ 1548              		.cfi_def_cfa_offset 16
+ 1549 0004 00AF     		add	r7, sp, #0
+ 1550              		.cfi_def_cfa_register 7
+ 1551 0006 7860     		str	r0, [r7, #4]
+ 1552 0008 0A1C     		mov	r2, r1
+ 1553 000a BB1C     		add	r3, r7, #2
+ 1554 000c 1A80     		strh	r2, [r3]
+ 427:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 428:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
+ 1555              		.loc 1 428 0
+ 1556 000e 7A68     		ldr	r2, [r7, #4]
+ 1557 0010 9023     		mov	r3, #144
+ 1558 0012 DB05     		lsl	r3, r3, #23
+ 1559 0014 9A42     		cmp	r2, r3
+ 1560 0016 16D0     		beq	.L77
+ 1561              		.loc 1 428 0 is_stmt 0 discriminator 1
+ 1562 0018 7A68     		ldr	r2, [r7, #4]
+ 1563 001a 0E4B     		ldr	r3, .L78
+ 1564 001c 9A42     		cmp	r2, r3
+ 1565 001e 12D0     		beq	.L77
+ 1566 0020 7A68     		ldr	r2, [r7, #4]
+ 1567 0022 0D4B     		ldr	r3, .L78+4
+ 1568 0024 9A42     		cmp	r2, r3
+ 1569 0026 0ED0     		beq	.L77
+ 1570 0028 7A68     		ldr	r2, [r7, #4]
+ 1571 002a 0C4B     		ldr	r3, .L78+8
+ 1572 002c 9A42     		cmp	r2, r3
+ 1573 002e 0AD0     		beq	.L77
+ 1574 0030 7A68     		ldr	r2, [r7, #4]
+ 1575 0032 0B4B     		ldr	r3, .L78+12
+ 1576 0034 9A42     		cmp	r2, r3
+ 1577 0036 06D0     		beq	.L77
+ 1578 0038 0A4A     		ldr	r2, .L78+16
+ 1579 003a D623     		mov	r3, #214
+ 1580 003c 5B00     		lsl	r3, r3, #1
+ 1581 003e 101C     		mov	r0, r2
+ 1582 0040 191C     		mov	r1, r3
+ 1583 0042 FFF7FEFF 		bl	assert_failed
+ 1584              	.L77:
+ 429:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 430:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIOx->ODR = PortVal;
+ 1585              		.loc 1 430 0 is_stmt 1
+ 1586 0046 7B68     		ldr	r3, [r7, #4]
+ 1587 0048 BA1C     		add	r2, r7, #2
+ 1588 004a 1288     		ldrh	r2, [r2]
+ 1589 004c 9A82     		strh	r2, [r3, #20]
+ 431:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 1590              		.loc 1 431 0
+ 1591 004e BD46     		mov	sp, r7
+ 1592 0050 02B0     		add	sp, sp, #8
+ 1593              		@ sp needed
+ 1594 0052 80BD     		pop	{r7, pc}
+ 1595              	.L79:
+ 1596              		.align	2
+ 1597              	.L78:
+ 1598 0054 00040048 		.word	1207960576
+ 1599 0058 00080048 		.word	1207961600
+ 1600 005c 000C0048 		.word	1207962624
+ 1601 0060 00140048 		.word	1207964672
+ 1602 0064 00000000 		.word	.LC0
+ 1603              		.cfi_endproc
+ 1604              	.LFE43:
+ 1606              		.section	.text.GPIO_PinAFConfig,"ax",%progbits
+ 1607              		.align	2
+ 1608              		.global	GPIO_PinAFConfig
+ 1609              		.code	16
+ 1610              		.thumb_func
+ 1612              	GPIO_PinAFConfig:
+ 1613              	.LFB44:
+ 432:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 433:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 434:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @}
+ 435:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 436:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 437:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /** @defgroup GPIO_Group3 GPIO Alternate functions configuration functions
+ 438:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *  @brief   GPIO Alternate functions configuration functions
+ 439:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *
+ 440:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** @verbatim   
+ 441:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  ===============================================================================
+ 442:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****           ##### GPIO Alternate functions configuration functions #####
+ 443:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  ===============================================================================  
+ 444:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 445:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** @endverbatim
+ 446:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @{
+ 447:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   */
+ 448:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 449:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** /**
+ 450:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @brief  Writes data to the specified GPIO data port.
+ 451:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIOx: where x can be (A or B) to select the GPIO peripheral.
+ 452:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIO_PinSource: specifies the pin for the Alternate function.
+ 453:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *   This parameter can be GPIO_PinSourcex where x can be (0..15).
+ 454:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   * @param  GPIO_AF: selects the pin to used as Alternate function.
+ 455:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   *   This parameter can be one of the following value:
+ 456:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *     @arg GPIO_AF_0:WKUP, EVENTOUT, TIM15, SPI1, TIM17,MCO, SWDAT, SWCLK, TIM14,
+ 457:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *                    BOOT,USART1, CEC, IR_OUT, SPI2 
+ 458:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *     @arg GPIO_AF_1:USART2, CEC, Tim3, USART1, USART2,EVENTOUT, I2C1, I2C2, TIM15 
+ 459:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *     @arg GPIO_AF_2:TIM2, TIM1, EVENTOUT, TIM16, TIM17.
+ 460:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *     @arg GPIO_AF_3:TS, I2C1, TIM15, EVENTOUT 
+ 461:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *     @arg GPIO_AF_4:TIM14.
+ 462:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *     @arg GPIO_AF_5:TIM16, TIM17.
+ 463:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *     @arg GPIO_AF_6:EVENTOUT.
+ 464:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *     @arg GPIO_AF_7:COMP1 OUT, COMP2 OUT 
+ 465:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  * @note  The pin should already been configured in Alternate Function mode(AF)
+ 466:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *        using GPIO_InitStruct->GPIO_Mode = GPIO_Mode_AF
+ 467:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  * @note  Refer to the Alternate function mapping table in the device datasheet 
+ 468:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *        for the detailed mapping of the system and peripherals'alternate 
+ 469:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  *        function I/O pins.
+ 470:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  * @retval None
+ 471:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****  */
+ 472:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** void GPIO_PinAFConfig(GPIO_TypeDef* GPIOx, uint16_t GPIO_PinSource, uint8_t GPIO_AF)
+ 473:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** {
+ 1614              		.loc 1 473 0
+ 1615              		.cfi_startproc
+ 1616 0000 90B5     		push	{r4, r7, lr}
+ 1617              		.cfi_def_cfa_offset 12
+ 1618              		.cfi_offset 4, -12
+ 1619              		.cfi_offset 7, -8
+ 1620              		.cfi_offset 14, -4
+ 1621 0002 85B0     		sub	sp, sp, #20
+ 1622              		.cfi_def_cfa_offset 32
+ 1623 0004 00AF     		add	r7, sp, #0
+ 1624              		.cfi_def_cfa_register 7
+ 1625 0006 7860     		str	r0, [r7, #4]
+ 1626 0008 BB1C     		add	r3, r7, #2
+ 1627 000a 1980     		strh	r1, [r3]
+ 1628 000c 7B1C     		add	r3, r7, #1
+ 1629 000e 1A70     		strb	r2, [r3]
+ 474:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   uint32_t temp = 0x00;
+ 1630              		.loc 1 474 0
+ 1631 0010 0023     		mov	r3, #0
+ 1632 0012 FB60     		str	r3, [r7, #12]
+ 475:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   uint32_t temp_2 = 0x00;
+ 1633              		.loc 1 475 0
+ 1634 0014 0023     		mov	r3, #0
+ 1635 0016 BB60     		str	r3, [r7, #8]
+ 476:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 477:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   /* Check the parameters */
+ 478:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_LIST_PERIPH(GPIOx));
+ 1636              		.loc 1 478 0
+ 1637 0018 7A68     		ldr	r2, [r7, #4]
+ 1638 001a 9023     		mov	r3, #144
+ 1639 001c DB05     		lsl	r3, r3, #23
+ 1640 001e 9A42     		cmp	r2, r3
+ 1641 0020 0AD0     		beq	.L81
+ 1642              		.loc 1 478 0 is_stmt 0 discriminator 1
+ 1643 0022 7A68     		ldr	r2, [r7, #4]
+ 1644 0024 5C4B     		ldr	r3, .L84
+ 1645 0026 9A42     		cmp	r2, r3
+ 1646 0028 06D0     		beq	.L81
+ 1647 002a 5C4A     		ldr	r2, .L84+4
+ 1648 002c EF23     		mov	r3, #239
+ 1649 002e 5B00     		lsl	r3, r3, #1
+ 1650 0030 101C     		mov	r0, r2
+ 1651 0032 191C     		mov	r1, r3
+ 1652 0034 FFF7FEFF 		bl	assert_failed
+ 1653              	.L81:
+ 479:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_PIN_SOURCE(GPIO_PinSource));
+ 1654              		.loc 1 479 0 is_stmt 1
+ 1655 0038 BB1C     		add	r3, r7, #2
+ 1656 003a 1B88     		ldrh	r3, [r3]
+ 1657 003c 002B     		cmp	r3, #0
+ 1658 003e 42D0     		beq	.L82
+ 1659              		.loc 1 479 0 is_stmt 0 discriminator 1
+ 1660 0040 BB1C     		add	r3, r7, #2
+ 1661 0042 1B88     		ldrh	r3, [r3]
+ 1662 0044 012B     		cmp	r3, #1
+ 1663 0046 3ED0     		beq	.L82
+ 1664 0048 BB1C     		add	r3, r7, #2
+ 1665 004a 1B88     		ldrh	r3, [r3]
+ 1666 004c 022B     		cmp	r3, #2
+ 1667 004e 3AD0     		beq	.L82
+ 1668 0050 BB1C     		add	r3, r7, #2
+ 1669 0052 1B88     		ldrh	r3, [r3]
+ 1670 0054 032B     		cmp	r3, #3
+ 1671 0056 36D0     		beq	.L82
+ 1672 0058 BB1C     		add	r3, r7, #2
+ 1673 005a 1B88     		ldrh	r3, [r3]
+ 1674 005c 042B     		cmp	r3, #4
+ 1675 005e 32D0     		beq	.L82
+ 1676 0060 BB1C     		add	r3, r7, #2
+ 1677 0062 1B88     		ldrh	r3, [r3]
+ 1678 0064 052B     		cmp	r3, #5
+ 1679 0066 2ED0     		beq	.L82
+ 1680 0068 BB1C     		add	r3, r7, #2
+ 1681 006a 1B88     		ldrh	r3, [r3]
+ 1682 006c 062B     		cmp	r3, #6
+ 1683 006e 2AD0     		beq	.L82
+ 1684 0070 BB1C     		add	r3, r7, #2
+ 1685 0072 1B88     		ldrh	r3, [r3]
+ 1686 0074 072B     		cmp	r3, #7
+ 1687 0076 26D0     		beq	.L82
+ 1688 0078 BB1C     		add	r3, r7, #2
+ 1689 007a 1B88     		ldrh	r3, [r3]
+ 1690 007c 082B     		cmp	r3, #8
+ 1691 007e 22D0     		beq	.L82
+ 1692 0080 BB1C     		add	r3, r7, #2
+ 1693 0082 1B88     		ldrh	r3, [r3]
+ 1694 0084 092B     		cmp	r3, #9
+ 1695 0086 1ED0     		beq	.L82
+ 1696 0088 BB1C     		add	r3, r7, #2
+ 1697 008a 1B88     		ldrh	r3, [r3]
+ 1698 008c 0A2B     		cmp	r3, #10
+ 1699 008e 1AD0     		beq	.L82
+ 1700 0090 BB1C     		add	r3, r7, #2
+ 1701 0092 1B88     		ldrh	r3, [r3]
+ 1702 0094 0B2B     		cmp	r3, #11
+ 1703 0096 16D0     		beq	.L82
+ 1704 0098 BB1C     		add	r3, r7, #2
+ 1705 009a 1B88     		ldrh	r3, [r3]
+ 1706 009c 0C2B     		cmp	r3, #12
+ 1707 009e 12D0     		beq	.L82
+ 1708 00a0 BB1C     		add	r3, r7, #2
+ 1709 00a2 1B88     		ldrh	r3, [r3]
+ 1710 00a4 0D2B     		cmp	r3, #13
+ 1711 00a6 0ED0     		beq	.L82
+ 1712 00a8 BB1C     		add	r3, r7, #2
+ 1713 00aa 1B88     		ldrh	r3, [r3]
+ 1714 00ac 0E2B     		cmp	r3, #14
+ 1715 00ae 0AD0     		beq	.L82
+ 1716 00b0 BB1C     		add	r3, r7, #2
+ 1717 00b2 1B88     		ldrh	r3, [r3]
+ 1718 00b4 0F2B     		cmp	r3, #15
+ 1719 00b6 06D0     		beq	.L82
+ 1720 00b8 384A     		ldr	r2, .L84+4
+ 1721 00ba E023     		mov	r3, #224
+ 1722 00bc FF33     		add	r3, r3, #255
+ 1723 00be 101C     		mov	r0, r2
+ 1724 00c0 191C     		mov	r1, r3
+ 1725 00c2 FFF7FEFF 		bl	assert_failed
+ 1726              	.L82:
+ 480:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   assert_param(IS_GPIO_AF(GPIO_AF));
+ 1727              		.loc 1 480 0 is_stmt 1
+ 1728 00c6 7B1C     		add	r3, r7, #1
+ 1729 00c8 1B78     		ldrb	r3, [r3]
+ 1730 00ca 002B     		cmp	r3, #0
+ 1731 00cc 22D0     		beq	.L83
+ 1732              		.loc 1 480 0 is_stmt 0 discriminator 1
+ 1733 00ce 7B1C     		add	r3, r7, #1
+ 1734 00d0 1B78     		ldrb	r3, [r3]
+ 1735 00d2 012B     		cmp	r3, #1
+ 1736 00d4 1ED0     		beq	.L83
+ 1737 00d6 7B1C     		add	r3, r7, #1
+ 1738 00d8 1B78     		ldrb	r3, [r3]
+ 1739 00da 022B     		cmp	r3, #2
+ 1740 00dc 1AD0     		beq	.L83
+ 1741 00de 7B1C     		add	r3, r7, #1
+ 1742 00e0 1B78     		ldrb	r3, [r3]
+ 1743 00e2 032B     		cmp	r3, #3
+ 1744 00e4 16D0     		beq	.L83
+ 1745 00e6 7B1C     		add	r3, r7, #1
+ 1746 00e8 1B78     		ldrb	r3, [r3]
+ 1747 00ea 042B     		cmp	r3, #4
+ 1748 00ec 12D0     		beq	.L83
+ 1749 00ee 7B1C     		add	r3, r7, #1
+ 1750 00f0 1B78     		ldrb	r3, [r3]
+ 1751 00f2 052B     		cmp	r3, #5
+ 1752 00f4 0ED0     		beq	.L83
+ 1753 00f6 7B1C     		add	r3, r7, #1
+ 1754 00f8 1B78     		ldrb	r3, [r3]
+ 1755 00fa 062B     		cmp	r3, #6
+ 1756 00fc 0AD0     		beq	.L83
+ 1757 00fe 7B1C     		add	r3, r7, #1
+ 1758 0100 1B78     		ldrb	r3, [r3]
+ 1759 0102 072B     		cmp	r3, #7
+ 1760 0104 06D0     		beq	.L83
+ 1761 0106 254A     		ldr	r2, .L84+4
+ 1762 0108 F023     		mov	r3, #240
+ 1763 010a 5B00     		lsl	r3, r3, #1
+ 1764 010c 101C     		mov	r0, r2
+ 1765 010e 191C     		mov	r1, r3
+ 1766 0110 FFF7FEFF 		bl	assert_failed
+ 1767              	.L83:
+ 481:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** 
+ 482:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   temp = ((uint32_t)(GPIO_AF) << ((uint32_t)((uint32_t)GPIO_PinSource & (uint32_t)0x07) * 4));
+ 1768              		.loc 1 482 0 is_stmt 1
+ 1769 0114 7B1C     		add	r3, r7, #1
+ 1770 0116 1A78     		ldrb	r2, [r3]
+ 1771 0118 BB1C     		add	r3, r7, #2
+ 1772 011a 1988     		ldrh	r1, [r3]
+ 1773 011c 0723     		mov	r3, #7
+ 1774 011e 0B40     		and	r3, r1
+ 1775 0120 9B00     		lsl	r3, r3, #2
+ 1776 0122 111C     		mov	r1, r2
+ 1777 0124 9940     		lsl	r1, r1, r3
+ 1778 0126 0B1C     		mov	r3, r1
+ 1779 0128 FB60     		str	r3, [r7, #12]
+ 483:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIOx->AFR[GPIO_PinSource >> 0x03] &= ~((uint32_t)0xF << ((uint32_t)((uint32_t)GPIO_PinSource & (
+ 1780              		.loc 1 483 0
+ 1781 012a BB1C     		add	r3, r7, #2
+ 1782 012c 1B88     		ldrh	r3, [r3]
+ 1783 012e DB08     		lsr	r3, r3, #3
+ 1784 0130 9BB2     		uxth	r3, r3
+ 1785 0132 1A1C     		mov	r2, r3
+ 1786 0134 BB1C     		add	r3, r7, #2
+ 1787 0136 1B88     		ldrh	r3, [r3]
+ 1788 0138 DB08     		lsr	r3, r3, #3
+ 1789 013a 9BB2     		uxth	r3, r3
+ 1790 013c 191C     		mov	r1, r3
+ 1791 013e 7B68     		ldr	r3, [r7, #4]
+ 1792 0140 0831     		add	r1, r1, #8
+ 1793 0142 8900     		lsl	r1, r1, #2
+ 1794 0144 CB58     		ldr	r3, [r1, r3]
+ 1795 0146 B91C     		add	r1, r7, #2
+ 1796 0148 0888     		ldrh	r0, [r1]
+ 1797 014a 0721     		mov	r1, #7
+ 1798 014c 0140     		and	r1, r0
+ 1799 014e 8900     		lsl	r1, r1, #2
+ 1800 0150 0F20     		mov	r0, #15
+ 1801 0152 041C     		mov	r4, r0
+ 1802 0154 8C40     		lsl	r4, r4, r1
+ 1803 0156 211C     		mov	r1, r4
+ 1804 0158 C943     		mvn	r1, r1
+ 1805 015a 1940     		and	r1, r3
+ 1806 015c 7B68     		ldr	r3, [r7, #4]
+ 1807 015e 0832     		add	r2, r2, #8
+ 1808 0160 9200     		lsl	r2, r2, #2
+ 1809 0162 D150     		str	r1, [r2, r3]
+ 484:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   temp_2 = GPIOx->AFR[GPIO_PinSource >> 0x03] | temp;
+ 1810              		.loc 1 484 0
+ 1811 0164 BB1C     		add	r3, r7, #2
+ 1812 0166 1B88     		ldrh	r3, [r3]
+ 1813 0168 DB08     		lsr	r3, r3, #3
+ 1814 016a 9BB2     		uxth	r3, r3
+ 1815 016c 1A1C     		mov	r2, r3
+ 1816 016e 7B68     		ldr	r3, [r7, #4]
+ 1817 0170 0832     		add	r2, r2, #8
+ 1818 0172 9200     		lsl	r2, r2, #2
+ 1819 0174 D258     		ldr	r2, [r2, r3]
+ 1820 0176 FB68     		ldr	r3, [r7, #12]
+ 1821 0178 1343     		orr	r3, r2
+ 1822 017a BB60     		str	r3, [r7, #8]
+ 485:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c ****   GPIOx->AFR[GPIO_PinSource >> 0x03] = temp_2;
+ 1823              		.loc 1 485 0
+ 1824 017c BB1C     		add	r3, r7, #2
+ 1825 017e 1B88     		ldrh	r3, [r3]
+ 1826 0180 DB08     		lsr	r3, r3, #3
+ 1827 0182 9BB2     		uxth	r3, r3
+ 1828 0184 1A1C     		mov	r2, r3
+ 1829 0186 7B68     		ldr	r3, [r7, #4]
+ 1830 0188 0832     		add	r2, r2, #8
+ 1831 018a 9200     		lsl	r2, r2, #2
+ 1832 018c B968     		ldr	r1, [r7, #8]
+ 1833 018e D150     		str	r1, [r2, r3]
+ 486:../../ext-src/STM32F0xx_StdPeriph_Driver/src/stm32f0xx_gpio.c **** }
+ 1834              		.loc 1 486 0
+ 1835 0190 BD46     		mov	sp, r7
+ 1836 0192 05B0     		add	sp, sp, #20
+ 1837              		@ sp needed
+ 1838 0194 90BD     		pop	{r4, r7, pc}
+ 1839              	.L85:
+ 1840 0196 C046     		.align	2
+ 1841              	.L84:
+ 1842 0198 00040048 		.word	1207960576
+ 1843 019c 00000000 		.word	.LC0
+ 1844              		.cfi_endproc
+ 1845              	.LFE44:
+ 1847              		.text
+ 1848              	.Letext0:
+ 1849              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+ 1850              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+ 1851              		.file 4 "../../ext-src/CMSIS/ST/STM32F0xx/Include/stm32f0xx.h"
+ 1852              		.file 5 "../../ext-src/STM32F0xx_StdPeriph_Driver/inc/stm32f0xx_gpio.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 stm32f0xx_gpio.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:18     .rodata:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:23     .text.GPIO_DeInit:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:28     .text.GPIO_DeInit:0000000000000000 GPIO_DeInit
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:173    .text.GPIO_DeInit:00000000000000ec $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:182    .text.GPIO_Init:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:187    .text.GPIO_Init:0000000000000000 GPIO_Init
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:496    .text.GPIO_Init:0000000000000208 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:505    .text.GPIO_StructInit:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:510    .text.GPIO_StructInit:0000000000000000 GPIO_StructInit
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:551    .text.GPIO_StructInit:000000000000002c $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:556    .text.GPIO_PinLockConfig:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:561    .text.GPIO_PinLockConfig:0000000000000000 GPIO_PinLockConfig
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:643    .text.GPIO_PinLockConfig:0000000000000074 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:649    .text.GPIO_ReadInputDataBit:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:654    .text.GPIO_ReadInputDataBit:0000000000000000 GPIO_ReadInputDataBit
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:830    .text.GPIO_ReadInputDataBit:0000000000000130 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:839    .text.GPIO_ReadInputData:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:844    .text.GPIO_ReadInputData:0000000000000000 GPIO_ReadInputData
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:900    .text.GPIO_ReadInputData:0000000000000050 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:909    .text.GPIO_ReadOutputDataBit:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:914    .text.GPIO_ReadOutputDataBit:0000000000000000 GPIO_ReadOutputDataBit
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1090   .text.GPIO_ReadOutputDataBit:0000000000000130 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1099   .text.GPIO_ReadOutputData:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1104   .text.GPIO_ReadOutputData:0000000000000000 GPIO_ReadOutputData
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1160   .text.GPIO_ReadOutputData:0000000000000050 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1169   .text.GPIO_SetBits:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1174   .text.GPIO_SetBits:0000000000000000 GPIO_SetBits
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1246   .text.GPIO_SetBits:000000000000006c $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1255   .text.GPIO_ResetBits:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1260   .text.GPIO_ResetBits:0000000000000000 GPIO_ResetBits
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1332   .text.GPIO_ResetBits:000000000000006c $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1341   .text.GPIO_WriteBit:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1346   .text.GPIO_WriteBit:0000000000000000 GPIO_WriteBit
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1525   .text.GPIO_WriteBit:0000000000000134 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1534   .text.GPIO_Write:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1539   .text.GPIO_Write:0000000000000000 GPIO_Write
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1598   .text.GPIO_Write:0000000000000054 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1607   .text.GPIO_PinAFConfig:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1612   .text.GPIO_PinAFConfig:0000000000000000 GPIO_PinAFConfig
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccspAh8g.s:1842   .text.GPIO_PinAFConfig:0000000000000198 $d
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+
+UNDEFINED SYMBOLS
+assert_failed
+RCC_AHBPeriphResetCmd

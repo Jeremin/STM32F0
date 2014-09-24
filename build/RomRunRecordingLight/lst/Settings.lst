@@ -1,0 +1,339 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"Settings.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.global	isInited
+  18              		.section	.bss.isInited,"aw",%nobits
+  21              	isInited:
+  22 0000 00       		.space	1
+  23              		.section	.text.Settings_read,"ax",%progbits
+  24              		.align	2
+  25              		.global	Settings_read
+  26              		.code	16
+  27              		.thumb_func
+  29              	Settings_read:
+  30              	.LFB32:
+  31              		.file 1 "../../src/app/RecordingLight/Settings.c"
+   1:../../src/app/RecordingLight/Settings.c **** /*
+   2:../../src/app/RecordingLight/Settings.c ****  * Settings.c
+   3:../../src/app/RecordingLight/Settings.c ****  *
+   4:../../src/app/RecordingLight/Settings.c ****  *  Created on: Jul 20, 2014
+   5:../../src/app/RecordingLight/Settings.c ****  *      Author: jonasbachli
+   6:../../src/app/RecordingLight/Settings.c ****  */
+   7:../../src/app/RecordingLight/Settings.c **** 
+   8:../../src/app/RecordingLight/Settings.c **** #include "Settings.h"
+   9:../../src/app/RecordingLight/Settings.c **** #include "Flash.h"
+  10:../../src/app/RecordingLight/Settings.c **** 
+  11:../../src/app/RecordingLight/Settings.c **** #include <string.h>
+  12:../../src/app/RecordingLight/Settings.c **** 
+  13:../../src/app/RecordingLight/Settings.c **** #define SETTINGS_HEADER_VALUE				((uint32_t)0x5265634C)	//RecL
+  14:../../src/app/RecordingLight/Settings.c **** 
+  15:../../src/app/RecordingLight/Settings.c **** #define SETTINGS_DEFAULT_VALUE_IDLE_COLOR	0xafafafff
+  16:../../src/app/RecordingLight/Settings.c **** #define SETTINGS_DEFAULT_VALUE_READY_COLOR	0xddff00ff
+  17:../../src/app/RecordingLight/Settings.c **** #define SETTINGS_DEFAULT_VALUE_REC_COLOR	0xff0000ff
+  18:../../src/app/RecordingLight/Settings.c **** #define SETTINGS_DEFAULT_VALUE_CUE_COLOR	0x0000ffff
+  19:../../src/app/RecordingLight/Settings.c **** 
+  20:../../src/app/RecordingLight/Settings.c **** typedef struct {
+  21:../../src/app/RecordingLight/Settings.c **** 	uint32_t header;
+  22:../../src/app/RecordingLight/Settings.c **** 	Settings settings;
+  23:../../src/app/RecordingLight/Settings.c **** } SettingsMemoryContainer;
+  24:../../src/app/RecordingLight/Settings.c **** 
+  25:../../src/app/RecordingLight/Settings.c **** /////////////////////////////////////
+  26:../../src/app/RecordingLight/Settings.c **** // forward declarations
+  27:../../src/app/RecordingLight/Settings.c **** /////////////////////////////////////
+  28:../../src/app/RecordingLight/Settings.c **** static void init(void);
+  29:../../src/app/RecordingLight/Settings.c **** /////////////////////////////////////
+  30:../../src/app/RecordingLight/Settings.c **** // private variables
+  31:../../src/app/RecordingLight/Settings.c **** /////////////////////////////////////
+  32:../../src/app/RecordingLight/Settings.c **** bool isInited = false;
+  33:../../src/app/RecordingLight/Settings.c **** /////////////////////////////////////
+  34:../../src/app/RecordingLight/Settings.c **** // public functions
+  35:../../src/app/RecordingLight/Settings.c **** /////////////////////////////////////
+  36:../../src/app/RecordingLight/Settings.c **** 
+  37:../../src/app/RecordingLight/Settings.c **** void Settings_read(Settings* settings){
+  32              		.loc 1 37 0
+  33              		.cfi_startproc
+  34 0000 80B5     		push	{r7, lr}
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 7, -8
+  37              		.cfi_offset 14, -4
+  38 0002 88B0     		sub	sp, sp, #32
+  39              		.cfi_def_cfa_offset 40
+  40 0004 00AF     		add	r7, sp, #0
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  38:../../src/app/RecordingLight/Settings.c **** 	SettingsMemoryContainer memSettings;
+  39:../../src/app/RecordingLight/Settings.c **** 
+  40:../../src/app/RecordingLight/Settings.c **** 	if (!isInited){
+  43              		.loc 1 40 0
+  44 0008 164B     		ldr	r3, .L5
+  45 000a 1B78     		ldrb	r3, [r3]
+  46 000c 0122     		mov	r2, #1
+  47 000e 5340     		eor	r3, r2
+  48 0010 DBB2     		uxtb	r3, r3
+  49 0012 002B     		cmp	r3, #0
+  50 0014 01D0     		beq	.L2
+  41:../../src/app/RecordingLight/Settings.c **** 		init();
+  51              		.loc 1 41 0
+  52 0016 FFF7FEFF 		bl	init
+  53              	.L2:
+  42:../../src/app/RecordingLight/Settings.c **** 	}
+  43:../../src/app/RecordingLight/Settings.c **** 
+  44:../../src/app/RecordingLight/Settings.c **** 	Flash_readFromDataPage(&memSettings, sizeof(SettingsMemoryContainer));
+  54              		.loc 1 44 0
+  55 001a 3B1C     		mov	r3, r7
+  56 001c 0C33     		add	r3, r3, #12
+  57 001e 181C     		mov	r0, r3
+  58 0020 1421     		mov	r1, #20
+  59 0022 FFF7FEFF 		bl	Flash_readFromDataPage
+  45:../../src/app/RecordingLight/Settings.c **** 
+  46:../../src/app/RecordingLight/Settings.c **** 	if (memSettings.header == SETTINGS_HEADER_VALUE){
+  60              		.loc 1 46 0
+  61 0026 3B1C     		mov	r3, r7
+  62 0028 0C33     		add	r3, r3, #12
+  63 002a 1A68     		ldr	r2, [r3]
+  64 002c 0E4B     		ldr	r3, .L5+4
+  65 002e 9A42     		cmp	r2, r3
+  66 0030 09D1     		bne	.L3
+  47:../../src/app/RecordingLight/Settings.c **** 		memcpy((void*)settings, (void*) &memSettings.settings, sizeof(Settings));
+  67              		.loc 1 47 0
+  68 0032 7A68     		ldr	r2, [r7, #4]
+  69 0034 3B1C     		mov	r3, r7
+  70 0036 0C33     		add	r3, r3, #12
+  71 0038 0433     		add	r3, r3, #4
+  72 003a 101C     		mov	r0, r2
+  73 003c 191C     		mov	r1, r3
+  74 003e 1022     		mov	r2, #16
+  75 0040 FFF7FEFF 		bl	memcpy
+  76 0044 0BE0     		b	.L1
+  77              	.L3:
+  48:../../src/app/RecordingLight/Settings.c **** 	}
+  49:../../src/app/RecordingLight/Settings.c **** 	else {
+  50:../../src/app/RecordingLight/Settings.c **** 		settings->idleColor = SETTINGS_DEFAULT_VALUE_IDLE_COLOR;
+  78              		.loc 1 50 0
+  79 0046 7B68     		ldr	r3, [r7, #4]
+  80 0048 084A     		ldr	r2, .L5+8
+  81 004a 1A60     		str	r2, [r3]
+  51:../../src/app/RecordingLight/Settings.c **** 		settings->readyColor = SETTINGS_DEFAULT_VALUE_READY_COLOR;
+  82              		.loc 1 51 0
+  83 004c 7B68     		ldr	r3, [r7, #4]
+  84 004e 084A     		ldr	r2, .L5+12
+  85 0050 5A60     		str	r2, [r3, #4]
+  52:../../src/app/RecordingLight/Settings.c **** 		settings->recColor = SETTINGS_DEFAULT_VALUE_REC_COLOR;
+  86              		.loc 1 52 0
+  87 0052 7B68     		ldr	r3, [r7, #4]
+  88 0054 074A     		ldr	r2, .L5+16
+  89 0056 9A60     		str	r2, [r3, #8]
+  53:../../src/app/RecordingLight/Settings.c **** 		settings->cueColor = SETTINGS_DEFAULT_VALUE_CUE_COLOR;
+  90              		.loc 1 53 0
+  91 0058 7B68     		ldr	r3, [r7, #4]
+  92 005a 074A     		ldr	r2, .L5+20
+  93 005c DA60     		str	r2, [r3, #12]
+  94              	.L1:
+  54:../../src/app/RecordingLight/Settings.c **** 	}
+  55:../../src/app/RecordingLight/Settings.c **** }
+  95              		.loc 1 55 0
+  96 005e BD46     		mov	sp, r7
+  97 0060 08B0     		add	sp, sp, #32
+  98              		@ sp needed
+  99 0062 80BD     		pop	{r7, pc}
+ 100              	.L6:
+ 101              		.align	2
+ 102              	.L5:
+ 103 0064 00000000 		.word	isInited
+ 104 0068 4C636552 		.word	1382376268
+ 105 006c FFAFAFAF 		.word	-1347440641
+ 106 0070 FF00FFDD 		.word	-570490625
+ 107 0074 FF0000FF 		.word	-16776961
+ 108 0078 FFFF0000 		.word	65535
+ 109              		.cfi_endproc
+ 110              	.LFE32:
+ 112              		.section	.text.Settings_write,"ax",%progbits
+ 113              		.align	2
+ 114              		.global	Settings_write
+ 115              		.code	16
+ 116              		.thumb_func
+ 118              	Settings_write:
+ 119              	.LFB33:
+  56:../../src/app/RecordingLight/Settings.c **** 
+  57:../../src/app/RecordingLight/Settings.c **** void Settings_write(Settings* settings){
+ 120              		.loc 1 57 0
+ 121              		.cfi_startproc
+ 122 0000 80B5     		push	{r7, lr}
+ 123              		.cfi_def_cfa_offset 8
+ 124              		.cfi_offset 7, -8
+ 125              		.cfi_offset 14, -4
+ 126 0002 88B0     		sub	sp, sp, #32
+ 127              		.cfi_def_cfa_offset 40
+ 128 0004 00AF     		add	r7, sp, #0
+ 129              		.cfi_def_cfa_register 7
+ 130 0006 7860     		str	r0, [r7, #4]
+  58:../../src/app/RecordingLight/Settings.c **** 	SettingsMemoryContainer memSettings;
+  59:../../src/app/RecordingLight/Settings.c **** 
+  60:../../src/app/RecordingLight/Settings.c **** 	if (!isInited){
+ 131              		.loc 1 60 0
+ 132 0008 0F4B     		ldr	r3, .L9
+ 133 000a 1B78     		ldrb	r3, [r3]
+ 134 000c 0122     		mov	r2, #1
+ 135 000e 5340     		eor	r3, r2
+ 136 0010 DBB2     		uxtb	r3, r3
+ 137 0012 002B     		cmp	r3, #0
+ 138 0014 01D0     		beq	.L8
+  61:../../src/app/RecordingLight/Settings.c **** 			init();
+ 139              		.loc 1 61 0
+ 140 0016 FFF7FEFF 		bl	init
+ 141              	.L8:
+  62:../../src/app/RecordingLight/Settings.c **** 	}
+  63:../../src/app/RecordingLight/Settings.c **** 
+  64:../../src/app/RecordingLight/Settings.c **** 	memcpy((void*) &memSettings.settings, (void*) settings, sizeof(Settings));
+ 142              		.loc 1 64 0
+ 143 001a 3B1C     		mov	r3, r7
+ 144 001c 0C33     		add	r3, r3, #12
+ 145 001e 1A1D     		add	r2, r3, #4
+ 146 0020 7B68     		ldr	r3, [r7, #4]
+ 147 0022 101C     		mov	r0, r2
+ 148 0024 191C     		mov	r1, r3
+ 149 0026 1022     		mov	r2, #16
+ 150 0028 FFF7FEFF 		bl	memcpy
+  65:../../src/app/RecordingLight/Settings.c **** 	memSettings.header = SETTINGS_HEADER_VALUE;
+ 151              		.loc 1 65 0
+ 152 002c 3B1C     		mov	r3, r7
+ 153 002e 0C33     		add	r3, r3, #12
+ 154 0030 064A     		ldr	r2, .L9+4
+ 155 0032 1A60     		str	r2, [r3]
+  66:../../src/app/RecordingLight/Settings.c **** 
+  67:../../src/app/RecordingLight/Settings.c **** 	Flash_writeToDataPage(&memSettings, sizeof(SettingsMemoryContainer));
+ 156              		.loc 1 67 0
+ 157 0034 3B1C     		mov	r3, r7
+ 158 0036 0C33     		add	r3, r3, #12
+ 159 0038 181C     		mov	r0, r3
+ 160 003a 1421     		mov	r1, #20
+ 161 003c FFF7FEFF 		bl	Flash_writeToDataPage
+  68:../../src/app/RecordingLight/Settings.c **** }
+ 162              		.loc 1 68 0
+ 163 0040 BD46     		mov	sp, r7
+ 164 0042 08B0     		add	sp, sp, #32
+ 165              		@ sp needed
+ 166 0044 80BD     		pop	{r7, pc}
+ 167              	.L10:
+ 168 0046 C046     		.align	2
+ 169              	.L9:
+ 170 0048 00000000 		.word	isInited
+ 171 004c 4C636552 		.word	1382376268
+ 172              		.cfi_endproc
+ 173              	.LFE33:
+ 175              		.section	.text.init,"ax",%progbits
+ 176              		.align	2
+ 177              		.code	16
+ 178              		.thumb_func
+ 180              	init:
+ 181              	.LFB34:
+  69:../../src/app/RecordingLight/Settings.c **** /////////////////////////////////////
+  70:../../src/app/RecordingLight/Settings.c **** // private functions
+  71:../../src/app/RecordingLight/Settings.c **** /////////////////////////////////////
+  72:../../src/app/RecordingLight/Settings.c **** static void init(void){
+ 182              		.loc 1 72 0
+ 183              		.cfi_startproc
+ 184 0000 80B5     		push	{r7, lr}
+ 185              		.cfi_def_cfa_offset 8
+ 186              		.cfi_offset 7, -8
+ 187              		.cfi_offset 14, -4
+ 188 0002 00AF     		add	r7, sp, #0
+ 189              		.cfi_def_cfa_register 7
+  73:../../src/app/RecordingLight/Settings.c **** 	isInited = true;
+ 190              		.loc 1 73 0
+ 191 0004 034B     		ldr	r3, .L12
+ 192 0006 0122     		mov	r2, #1
+ 193 0008 1A70     		strb	r2, [r3]
+  74:../../src/app/RecordingLight/Settings.c **** 	Flash_init();
+ 194              		.loc 1 74 0
+ 195 000a FFF7FEFF 		bl	Flash_init
+  75:../../src/app/RecordingLight/Settings.c **** }
+ 196              		.loc 1 75 0
+ 197 000e BD46     		mov	sp, r7
+ 198              		@ sp needed
+ 199 0010 80BD     		pop	{r7, pc}
+ 200              	.L13:
+ 201 0012 C046     		.align	2
+ 202              	.L12:
+ 203 0014 00000000 		.word	isInited
+ 204              		.cfi_endproc
+ 205              	.LFE34:
+ 207              		.text
+ 208              	.Letext0:
+ 209              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+ 210              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+ 211              		.file 4 "../../src/app/RecordingLight/Settings.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Settings.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccauzeQO.s:21     .bss.isInited:0000000000000000 isInited
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccauzeQO.s:22     .bss.isInited:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccauzeQO.s:24     .text.Settings_read:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccauzeQO.s:29     .text.Settings_read:0000000000000000 Settings_read
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccauzeQO.s:180    .text.init:0000000000000000 init
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccauzeQO.s:103    .text.Settings_read:0000000000000064 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccauzeQO.s:113    .text.Settings_write:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccauzeQO.s:118    .text.Settings_write:0000000000000000 Settings_write
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccauzeQO.s:170    .text.Settings_write:0000000000000048 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccauzeQO.s:176    .text.init:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccauzeQO.s:203    .text.init:0000000000000014 $d
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.56.2827d744790910fcf1a21e59dae944ba
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+
+UNDEFINED SYMBOLS
+Flash_readFromDataPage
+memcpy
+Flash_writeToDataPage
+Flash_init

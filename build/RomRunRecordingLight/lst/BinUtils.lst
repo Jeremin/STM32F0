@@ -1,0 +1,229 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"BinUtils.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.BinUtils_create32BitFrom4Bytes,"ax",%progbits
+  18              		.align	2
+  19              		.global	BinUtils_create32BitFrom4Bytes
+  20              		.code	16
+  21              		.thumb_func
+  23              	BinUtils_create32BitFrom4Bytes:
+  24              	.LFB32:
+  25              		.file 1 "../../src/lib/BinUtils.c"
+   1:../../src/lib/BinUtils.c **** /*
+   2:../../src/lib/BinUtils.c ****  * BinUtils.c
+   3:../../src/lib/BinUtils.c ****  *
+   4:../../src/lib/BinUtils.c ****  *  Created on: Jul 19, 2014
+   5:../../src/lib/BinUtils.c ****  *      Author: jonasbachli
+   6:../../src/lib/BinUtils.c ****  */
+   7:../../src/lib/BinUtils.c **** 
+   8:../../src/lib/BinUtils.c **** #include "BinUtils.h"
+   9:../../src/lib/BinUtils.c **** 
+  10:../../src/lib/BinUtils.c **** /////////////////////////////////////
+  11:../../src/lib/BinUtils.c **** // forward declarations
+  12:../../src/lib/BinUtils.c **** /////////////////////////////////////
+  13:../../src/lib/BinUtils.c **** 
+  14:../../src/lib/BinUtils.c **** /////////////////////////////////////
+  15:../../src/lib/BinUtils.c **** // private variables
+  16:../../src/lib/BinUtils.c **** /////////////////////////////////////
+  17:../../src/lib/BinUtils.c **** 
+  18:../../src/lib/BinUtils.c **** /////////////////////////////////////
+  19:../../src/lib/BinUtils.c **** // public functions
+  20:../../src/lib/BinUtils.c **** /////////////////////////////////////
+  21:../../src/lib/BinUtils.c **** 
+  22:../../src/lib/BinUtils.c **** uint32_t BinUtils_create32BitFrom4Bytes(uint8_t firstByte, uint8_t secondByte,
+  23:../../src/lib/BinUtils.c **** 		uint8_t thirdByte, uint8_t fourthByte) {
+  26              		.loc 1 23 0
+  27              		.cfi_startproc
+  28 0000 90B5     		push	{r4, r7, lr}
+  29              		.cfi_def_cfa_offset 12
+  30              		.cfi_offset 4, -12
+  31              		.cfi_offset 7, -8
+  32              		.cfi_offset 14, -4
+  33 0002 85B0     		sub	sp, sp, #20
+  34              		.cfi_def_cfa_offset 32
+  35 0004 00AF     		add	r7, sp, #0
+  36              		.cfi_def_cfa_register 7
+  37 0006 041C     		mov	r4, r0
+  38 0008 081C     		mov	r0, r1
+  39 000a 111C     		mov	r1, r2
+  40 000c 1A1C     		mov	r2, r3
+  41 000e FB1D     		add	r3, r7, #7
+  42 0010 1C70     		strb	r4, [r3]
+  43 0012 BB1D     		add	r3, r7, #6
+  44 0014 1870     		strb	r0, [r3]
+  45 0016 7B1D     		add	r3, r7, #5
+  46 0018 1970     		strb	r1, [r3]
+  47 001a 3B1D     		add	r3, r7, #4
+  48 001c 1A70     		strb	r2, [r3]
+  24:../../src/lib/BinUtils.c **** 	uint32_t result = 0;
+  49              		.loc 1 24 0
+  50 001e 0023     		mov	r3, #0
+  51 0020 FB60     		str	r3, [r7, #12]
+  25:../../src/lib/BinUtils.c **** 	result = (0xff000000 & (firstByte << 24))
+  52              		.loc 1 25 0
+  53 0022 FB1D     		add	r3, r7, #7
+  54 0024 1B78     		ldrb	r3, [r3]
+  55 0026 1B06     		lsl	r3, r3, #24
+  56 0028 1A1C     		mov	r2, r3
+  26:../../src/lib/BinUtils.c **** 			| (0x00ff0000 & (secondByte << 16))
+  57              		.loc 1 26 0
+  58 002a BB1D     		add	r3, r7, #6
+  59 002c 1B78     		ldrb	r3, [r3]
+  60 002e 1B04     		lsl	r3, r3, #16
+  61 0030 191C     		mov	r1, r3
+  62 0032 FF23     		mov	r3, #255
+  63 0034 1B04     		lsl	r3, r3, #16
+  64 0036 0B40     		and	r3, r1
+  65 0038 1A43     		orr	r2, r3
+  27:../../src/lib/BinUtils.c **** 			| (0x0000ff00 & (thirdByte << 8)) | (0x000000ff & (fourthByte));
+  66              		.loc 1 27 0
+  67 003a 7B1D     		add	r3, r7, #5
+  68 003c 1B78     		ldrb	r3, [r3]
+  69 003e 1B02     		lsl	r3, r3, #8
+  70 0040 1B04     		lsl	r3, r3, #16
+  71 0042 1B0C     		lsr	r3, r3, #16
+  72 0044 1A43     		orr	r2, r3
+  25:../../src/lib/BinUtils.c **** 	result = (0xff000000 & (firstByte << 24))
+  73              		.loc 1 25 0
+  74 0046 3B1D     		add	r3, r7, #4
+  75 0048 1B78     		ldrb	r3, [r3]
+  76 004a 1343     		orr	r3, r2
+  77 004c FB60     		str	r3, [r7, #12]
+  28:../../src/lib/BinUtils.c **** 	return result;
+  78              		.loc 1 28 0
+  79 004e FB68     		ldr	r3, [r7, #12]
+  29:../../src/lib/BinUtils.c **** }
+  80              		.loc 1 29 0
+  81 0050 181C     		mov	r0, r3
+  82 0052 BD46     		mov	sp, r7
+  83 0054 05B0     		add	sp, sp, #20
+  84              		@ sp needed
+  85 0056 90BD     		pop	{r4, r7, pc}
+  86              		.cfi_endproc
+  87              	.LFE32:
+  89              		.section	.text.BinUtils_get4BytesFrom32Bit,"ax",%progbits
+  90              		.align	2
+  91              		.global	BinUtils_get4BytesFrom32Bit
+  92              		.code	16
+  93              		.thumb_func
+  95              	BinUtils_get4BytesFrom32Bit:
+  96              	.LFB33:
+  30:../../src/lib/BinUtils.c **** 
+  31:../../src/lib/BinUtils.c **** void BinUtils_get4BytesFrom32Bit(uint32_t doubleword, uint8_t* firstByte,
+  32:../../src/lib/BinUtils.c **** 		uint8_t* secondByte, uint8_t* thirdByte, uint8_t* fourthByte) {
+  97              		.loc 1 32 0
+  98              		.cfi_startproc
+  99 0000 80B5     		push	{r7, lr}
+ 100              		.cfi_def_cfa_offset 8
+ 101              		.cfi_offset 7, -8
+ 102              		.cfi_offset 14, -4
+ 103 0002 84B0     		sub	sp, sp, #16
+ 104              		.cfi_def_cfa_offset 24
+ 105 0004 00AF     		add	r7, sp, #0
+ 106              		.cfi_def_cfa_register 7
+ 107 0006 F860     		str	r0, [r7, #12]
+ 108 0008 B960     		str	r1, [r7, #8]
+ 109 000a 7A60     		str	r2, [r7, #4]
+ 110 000c 3B60     		str	r3, [r7]
+  33:../../src/lib/BinUtils.c **** 	*fourthByte = (uint8_t) doubleword & 0x000000ff;
+ 111              		.loc 1 33 0
+ 112 000e FB68     		ldr	r3, [r7, #12]
+ 113 0010 DAB2     		uxtb	r2, r3
+ 114 0012 BB69     		ldr	r3, [r7, #24]
+ 115 0014 1A70     		strb	r2, [r3]
+  34:../../src/lib/BinUtils.c **** 	doubleword >>= 8;
+ 116              		.loc 1 34 0
+ 117 0016 FB68     		ldr	r3, [r7, #12]
+ 118 0018 1B0A     		lsr	r3, r3, #8
+ 119 001a FB60     		str	r3, [r7, #12]
+  35:../../src/lib/BinUtils.c **** 	*thirdByte = (uint8_t) doubleword & 0x000000ff;
+ 120              		.loc 1 35 0
+ 121 001c FB68     		ldr	r3, [r7, #12]
+ 122 001e DAB2     		uxtb	r2, r3
+ 123 0020 3B68     		ldr	r3, [r7]
+ 124 0022 1A70     		strb	r2, [r3]
+  36:../../src/lib/BinUtils.c **** 	doubleword >>= 8;
+ 125              		.loc 1 36 0
+ 126 0024 FB68     		ldr	r3, [r7, #12]
+ 127 0026 1B0A     		lsr	r3, r3, #8
+ 128 0028 FB60     		str	r3, [r7, #12]
+  37:../../src/lib/BinUtils.c **** 	*secondByte = (uint8_t) doubleword & 0x000000ff;
+ 129              		.loc 1 37 0
+ 130 002a FB68     		ldr	r3, [r7, #12]
+ 131 002c DAB2     		uxtb	r2, r3
+ 132 002e 7B68     		ldr	r3, [r7, #4]
+ 133 0030 1A70     		strb	r2, [r3]
+  38:../../src/lib/BinUtils.c **** 	doubleword >>= 8;
+ 134              		.loc 1 38 0
+ 135 0032 FB68     		ldr	r3, [r7, #12]
+ 136 0034 1B0A     		lsr	r3, r3, #8
+ 137 0036 FB60     		str	r3, [r7, #12]
+  39:../../src/lib/BinUtils.c **** 	*firstByte = (uint8_t) doubleword & 0x000000ff;
+ 138              		.loc 1 39 0
+ 139 0038 FB68     		ldr	r3, [r7, #12]
+ 140 003a DAB2     		uxtb	r2, r3
+ 141 003c BB68     		ldr	r3, [r7, #8]
+ 142 003e 1A70     		strb	r2, [r3]
+  40:../../src/lib/BinUtils.c **** }
+ 143              		.loc 1 40 0
+ 144 0040 BD46     		mov	sp, r7
+ 145 0042 04B0     		add	sp, sp, #16
+ 146              		@ sp needed
+ 147 0044 80BD     		pop	{r7, pc}
+ 148              		.cfi_endproc
+ 149              	.LFE33:
+ 151 0046 C046     		.text
+ 152              	.Letext0:
+ 153              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+ 154              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BinUtils.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccodXOCW.s:18     .text.BinUtils_create32BitFrom4Bytes:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccodXOCW.s:23     .text.BinUtils_create32BitFrom4Bytes:0000000000000000 BinUtils_create32BitFrom4Bytes
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccodXOCW.s:90     .text.BinUtils_get4BytesFrom32Bit:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccodXOCW.s:95     .text.BinUtils_get4BytesFrom32Bit:0000000000000000 BinUtils_get4BytesFrom32Bit
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+
+NO UNDEFINED SYMBOLS

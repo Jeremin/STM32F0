@@ -1,0 +1,442 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"FiFo.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.global	__aeabi_uidiv
+  18              		.section	.text.FiFo_init,"ax",%progbits
+  19              		.align	2
+  20              		.global	FiFo_init
+  21              		.code	16
+  22              		.thumb_func
+  24              	FiFo_init:
+  25              	.LFB32:
+  26              		.file 1 "../../src/lib/FiFo.c"
+   1:../../src/lib/FiFo.c **** /*
+   2:../../src/lib/FiFo.c ****  * FiFo.c
+   3:../../src/lib/FiFo.c ****  *
+   4:../../src/lib/FiFo.c ****  *  Created on: Jul 16, 2014
+   5:../../src/lib/FiFo.c ****  *      Author: jonasbachli
+   6:../../src/lib/FiFo.c ****  */
+   7:../../src/lib/FiFo.c **** 
+   8:../../src/lib/FiFo.c **** #include "FiFo.h"
+   9:../../src/lib/FiFo.c **** #include <string.h>
+  10:../../src/lib/FiFo.c **** 
+  11:../../src/lib/FiFo.c **** /////////////////////////////////////
+  12:../../src/lib/FiFo.c **** // forward declarations
+  13:../../src/lib/FiFo.c **** /////////////////////////////////////
+  14:../../src/lib/FiFo.c **** static void* getNextPointerLocation(volatile FiFo* fifo, void* currentPtr);
+  15:../../src/lib/FiFo.c **** /////////////////////////////////////
+  16:../../src/lib/FiFo.c **** // private variables
+  17:../../src/lib/FiFo.c **** /////////////////////////////////////
+  18:../../src/lib/FiFo.c **** 
+  19:../../src/lib/FiFo.c **** /////////////////////////////////////
+  20:../../src/lib/FiFo.c **** // public functions
+  21:../../src/lib/FiFo.c **** /////////////////////////////////////
+  22:../../src/lib/FiFo.c **** void FiFo_init(volatile FiFo* fifo, void* dataPtr, uint16_t elemSize, uint16_t memSize) {
+  27              		.loc 1 22 0
+  28              		.cfi_startproc
+  29 0000 80B5     		push	{r7, lr}
+  30              		.cfi_def_cfa_offset 8
+  31              		.cfi_offset 7, -8
+  32              		.cfi_offset 14, -4
+  33 0002 84B0     		sub	sp, sp, #16
+  34              		.cfi_def_cfa_offset 24
+  35 0004 00AF     		add	r7, sp, #0
+  36              		.cfi_def_cfa_register 7
+  37 0006 F860     		str	r0, [r7, #12]
+  38 0008 B960     		str	r1, [r7, #8]
+  39 000a 111C     		mov	r1, r2
+  40 000c 1A1C     		mov	r2, r3
+  41 000e BB1D     		add	r3, r7, #6
+  42 0010 1980     		strh	r1, [r3]
+  43 0012 3B1D     		add	r3, r7, #4
+  44 0014 1A80     		strh	r2, [r3]
+  23:../../src/lib/FiFo.c **** 	fifo->dataPtr = dataPtr;
+  45              		.loc 1 23 0
+  46 0016 FB68     		ldr	r3, [r7, #12]
+  47 0018 BA68     		ldr	r2, [r7, #8]
+  48 001a 1A60     		str	r2, [r3]
+  24:../../src/lib/FiFo.c **** 	fifo->elemSize = elemSize;
+  49              		.loc 1 24 0
+  50 001c FB68     		ldr	r3, [r7, #12]
+  51 001e BA1D     		add	r2, r7, #6
+  52 0020 1288     		ldrh	r2, [r2]
+  53 0022 9A80     		strh	r2, [r3, #4]
+  25:../../src/lib/FiFo.c **** 	fifo->startPtr = dataPtr;
+  54              		.loc 1 25 0
+  55 0024 FB68     		ldr	r3, [r7, #12]
+  56 0026 BA68     		ldr	r2, [r7, #8]
+  57 0028 9A60     		str	r2, [r3, #8]
+  26:../../src/lib/FiFo.c **** 	fifo->endPtr = dataPtr;
+  58              		.loc 1 26 0
+  59 002a FB68     		ldr	r3, [r7, #12]
+  60 002c BA68     		ldr	r2, [r7, #8]
+  61 002e DA60     		str	r2, [r3, #12]
+  27:../../src/lib/FiFo.c **** 	fifo->memSize = memSize;
+  62              		.loc 1 27 0
+  63 0030 FB68     		ldr	r3, [r7, #12]
+  64 0032 3A1D     		add	r2, r7, #4
+  65 0034 1288     		ldrh	r2, [r2]
+  66 0036 DA80     		strh	r2, [r3, #6]
+  28:../../src/lib/FiFo.c **** 	fifo->size = 0;
+  67              		.loc 1 28 0
+  68 0038 FB68     		ldr	r3, [r7, #12]
+  69 003a 0022     		mov	r2, #0
+  70 003c 1A82     		strh	r2, [r3, #16]
+  29:../../src/lib/FiFo.c **** 	fifo->maxSize = memSize/elemSize;
+  71              		.loc 1 29 0
+  72 003e 3A1D     		add	r2, r7, #4
+  73 0040 BB1D     		add	r3, r7, #6
+  74 0042 1288     		ldrh	r2, [r2]
+  75 0044 1B88     		ldrh	r3, [r3]
+  76 0046 101C     		mov	r0, r2
+  77 0048 191C     		mov	r1, r3
+  78 004a FFF7FEFF 		bl	__aeabi_uidiv
+  79 004e 031C     		mov	r3, r0
+  80 0050 9AB2     		uxth	r2, r3
+  81 0052 FB68     		ldr	r3, [r7, #12]
+  82 0054 5A82     		strh	r2, [r3, #18]
+  30:../../src/lib/FiFo.c **** }
+  83              		.loc 1 30 0
+  84 0056 BD46     		mov	sp, r7
+  85 0058 04B0     		add	sp, sp, #16
+  86              		@ sp needed
+  87 005a 80BD     		pop	{r7, pc}
+  88              		.cfi_endproc
+  89              	.LFE32:
+  91              		.section	.text.FiFo_push,"ax",%progbits
+  92              		.align	2
+  93              		.global	FiFo_push
+  94              		.code	16
+  95              		.thumb_func
+  97              	FiFo_push:
+  98              	.LFB33:
+  31:../../src/lib/FiFo.c **** 
+  32:../../src/lib/FiFo.c **** bool FiFo_push(volatile FiFo* fifo, void* data) {
+  99              		.loc 1 32 0
+ 100              		.cfi_startproc
+ 101 0000 80B5     		push	{r7, lr}
+ 102              		.cfi_def_cfa_offset 8
+ 103              		.cfi_offset 7, -8
+ 104              		.cfi_offset 14, -4
+ 105 0002 82B0     		sub	sp, sp, #8
+ 106              		.cfi_def_cfa_offset 16
+ 107 0004 00AF     		add	r7, sp, #0
+ 108              		.cfi_def_cfa_register 7
+ 109 0006 7860     		str	r0, [r7, #4]
+ 110 0008 3960     		str	r1, [r7]
+  33:../../src/lib/FiFo.c **** 	if (fifo->size < fifo->maxSize){
+ 111              		.loc 1 33 0
+ 112 000a 7B68     		ldr	r3, [r7, #4]
+ 113 000c 1B8A     		ldrh	r3, [r3, #16]
+ 114 000e 9AB2     		uxth	r2, r3
+ 115 0010 7B68     		ldr	r3, [r7, #4]
+ 116 0012 5B8A     		ldrh	r3, [r3, #18]
+ 117 0014 9BB2     		uxth	r3, r3
+ 118 0016 9A42     		cmp	r2, r3
+ 119 0018 1DD2     		bcs	.L3
+  34:../../src/lib/FiFo.c **** 		memcpy(fifo->endPtr, data, fifo->elemSize);
+ 120              		.loc 1 34 0
+ 121 001a 7B68     		ldr	r3, [r7, #4]
+ 122 001c D968     		ldr	r1, [r3, #12]
+ 123 001e 7B68     		ldr	r3, [r7, #4]
+ 124 0020 9B88     		ldrh	r3, [r3, #4]
+ 125 0022 9BB2     		uxth	r3, r3
+ 126 0024 3A68     		ldr	r2, [r7]
+ 127 0026 081C     		mov	r0, r1
+ 128 0028 111C     		mov	r1, r2
+ 129 002a 1A1C     		mov	r2, r3
+ 130 002c FFF7FEFF 		bl	memcpy
+  35:../../src/lib/FiFo.c **** 		fifo->endPtr = getNextPointerLocation(fifo, fifo->endPtr);
+ 131              		.loc 1 35 0
+ 132 0030 7B68     		ldr	r3, [r7, #4]
+ 133 0032 DB68     		ldr	r3, [r3, #12]
+ 134 0034 7A68     		ldr	r2, [r7, #4]
+ 135 0036 101C     		mov	r0, r2
+ 136 0038 191C     		mov	r1, r3
+ 137 003a FFF7FEFF 		bl	getNextPointerLocation
+ 138 003e 021C     		mov	r2, r0
+ 139 0040 7B68     		ldr	r3, [r7, #4]
+ 140 0042 DA60     		str	r2, [r3, #12]
+  36:../../src/lib/FiFo.c **** 		fifo->size++;
+ 141              		.loc 1 36 0
+ 142 0044 7B68     		ldr	r3, [r7, #4]
+ 143 0046 1B8A     		ldrh	r3, [r3, #16]
+ 144 0048 9BB2     		uxth	r3, r3
+ 145 004a 0133     		add	r3, r3, #1
+ 146 004c 9AB2     		uxth	r2, r3
+ 147 004e 7B68     		ldr	r3, [r7, #4]
+ 148 0050 1A82     		strh	r2, [r3, #16]
+  37:../../src/lib/FiFo.c **** 		return true;
+ 149              		.loc 1 37 0
+ 150 0052 0123     		mov	r3, #1
+ 151 0054 00E0     		b	.L4
+ 152              	.L3:
+  38:../../src/lib/FiFo.c **** 	}
+  39:../../src/lib/FiFo.c **** 	return false;
+ 153              		.loc 1 39 0
+ 154 0056 0023     		mov	r3, #0
+ 155              	.L4:
+  40:../../src/lib/FiFo.c **** }
+ 156              		.loc 1 40 0
+ 157 0058 181C     		mov	r0, r3
+ 158 005a BD46     		mov	sp, r7
+ 159 005c 02B0     		add	sp, sp, #8
+ 160              		@ sp needed
+ 161 005e 80BD     		pop	{r7, pc}
+ 162              		.cfi_endproc
+ 163              	.LFE33:
+ 165              		.section	.text.FiFo_pop,"ax",%progbits
+ 166              		.align	2
+ 167              		.global	FiFo_pop
+ 168              		.code	16
+ 169              		.thumb_func
+ 171              	FiFo_pop:
+ 172              	.LFB34:
+  41:../../src/lib/FiFo.c **** 
+  42:../../src/lib/FiFo.c **** bool FiFo_pop(volatile FiFo* fifo, void* data) {
+ 173              		.loc 1 42 0
+ 174              		.cfi_startproc
+ 175 0000 80B5     		push	{r7, lr}
+ 176              		.cfi_def_cfa_offset 8
+ 177              		.cfi_offset 7, -8
+ 178              		.cfi_offset 14, -4
+ 179 0002 82B0     		sub	sp, sp, #8
+ 180              		.cfi_def_cfa_offset 16
+ 181 0004 00AF     		add	r7, sp, #0
+ 182              		.cfi_def_cfa_register 7
+ 183 0006 7860     		str	r0, [r7, #4]
+ 184 0008 3960     		str	r1, [r7]
+  43:../../src/lib/FiFo.c **** 	if (fifo->size){
+ 185              		.loc 1 43 0
+ 186 000a 7B68     		ldr	r3, [r7, #4]
+ 187 000c 1B8A     		ldrh	r3, [r3, #16]
+ 188 000e 9BB2     		uxth	r3, r3
+ 189 0010 002B     		cmp	r3, #0
+ 190 0012 1DD0     		beq	.L6
+  44:../../src/lib/FiFo.c **** 		memcpy(data, fifo->startPtr, fifo->elemSize);
+ 191              		.loc 1 44 0
+ 192 0014 7B68     		ldr	r3, [r7, #4]
+ 193 0016 9A68     		ldr	r2, [r3, #8]
+ 194 0018 7B68     		ldr	r3, [r7, #4]
+ 195 001a 9B88     		ldrh	r3, [r3, #4]
+ 196 001c 9BB2     		uxth	r3, r3
+ 197 001e 3968     		ldr	r1, [r7]
+ 198 0020 081C     		mov	r0, r1
+ 199 0022 111C     		mov	r1, r2
+ 200 0024 1A1C     		mov	r2, r3
+ 201 0026 FFF7FEFF 		bl	memcpy
+  45:../../src/lib/FiFo.c **** 		fifo->startPtr = getNextPointerLocation(fifo, fifo->startPtr);
+ 202              		.loc 1 45 0
+ 203 002a 7B68     		ldr	r3, [r7, #4]
+ 204 002c 9B68     		ldr	r3, [r3, #8]
+ 205 002e 7A68     		ldr	r2, [r7, #4]
+ 206 0030 101C     		mov	r0, r2
+ 207 0032 191C     		mov	r1, r3
+ 208 0034 FFF7FEFF 		bl	getNextPointerLocation
+ 209 0038 021C     		mov	r2, r0
+ 210 003a 7B68     		ldr	r3, [r7, #4]
+ 211 003c 9A60     		str	r2, [r3, #8]
+  46:../../src/lib/FiFo.c **** 		fifo->size--;
+ 212              		.loc 1 46 0
+ 213 003e 7B68     		ldr	r3, [r7, #4]
+ 214 0040 1B8A     		ldrh	r3, [r3, #16]
+ 215 0042 9BB2     		uxth	r3, r3
+ 216 0044 013B     		sub	r3, r3, #1
+ 217 0046 9AB2     		uxth	r2, r3
+ 218 0048 7B68     		ldr	r3, [r7, #4]
+ 219 004a 1A82     		strh	r2, [r3, #16]
+  47:../../src/lib/FiFo.c **** 		return true;
+ 220              		.loc 1 47 0
+ 221 004c 0123     		mov	r3, #1
+ 222 004e 00E0     		b	.L7
+ 223              	.L6:
+  48:../../src/lib/FiFo.c **** 	}
+  49:../../src/lib/FiFo.c **** 	return false;
+ 224              		.loc 1 49 0
+ 225 0050 0023     		mov	r3, #0
+ 226              	.L7:
+  50:../../src/lib/FiFo.c **** }
+ 227              		.loc 1 50 0
+ 228 0052 181C     		mov	r0, r3
+ 229 0054 BD46     		mov	sp, r7
+ 230 0056 02B0     		add	sp, sp, #8
+ 231              		@ sp needed
+ 232 0058 80BD     		pop	{r7, pc}
+ 233              		.cfi_endproc
+ 234              	.LFE34:
+ 236 005a C046     		.section	.text.FiFo_size,"ax",%progbits
+ 237              		.align	2
+ 238              		.global	FiFo_size
+ 239              		.code	16
+ 240              		.thumb_func
+ 242              	FiFo_size:
+ 243              	.LFB35:
+  51:../../src/lib/FiFo.c **** 
+  52:../../src/lib/FiFo.c **** uint16_t FiFo_size(volatile FiFo* fifo) {
+ 244              		.loc 1 52 0
+ 245              		.cfi_startproc
+ 246 0000 80B5     		push	{r7, lr}
+ 247              		.cfi_def_cfa_offset 8
+ 248              		.cfi_offset 7, -8
+ 249              		.cfi_offset 14, -4
+ 250 0002 82B0     		sub	sp, sp, #8
+ 251              		.cfi_def_cfa_offset 16
+ 252 0004 00AF     		add	r7, sp, #0
+ 253              		.cfi_def_cfa_register 7
+ 254 0006 7860     		str	r0, [r7, #4]
+  53:../../src/lib/FiFo.c **** 	return fifo->size;
+ 255              		.loc 1 53 0
+ 256 0008 7B68     		ldr	r3, [r7, #4]
+ 257 000a 1B8A     		ldrh	r3, [r3, #16]
+ 258 000c 9BB2     		uxth	r3, r3
+  54:../../src/lib/FiFo.c **** }
+ 259              		.loc 1 54 0
+ 260 000e 181C     		mov	r0, r3
+ 261 0010 BD46     		mov	sp, r7
+ 262 0012 02B0     		add	sp, sp, #8
+ 263              		@ sp needed
+ 264 0014 80BD     		pop	{r7, pc}
+ 265              		.cfi_endproc
+ 266              	.LFE35:
+ 268 0016 C046     		.section	.text.getNextPointerLocation,"ax",%progbits
+ 269              		.align	2
+ 270              		.code	16
+ 271              		.thumb_func
+ 273              	getNextPointerLocation:
+ 274              	.LFB36:
+  55:../../src/lib/FiFo.c **** 
+  56:../../src/lib/FiFo.c **** /////////////////////////////////////
+  57:../../src/lib/FiFo.c **** // private functions
+  58:../../src/lib/FiFo.c **** /////////////////////////////////////
+  59:../../src/lib/FiFo.c **** 
+  60:../../src/lib/FiFo.c **** static void* getNextPointerLocation(volatile FiFo* fifo, void* currentPtr){
+ 275              		.loc 1 60 0
+ 276              		.cfi_startproc
+ 277 0000 80B5     		push	{r7, lr}
+ 278              		.cfi_def_cfa_offset 8
+ 279              		.cfi_offset 7, -8
+ 280              		.cfi_offset 14, -4
+ 281 0002 82B0     		sub	sp, sp, #8
+ 282              		.cfi_def_cfa_offset 16
+ 283 0004 00AF     		add	r7, sp, #0
+ 284              		.cfi_def_cfa_register 7
+ 285 0006 7860     		str	r0, [r7, #4]
+ 286 0008 3960     		str	r1, [r7]
+  61:../../src/lib/FiFo.c **** 	if (currentPtr <= (fifo->dataPtr + (fifo->maxSize-1)*fifo->elemSize)){
+ 287              		.loc 1 61 0
+ 288 000a 7B68     		ldr	r3, [r7, #4]
+ 289 000c 1A68     		ldr	r2, [r3]
+ 290 000e 7B68     		ldr	r3, [r7, #4]
+ 291 0010 5B8A     		ldrh	r3, [r3, #18]
+ 292 0012 9BB2     		uxth	r3, r3
+ 293 0014 013B     		sub	r3, r3, #1
+ 294 0016 7968     		ldr	r1, [r7, #4]
+ 295 0018 8988     		ldrh	r1, [r1, #4]
+ 296 001a 89B2     		uxth	r1, r1
+ 297 001c 4B43     		mul	r3, r1
+ 298 001e D218     		add	r2, r2, r3
+ 299 0020 3B68     		ldr	r3, [r7]
+ 300 0022 9A42     		cmp	r2, r3
+ 301 0024 05D3     		bcc	.L11
+  62:../../src/lib/FiFo.c **** 		return currentPtr + fifo->elemSize;
+ 302              		.loc 1 62 0
+ 303 0026 7B68     		ldr	r3, [r7, #4]
+ 304 0028 9B88     		ldrh	r3, [r3, #4]
+ 305 002a 9BB2     		uxth	r3, r3
+ 306 002c 3A68     		ldr	r2, [r7]
+ 307 002e D318     		add	r3, r2, r3
+ 308 0030 01E0     		b	.L12
+ 309              	.L11:
+  63:../../src/lib/FiFo.c **** 	}
+  64:../../src/lib/FiFo.c **** 	else {
+  65:../../src/lib/FiFo.c **** 		return fifo->dataPtr;
+ 310              		.loc 1 65 0
+ 311 0032 7B68     		ldr	r3, [r7, #4]
+ 312 0034 1B68     		ldr	r3, [r3]
+ 313              	.L12:
+  66:../../src/lib/FiFo.c **** 	}
+  67:../../src/lib/FiFo.c **** }
+ 314              		.loc 1 67 0
+ 315 0036 181C     		mov	r0, r3
+ 316 0038 BD46     		mov	sp, r7
+ 317 003a 02B0     		add	sp, sp, #8
+ 318              		@ sp needed
+ 319 003c 80BD     		pop	{r7, pc}
+ 320              		.cfi_endproc
+ 321              	.LFE36:
+ 323              		.text
+ 324              	.Letext0:
+ 325              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+ 326              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+ 327              		.file 4 "../../src/lib/FiFo.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 FiFo.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccf4rFFy.s:19     .text.FiFo_init:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccf4rFFy.s:24     .text.FiFo_init:0000000000000000 FiFo_init
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccf4rFFy.s:92     .text.FiFo_push:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccf4rFFy.s:97     .text.FiFo_push:0000000000000000 FiFo_push
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccf4rFFy.s:273    .text.getNextPointerLocation:0000000000000000 getNextPointerLocation
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccf4rFFy.s:166    .text.FiFo_pop:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccf4rFFy.s:171    .text.FiFo_pop:0000000000000000 FiFo_pop
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccf4rFFy.s:237    .text.FiFo_size:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccf4rFFy.s:242    .text.FiFo_size:0000000000000000 FiFo_size
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccf4rFFy.s:269    .text.getNextPointerLocation:0000000000000000 $t
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.56.2827d744790910fcf1a21e59dae944ba
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+
+UNDEFINED SYMBOLS
+__aeabi_uidiv
+memcpy

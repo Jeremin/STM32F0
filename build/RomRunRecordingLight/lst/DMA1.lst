@@ -1,0 +1,736 @@
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"DMA1.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.bss.errorCallback,"aw",%nobits
+  18              		.align	2
+  21              	errorCallback:
+  22 0000 00000000 		.space	20
+  22      00000000 
+  22      00000000 
+  22      00000000 
+  22      00000000 
+  23              		.section	.bss.transferCompleteCallback,"aw",%nobits
+  24              		.align	2
+  27              	transferCompleteCallback:
+  28 0000 00000000 		.space	20
+  28      00000000 
+  28      00000000 
+  28      00000000 
+  28      00000000 
+  29              		.section	.bss.halfTransferCompleteCallback,"aw",%nobits
+  30              		.align	2
+  33              	halfTransferCompleteCallback:
+  34 0000 00000000 		.space	20
+  34      00000000 
+  34      00000000 
+  34      00000000 
+  34      00000000 
+  35              		.section	.bss.callbackArg,"aw",%nobits
+  36              		.align	2
+  39              	callbackArg:
+  40 0000 00000000 		.space	20
+  40      00000000 
+  40      00000000 
+  40      00000000 
+  40      00000000 
+  41              		.section	.text.DMA1_init,"ax",%progbits
+  42              		.align	2
+  43              		.global	DMA1_init
+  44              		.code	16
+  45              		.thumb_func
+  47              	DMA1_init:
+  48              	.LFB32:
+  49              		.file 1 "../../src/driver/DMA/DMA1.c"
+   1:../../src/driver/DMA/DMA1.c **** /*
+   2:../../src/driver/DMA/DMA1.c ****  * DMA1.c
+   3:../../src/driver/DMA/DMA1.c ****  *
+   4:../../src/driver/DMA/DMA1.c ****  *  Created on: Jul 23, 2014
+   5:../../src/driver/DMA/DMA1.c ****  *      Author: jonasbachli
+   6:../../src/driver/DMA/DMA1.c ****  */
+   7:../../src/driver/DMA/DMA1.c **** 
+   8:../../src/driver/DMA/DMA1.c **** #include "DMA1.h"
+   9:../../src/driver/DMA/DMA1.c **** 
+  10:../../src/driver/DMA/DMA1.c **** #include "stm32f0xx_rcc.h"
+  11:../../src/driver/DMA/DMA1.c **** #include "stm32f0xx_dma.h"
+  12:../../src/driver/DMA/DMA1.c **** 
+  13:../../src/driver/DMA/DMA1.c **** #define DMA1_NBR_OF_CHANNELS		5
+  14:../../src/driver/DMA/DMA1.c **** 
+  15:../../src/driver/DMA/DMA1.c **** /////////////////////////////////////
+  16:../../src/driver/DMA/DMA1.c **** // forward declarations
+  17:../../src/driver/DMA/DMA1.c **** /////////////////////////////////////
+  18:../../src/driver/DMA/DMA1.c **** 
+  19:../../src/driver/DMA/DMA1.c **** /////////////////////////////////////
+  20:../../src/driver/DMA/DMA1.c **** // private variables
+  21:../../src/driver/DMA/DMA1.c **** /////////////////////////////////////
+  22:../../src/driver/DMA/DMA1.c **** static DMA_Callback errorCallback[DMA1_NBR_OF_CHANNELS];
+  23:../../src/driver/DMA/DMA1.c **** static DMA_Callback transferCompleteCallback[DMA1_NBR_OF_CHANNELS];
+  24:../../src/driver/DMA/DMA1.c **** static DMA_Callback halfTransferCompleteCallback[DMA1_NBR_OF_CHANNELS];
+  25:../../src/driver/DMA/DMA1.c **** static void* callbackArg[DMA1_NBR_OF_CHANNELS];
+  26:../../src/driver/DMA/DMA1.c **** /////////////////////////////////////
+  27:../../src/driver/DMA/DMA1.c **** // public functions
+  28:../../src/driver/DMA/DMA1.c **** /////////////////////////////////////
+  29:../../src/driver/DMA/DMA1.c **** void DMA1_init(void) {
+  50              		.loc 1 29 0
+  51              		.cfi_startproc
+  52 0000 80B5     		push	{r7, lr}
+  53              		.cfi_def_cfa_offset 8
+  54              		.cfi_offset 7, -8
+  55              		.cfi_offset 14, -4
+  56 0002 00AF     		add	r7, sp, #0
+  57              		.cfi_def_cfa_register 7
+  30:../../src/driver/DMA/DMA1.c **** 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+  58              		.loc 1 30 0
+  59 0004 0120     		mov	r0, #1
+  60 0006 0121     		mov	r1, #1
+  61 0008 FFF7FEFF 		bl	RCC_AHBPeriphClockCmd
+  31:../../src/driver/DMA/DMA1.c **** }
+  62              		.loc 1 31 0
+  63 000c BD46     		mov	sp, r7
+  64              		@ sp needed
+  65 000e 80BD     		pop	{r7, pc}
+  66              		.cfi_endproc
+  67              	.LFE32:
+  69              		.section	.text.DMA1_setCallbacks,"ax",%progbits
+  70              		.align	2
+  71              		.global	DMA1_setCallbacks
+  72              		.code	16
+  73              		.thumb_func
+  75              	DMA1_setCallbacks:
+  76              	.LFB33:
+  32:../../src/driver/DMA/DMA1.c **** 
+  33:../../src/driver/DMA/DMA1.c **** void DMA1_setCallbacks(DMA_Callback transferComplete,
+  34:../../src/driver/DMA/DMA1.c **** 		DMA_Callback halfTransferComplete, DMA_Callback error, void* arg,
+  35:../../src/driver/DMA/DMA1.c **** 		uint8_t channel) {
+  77              		.loc 1 35 0
+  78              		.cfi_startproc
+  79 0000 80B5     		push	{r7, lr}
+  80              		.cfi_def_cfa_offset 8
+  81              		.cfi_offset 7, -8
+  82              		.cfi_offset 14, -4
+  83 0002 84B0     		sub	sp, sp, #16
+  84              		.cfi_def_cfa_offset 24
+  85 0004 00AF     		add	r7, sp, #0
+  86              		.cfi_def_cfa_register 7
+  87 0006 F860     		str	r0, [r7, #12]
+  88 0008 B960     		str	r1, [r7, #8]
+  89 000a 7A60     		str	r2, [r7, #4]
+  90 000c 3B60     		str	r3, [r7]
+  36:../../src/driver/DMA/DMA1.c **** 	if (channel < DMA1_NBR_OF_CHANNELS) {
+  91              		.loc 1 36 0
+  92 000e 3B1C     		mov	r3, r7
+  93 0010 1833     		add	r3, r3, #24
+  94 0012 1B78     		ldrb	r3, [r3]
+  95 0014 042B     		cmp	r3, #4
+  96 0016 1BD8     		bhi	.L2
+  37:../../src/driver/DMA/DMA1.c **** 		transferCompleteCallback[channel] = transferComplete;
+  97              		.loc 1 37 0
+  98 0018 3B1C     		mov	r3, r7
+  99 001a 1833     		add	r3, r3, #24
+ 100 001c 1A78     		ldrb	r2, [r3]
+ 101 001e 0E4B     		ldr	r3, .L4
+ 102 0020 9200     		lsl	r2, r2, #2
+ 103 0022 F968     		ldr	r1, [r7, #12]
+ 104 0024 D150     		str	r1, [r2, r3]
+  38:../../src/driver/DMA/DMA1.c **** 		halfTransferCompleteCallback[channel] = halfTransferComplete;
+ 105              		.loc 1 38 0
+ 106 0026 3B1C     		mov	r3, r7
+ 107 0028 1833     		add	r3, r3, #24
+ 108 002a 1A78     		ldrb	r2, [r3]
+ 109 002c 0B4B     		ldr	r3, .L4+4
+ 110 002e 9200     		lsl	r2, r2, #2
+ 111 0030 B968     		ldr	r1, [r7, #8]
+ 112 0032 D150     		str	r1, [r2, r3]
+  39:../../src/driver/DMA/DMA1.c **** 		errorCallback[channel] = error;
+ 113              		.loc 1 39 0
+ 114 0034 3B1C     		mov	r3, r7
+ 115 0036 1833     		add	r3, r3, #24
+ 116 0038 1A78     		ldrb	r2, [r3]
+ 117 003a 094B     		ldr	r3, .L4+8
+ 118 003c 9200     		lsl	r2, r2, #2
+ 119 003e 7968     		ldr	r1, [r7, #4]
+ 120 0040 D150     		str	r1, [r2, r3]
+  40:../../src/driver/DMA/DMA1.c **** 		callbackArg[channel] = arg;
+ 121              		.loc 1 40 0
+ 122 0042 3B1C     		mov	r3, r7
+ 123 0044 1833     		add	r3, r3, #24
+ 124 0046 1A78     		ldrb	r2, [r3]
+ 125 0048 064B     		ldr	r3, .L4+12
+ 126 004a 9200     		lsl	r2, r2, #2
+ 127 004c 3968     		ldr	r1, [r7]
+ 128 004e D150     		str	r1, [r2, r3]
+ 129              	.L2:
+  41:../../src/driver/DMA/DMA1.c **** 	}
+  42:../../src/driver/DMA/DMA1.c **** }
+ 130              		.loc 1 42 0
+ 131 0050 BD46     		mov	sp, r7
+ 132 0052 04B0     		add	sp, sp, #16
+ 133              		@ sp needed
+ 134 0054 80BD     		pop	{r7, pc}
+ 135              	.L5:
+ 136 0056 C046     		.align	2
+ 137              	.L4:
+ 138 0058 00000000 		.word	transferCompleteCallback
+ 139 005c 00000000 		.word	halfTransferCompleteCallback
+ 140 0060 00000000 		.word	errorCallback
+ 141 0064 00000000 		.word	callbackArg
+ 142              		.cfi_endproc
+ 143              	.LFE33:
+ 145              		.section	.text.DMA1_Channel1_IRQHandler,"ax",%progbits
+ 146              		.align	2
+ 147              		.global	DMA1_Channel1_IRQHandler
+ 148              		.code	16
+ 149              		.thumb_func
+ 151              	DMA1_Channel1_IRQHandler:
+ 152              	.LFB34:
+  43:../../src/driver/DMA/DMA1.c **** /////////////////////////////////////
+  44:../../src/driver/DMA/DMA1.c **** // private functions
+  45:../../src/driver/DMA/DMA1.c **** /////////////////////////////////////
+  46:../../src/driver/DMA/DMA1.c **** 
+  47:../../src/driver/DMA/DMA1.c **** void DMA1_Channel1_IRQHandler() {
+ 153              		.loc 1 47 0
+ 154              		.cfi_startproc
+ 155 0000 80B5     		push	{r7, lr}
+ 156              		.cfi_def_cfa_offset 8
+ 157              		.cfi_offset 7, -8
+ 158              		.cfi_offset 14, -4
+ 159 0002 00AF     		add	r7, sp, #0
+ 160              		.cfi_def_cfa_register 7
+  48:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_TC1) && transferCompleteCallback[0]) {
+ 161              		.loc 1 48 0
+ 162 0004 0220     		mov	r0, #2
+ 163 0006 FFF7FEFF 		bl	DMA_GetITStatus
+ 164 000a 031C     		mov	r3, r0
+ 165 000c 002B     		cmp	r3, #0
+ 166 000e 09D0     		beq	.L7
+ 167              		.loc 1 48 0 is_stmt 0 discriminator 1
+ 168 0010 174B     		ldr	r3, .L10
+ 169 0012 1B68     		ldr	r3, [r3]
+ 170 0014 002B     		cmp	r3, #0
+ 171 0016 05D0     		beq	.L7
+  49:../../src/driver/DMA/DMA1.c **** 		transferCompleteCallback[0](callbackArg[0]);
+ 172              		.loc 1 49 0 is_stmt 1
+ 173 0018 154B     		ldr	r3, .L10
+ 174 001a 1A68     		ldr	r2, [r3]
+ 175 001c 154B     		ldr	r3, .L10+4
+ 176 001e 1B68     		ldr	r3, [r3]
+ 177 0020 181C     		mov	r0, r3
+ 178 0022 9047     		blx	r2
+ 179              	.L7:
+  50:../../src/driver/DMA/DMA1.c **** 	}
+  51:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_HT1) && halfTransferCompleteCallback[0]) {
+ 180              		.loc 1 51 0
+ 181 0024 0420     		mov	r0, #4
+ 182 0026 FFF7FEFF 		bl	DMA_GetITStatus
+ 183 002a 031C     		mov	r3, r0
+ 184 002c 002B     		cmp	r3, #0
+ 185 002e 09D0     		beq	.L8
+ 186              		.loc 1 51 0 is_stmt 0 discriminator 1
+ 187 0030 114B     		ldr	r3, .L10+8
+ 188 0032 1B68     		ldr	r3, [r3]
+ 189 0034 002B     		cmp	r3, #0
+ 190 0036 05D0     		beq	.L8
+  52:../../src/driver/DMA/DMA1.c **** 		halfTransferCompleteCallback[0](callbackArg[0]);
+ 191              		.loc 1 52 0 is_stmt 1
+ 192 0038 0F4B     		ldr	r3, .L10+8
+ 193 003a 1A68     		ldr	r2, [r3]
+ 194 003c 0D4B     		ldr	r3, .L10+4
+ 195 003e 1B68     		ldr	r3, [r3]
+ 196 0040 181C     		mov	r0, r3
+ 197 0042 9047     		blx	r2
+ 198              	.L8:
+  53:../../src/driver/DMA/DMA1.c **** 	}
+  54:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_TE1) && errorCallback[0]) {
+ 199              		.loc 1 54 0
+ 200 0044 0820     		mov	r0, #8
+ 201 0046 FFF7FEFF 		bl	DMA_GetITStatus
+ 202 004a 031C     		mov	r3, r0
+ 203 004c 002B     		cmp	r3, #0
+ 204 004e 09D0     		beq	.L9
+ 205              		.loc 1 54 0 is_stmt 0 discriminator 1
+ 206 0050 0A4B     		ldr	r3, .L10+12
+ 207 0052 1B68     		ldr	r3, [r3]
+ 208 0054 002B     		cmp	r3, #0
+ 209 0056 05D0     		beq	.L9
+  55:../../src/driver/DMA/DMA1.c **** 		errorCallback[0](callbackArg[0]);
+ 210              		.loc 1 55 0 is_stmt 1
+ 211 0058 084B     		ldr	r3, .L10+12
+ 212 005a 1A68     		ldr	r2, [r3]
+ 213 005c 054B     		ldr	r3, .L10+4
+ 214 005e 1B68     		ldr	r3, [r3]
+ 215 0060 181C     		mov	r0, r3
+ 216 0062 9047     		blx	r2
+ 217              	.L9:
+  56:../../src/driver/DMA/DMA1.c **** 	}
+  57:../../src/driver/DMA/DMA1.c **** 
+  58:../../src/driver/DMA/DMA1.c **** 	DMA_ClearITPendingBit(DMA1_IT_GL1);
+ 218              		.loc 1 58 0
+ 219 0064 0120     		mov	r0, #1
+ 220 0066 FFF7FEFF 		bl	DMA_ClearITPendingBit
+  59:../../src/driver/DMA/DMA1.c **** }
+ 221              		.loc 1 59 0
+ 222 006a BD46     		mov	sp, r7
+ 223              		@ sp needed
+ 224 006c 80BD     		pop	{r7, pc}
+ 225              	.L11:
+ 226 006e C046     		.align	2
+ 227              	.L10:
+ 228 0070 00000000 		.word	transferCompleteCallback
+ 229 0074 00000000 		.word	callbackArg
+ 230 0078 00000000 		.word	halfTransferCompleteCallback
+ 231 007c 00000000 		.word	errorCallback
+ 232              		.cfi_endproc
+ 233              	.LFE34:
+ 235              		.section	.text.DMA1_Channel2_3_IRQHandler,"ax",%progbits
+ 236              		.align	2
+ 237              		.global	DMA1_Channel2_3_IRQHandler
+ 238              		.code	16
+ 239              		.thumb_func
+ 241              	DMA1_Channel2_3_IRQHandler:
+ 242              	.LFB35:
+  60:../../src/driver/DMA/DMA1.c **** 
+  61:../../src/driver/DMA/DMA1.c **** void DMA1_Channel2_3_IRQHandler() {
+ 243              		.loc 1 61 0
+ 244              		.cfi_startproc
+ 245 0000 80B5     		push	{r7, lr}
+ 246              		.cfi_def_cfa_offset 8
+ 247              		.cfi_offset 7, -8
+ 248              		.cfi_offset 14, -4
+ 249 0002 00AF     		add	r7, sp, #0
+ 250              		.cfi_def_cfa_register 7
+  62:../../src/driver/DMA/DMA1.c **** 	//CH 2
+  63:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_TC2) && transferCompleteCallback[1]) {
+ 251              		.loc 1 63 0
+ 252 0004 2020     		mov	r0, #32
+ 253 0006 FFF7FEFF 		bl	DMA_GetITStatus
+ 254 000a 031C     		mov	r3, r0
+ 255 000c 002B     		cmp	r3, #0
+ 256 000e 09D0     		beq	.L13
+ 257              		.loc 1 63 0 is_stmt 0 discriminator 1
+ 258 0010 344B     		ldr	r3, .L19
+ 259 0012 5B68     		ldr	r3, [r3, #4]
+ 260 0014 002B     		cmp	r3, #0
+ 261 0016 05D0     		beq	.L13
+  64:../../src/driver/DMA/DMA1.c **** 		transferCompleteCallback[1](callbackArg[1]);
+ 262              		.loc 1 64 0 is_stmt 1
+ 263 0018 324B     		ldr	r3, .L19
+ 264 001a 5A68     		ldr	r2, [r3, #4]
+ 265 001c 324B     		ldr	r3, .L19+4
+ 266 001e 5B68     		ldr	r3, [r3, #4]
+ 267 0020 181C     		mov	r0, r3
+ 268 0022 9047     		blx	r2
+ 269              	.L13:
+  65:../../src/driver/DMA/DMA1.c **** 	}
+  66:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_HT2) && halfTransferCompleteCallback[1]) {
+ 270              		.loc 1 66 0
+ 271 0024 4020     		mov	r0, #64
+ 272 0026 FFF7FEFF 		bl	DMA_GetITStatus
+ 273 002a 031C     		mov	r3, r0
+ 274 002c 002B     		cmp	r3, #0
+ 275 002e 09D0     		beq	.L14
+ 276              		.loc 1 66 0 is_stmt 0 discriminator 1
+ 277 0030 2E4B     		ldr	r3, .L19+8
+ 278 0032 5B68     		ldr	r3, [r3, #4]
+ 279 0034 002B     		cmp	r3, #0
+ 280 0036 05D0     		beq	.L14
+  67:../../src/driver/DMA/DMA1.c **** 		halfTransferCompleteCallback[1](callbackArg[1]);
+ 281              		.loc 1 67 0 is_stmt 1
+ 282 0038 2C4B     		ldr	r3, .L19+8
+ 283 003a 5A68     		ldr	r2, [r3, #4]
+ 284 003c 2A4B     		ldr	r3, .L19+4
+ 285 003e 5B68     		ldr	r3, [r3, #4]
+ 286 0040 181C     		mov	r0, r3
+ 287 0042 9047     		blx	r2
+ 288              	.L14:
+  68:../../src/driver/DMA/DMA1.c **** 	}
+  69:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_TE2) && errorCallback[1]) {
+ 289              		.loc 1 69 0
+ 290 0044 8020     		mov	r0, #128
+ 291 0046 FFF7FEFF 		bl	DMA_GetITStatus
+ 292 004a 031C     		mov	r3, r0
+ 293 004c 002B     		cmp	r3, #0
+ 294 004e 09D0     		beq	.L15
+ 295              		.loc 1 69 0 is_stmt 0 discriminator 1
+ 296 0050 274B     		ldr	r3, .L19+12
+ 297 0052 5B68     		ldr	r3, [r3, #4]
+ 298 0054 002B     		cmp	r3, #0
+ 299 0056 05D0     		beq	.L15
+  70:../../src/driver/DMA/DMA1.c **** 		errorCallback[1](callbackArg[1]);
+ 300              		.loc 1 70 0 is_stmt 1
+ 301 0058 254B     		ldr	r3, .L19+12
+ 302 005a 5A68     		ldr	r2, [r3, #4]
+ 303 005c 224B     		ldr	r3, .L19+4
+ 304 005e 5B68     		ldr	r3, [r3, #4]
+ 305 0060 181C     		mov	r0, r3
+ 306 0062 9047     		blx	r2
+ 307              	.L15:
+  71:../../src/driver/DMA/DMA1.c **** 	}
+  72:../../src/driver/DMA/DMA1.c **** 
+  73:../../src/driver/DMA/DMA1.c **** 	DMA_ClearITPendingBit(DMA1_IT_GL2);
+ 308              		.loc 1 73 0
+ 309 0064 1020     		mov	r0, #16
+ 310 0066 FFF7FEFF 		bl	DMA_ClearITPendingBit
+  74:../../src/driver/DMA/DMA1.c **** 
+  75:../../src/driver/DMA/DMA1.c **** 	//CH 3
+  76:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_TC3) && transferCompleteCallback[2]) {
+ 311              		.loc 1 76 0
+ 312 006a 8023     		mov	r3, #128
+ 313 006c 9B00     		lsl	r3, r3, #2
+ 314 006e 181C     		mov	r0, r3
+ 315 0070 FFF7FEFF 		bl	DMA_GetITStatus
+ 316 0074 031C     		mov	r3, r0
+ 317 0076 002B     		cmp	r3, #0
+ 318 0078 09D0     		beq	.L16
+ 319              		.loc 1 76 0 is_stmt 0 discriminator 1
+ 320 007a 1A4B     		ldr	r3, .L19
+ 321 007c 9B68     		ldr	r3, [r3, #8]
+ 322 007e 002B     		cmp	r3, #0
+ 323 0080 05D0     		beq	.L16
+  77:../../src/driver/DMA/DMA1.c **** 		transferCompleteCallback[2](callbackArg[2]);
+ 324              		.loc 1 77 0 is_stmt 1
+ 325 0082 184B     		ldr	r3, .L19
+ 326 0084 9A68     		ldr	r2, [r3, #8]
+ 327 0086 184B     		ldr	r3, .L19+4
+ 328 0088 9B68     		ldr	r3, [r3, #8]
+ 329 008a 181C     		mov	r0, r3
+ 330 008c 9047     		blx	r2
+ 331              	.L16:
+  78:../../src/driver/DMA/DMA1.c **** 	}
+  79:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_HT3) && halfTransferCompleteCallback[2]) {
+ 332              		.loc 1 79 0
+ 333 008e 8023     		mov	r3, #128
+ 334 0090 DB00     		lsl	r3, r3, #3
+ 335 0092 181C     		mov	r0, r3
+ 336 0094 FFF7FEFF 		bl	DMA_GetITStatus
+ 337 0098 031C     		mov	r3, r0
+ 338 009a 002B     		cmp	r3, #0
+ 339 009c 09D0     		beq	.L17
+ 340              		.loc 1 79 0 is_stmt 0 discriminator 1
+ 341 009e 134B     		ldr	r3, .L19+8
+ 342 00a0 9B68     		ldr	r3, [r3, #8]
+ 343 00a2 002B     		cmp	r3, #0
+ 344 00a4 05D0     		beq	.L17
+  80:../../src/driver/DMA/DMA1.c **** 		halfTransferCompleteCallback[2](callbackArg[2]);
+ 345              		.loc 1 80 0 is_stmt 1
+ 346 00a6 114B     		ldr	r3, .L19+8
+ 347 00a8 9A68     		ldr	r2, [r3, #8]
+ 348 00aa 0F4B     		ldr	r3, .L19+4
+ 349 00ac 9B68     		ldr	r3, [r3, #8]
+ 350 00ae 181C     		mov	r0, r3
+ 351 00b0 9047     		blx	r2
+ 352              	.L17:
+  81:../../src/driver/DMA/DMA1.c **** 	}
+  82:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_TE3) && errorCallback[2]) {
+ 353              		.loc 1 82 0
+ 354 00b2 8023     		mov	r3, #128
+ 355 00b4 1B01     		lsl	r3, r3, #4
+ 356 00b6 181C     		mov	r0, r3
+ 357 00b8 FFF7FEFF 		bl	DMA_GetITStatus
+ 358 00bc 031C     		mov	r3, r0
+ 359 00be 002B     		cmp	r3, #0
+ 360 00c0 09D0     		beq	.L18
+ 361              		.loc 1 82 0 is_stmt 0 discriminator 1
+ 362 00c2 0B4B     		ldr	r3, .L19+12
+ 363 00c4 9B68     		ldr	r3, [r3, #8]
+ 364 00c6 002B     		cmp	r3, #0
+ 365 00c8 05D0     		beq	.L18
+  83:../../src/driver/DMA/DMA1.c **** 		errorCallback[2](callbackArg[2]);
+ 366              		.loc 1 83 0 is_stmt 1
+ 367 00ca 094B     		ldr	r3, .L19+12
+ 368 00cc 9A68     		ldr	r2, [r3, #8]
+ 369 00ce 064B     		ldr	r3, .L19+4
+ 370 00d0 9B68     		ldr	r3, [r3, #8]
+ 371 00d2 181C     		mov	r0, r3
+ 372 00d4 9047     		blx	r2
+ 373              	.L18:
+  84:../../src/driver/DMA/DMA1.c **** 	}
+  85:../../src/driver/DMA/DMA1.c **** 
+  86:../../src/driver/DMA/DMA1.c **** 	DMA_ClearITPendingBit(DMA1_IT_GL3);
+ 374              		.loc 1 86 0
+ 375 00d6 8023     		mov	r3, #128
+ 376 00d8 5B00     		lsl	r3, r3, #1
+ 377 00da 181C     		mov	r0, r3
+ 378 00dc FFF7FEFF 		bl	DMA_ClearITPendingBit
+  87:../../src/driver/DMA/DMA1.c **** }
+ 379              		.loc 1 87 0
+ 380 00e0 BD46     		mov	sp, r7
+ 381              		@ sp needed
+ 382 00e2 80BD     		pop	{r7, pc}
+ 383              	.L20:
+ 384              		.align	2
+ 385              	.L19:
+ 386 00e4 00000000 		.word	transferCompleteCallback
+ 387 00e8 00000000 		.word	callbackArg
+ 388 00ec 00000000 		.word	halfTransferCompleteCallback
+ 389 00f0 00000000 		.word	errorCallback
+ 390              		.cfi_endproc
+ 391              	.LFE35:
+ 393              		.section	.text.DMA1_Channel4_5_IRQHandler,"ax",%progbits
+ 394              		.align	2
+ 395              		.global	DMA1_Channel4_5_IRQHandler
+ 396              		.code	16
+ 397              		.thumb_func
+ 399              	DMA1_Channel4_5_IRQHandler:
+ 400              	.LFB36:
+  88:../../src/driver/DMA/DMA1.c **** 
+  89:../../src/driver/DMA/DMA1.c **** void DMA1_Channel4_5_IRQHandler() {
+ 401              		.loc 1 89 0
+ 402              		.cfi_startproc
+ 403 0000 80B5     		push	{r7, lr}
+ 404              		.cfi_def_cfa_offset 8
+ 405              		.cfi_offset 7, -8
+ 406              		.cfi_offset 14, -4
+ 407 0002 00AF     		add	r7, sp, #0
+ 408              		.cfi_def_cfa_register 7
+  90:../../src/driver/DMA/DMA1.c **** 	//CH 4
+  91:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_TC4) && transferCompleteCallback[3]) {
+ 409              		.loc 1 91 0
+ 410 0004 8023     		mov	r3, #128
+ 411 0006 9B01     		lsl	r3, r3, #6
+ 412 0008 181C     		mov	r0, r3
+ 413 000a FFF7FEFF 		bl	DMA_GetITStatus
+ 414 000e 031C     		mov	r3, r0
+ 415 0010 002B     		cmp	r3, #0
+ 416 0012 09D0     		beq	.L22
+ 417              		.loc 1 91 0 is_stmt 0 discriminator 1
+ 418 0014 374B     		ldr	r3, .L28
+ 419 0016 DB68     		ldr	r3, [r3, #12]
+ 420 0018 002B     		cmp	r3, #0
+ 421 001a 05D0     		beq	.L22
+  92:../../src/driver/DMA/DMA1.c **** 		transferCompleteCallback[3](callbackArg[3]);
+ 422              		.loc 1 92 0 is_stmt 1
+ 423 001c 354B     		ldr	r3, .L28
+ 424 001e DA68     		ldr	r2, [r3, #12]
+ 425 0020 354B     		ldr	r3, .L28+4
+ 426 0022 DB68     		ldr	r3, [r3, #12]
+ 427 0024 181C     		mov	r0, r3
+ 428 0026 9047     		blx	r2
+ 429              	.L22:
+  93:../../src/driver/DMA/DMA1.c **** 	}
+  94:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_HT4) && halfTransferCompleteCallback[3]) {
+ 430              		.loc 1 94 0
+ 431 0028 8023     		mov	r3, #128
+ 432 002a DB01     		lsl	r3, r3, #7
+ 433 002c 181C     		mov	r0, r3
+ 434 002e FFF7FEFF 		bl	DMA_GetITStatus
+ 435 0032 031C     		mov	r3, r0
+ 436 0034 002B     		cmp	r3, #0
+ 437 0036 09D0     		beq	.L23
+ 438              		.loc 1 94 0 is_stmt 0 discriminator 1
+ 439 0038 304B     		ldr	r3, .L28+8
+ 440 003a DB68     		ldr	r3, [r3, #12]
+ 441 003c 002B     		cmp	r3, #0
+ 442 003e 05D0     		beq	.L23
+  95:../../src/driver/DMA/DMA1.c **** 		halfTransferCompleteCallback[3](callbackArg[3]);
+ 443              		.loc 1 95 0 is_stmt 1
+ 444 0040 2E4B     		ldr	r3, .L28+8
+ 445 0042 DA68     		ldr	r2, [r3, #12]
+ 446 0044 2C4B     		ldr	r3, .L28+4
+ 447 0046 DB68     		ldr	r3, [r3, #12]
+ 448 0048 181C     		mov	r0, r3
+ 449 004a 9047     		blx	r2
+ 450              	.L23:
+  96:../../src/driver/DMA/DMA1.c **** 	}
+  97:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_TE4) && errorCallback[3]) {
+ 451              		.loc 1 97 0
+ 452 004c 8023     		mov	r3, #128
+ 453 004e 1B02     		lsl	r3, r3, #8
+ 454 0050 181C     		mov	r0, r3
+ 455 0052 FFF7FEFF 		bl	DMA_GetITStatus
+ 456 0056 031C     		mov	r3, r0
+ 457 0058 002B     		cmp	r3, #0
+ 458 005a 09D0     		beq	.L24
+ 459              		.loc 1 97 0 is_stmt 0 discriminator 1
+ 460 005c 284B     		ldr	r3, .L28+12
+ 461 005e DB68     		ldr	r3, [r3, #12]
+ 462 0060 002B     		cmp	r3, #0
+ 463 0062 05D0     		beq	.L24
+  98:../../src/driver/DMA/DMA1.c **** 		errorCallback[3](callbackArg[3]);
+ 464              		.loc 1 98 0 is_stmt 1
+ 465 0064 264B     		ldr	r3, .L28+12
+ 466 0066 DA68     		ldr	r2, [r3, #12]
+ 467 0068 234B     		ldr	r3, .L28+4
+ 468 006a DB68     		ldr	r3, [r3, #12]
+ 469 006c 181C     		mov	r0, r3
+ 470 006e 9047     		blx	r2
+ 471              	.L24:
+  99:../../src/driver/DMA/DMA1.c **** 	}
+ 100:../../src/driver/DMA/DMA1.c **** 
+ 101:../../src/driver/DMA/DMA1.c **** 	DMA_ClearITPendingBit(DMA1_IT_GL4);
+ 472              		.loc 1 101 0
+ 473 0070 8023     		mov	r3, #128
+ 474 0072 5B01     		lsl	r3, r3, #5
+ 475 0074 181C     		mov	r0, r3
+ 476 0076 FFF7FEFF 		bl	DMA_ClearITPendingBit
+ 102:../../src/driver/DMA/DMA1.c **** 
+ 103:../../src/driver/DMA/DMA1.c **** 	//CH 5
+ 104:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_TC5) && transferCompleteCallback[4]) {
+ 477              		.loc 1 104 0
+ 478 007a 8023     		mov	r3, #128
+ 479 007c 9B02     		lsl	r3, r3, #10
+ 480 007e 181C     		mov	r0, r3
+ 481 0080 FFF7FEFF 		bl	DMA_GetITStatus
+ 482 0084 031C     		mov	r3, r0
+ 483 0086 002B     		cmp	r3, #0
+ 484 0088 09D0     		beq	.L25
+ 485              		.loc 1 104 0 is_stmt 0 discriminator 1
+ 486 008a 1A4B     		ldr	r3, .L28
+ 487 008c 1B69     		ldr	r3, [r3, #16]
+ 488 008e 002B     		cmp	r3, #0
+ 489 0090 05D0     		beq	.L25
+ 105:../../src/driver/DMA/DMA1.c **** 		transferCompleteCallback[4](callbackArg[4]);
+ 490              		.loc 1 105 0 is_stmt 1
+ 491 0092 184B     		ldr	r3, .L28
+ 492 0094 1A69     		ldr	r2, [r3, #16]
+ 493 0096 184B     		ldr	r3, .L28+4
+ 494 0098 1B69     		ldr	r3, [r3, #16]
+ 495 009a 181C     		mov	r0, r3
+ 496 009c 9047     		blx	r2
+ 497              	.L25:
+ 106:../../src/driver/DMA/DMA1.c **** 	}
+ 107:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_HT5) && halfTransferCompleteCallback[4]) {
+ 498              		.loc 1 107 0
+ 499 009e 8023     		mov	r3, #128
+ 500 00a0 DB02     		lsl	r3, r3, #11
+ 501 00a2 181C     		mov	r0, r3
+ 502 00a4 FFF7FEFF 		bl	DMA_GetITStatus
+ 503 00a8 031C     		mov	r3, r0
+ 504 00aa 002B     		cmp	r3, #0
+ 505 00ac 09D0     		beq	.L26
+ 506              		.loc 1 107 0 is_stmt 0 discriminator 1
+ 507 00ae 134B     		ldr	r3, .L28+8
+ 508 00b0 1B69     		ldr	r3, [r3, #16]
+ 509 00b2 002B     		cmp	r3, #0
+ 510 00b4 05D0     		beq	.L26
+ 108:../../src/driver/DMA/DMA1.c **** 		halfTransferCompleteCallback[4](callbackArg[4]);
+ 511              		.loc 1 108 0 is_stmt 1
+ 512 00b6 114B     		ldr	r3, .L28+8
+ 513 00b8 1A69     		ldr	r2, [r3, #16]
+ 514 00ba 0F4B     		ldr	r3, .L28+4
+ 515 00bc 1B69     		ldr	r3, [r3, #16]
+ 516 00be 181C     		mov	r0, r3
+ 517 00c0 9047     		blx	r2
+ 518              	.L26:
+ 109:../../src/driver/DMA/DMA1.c **** 	}
+ 110:../../src/driver/DMA/DMA1.c **** 	if (DMA_GetITStatus(DMA1_IT_TE5) && errorCallback[4]) {
+ 519              		.loc 1 110 0
+ 520 00c2 8023     		mov	r3, #128
+ 521 00c4 1B03     		lsl	r3, r3, #12
+ 522 00c6 181C     		mov	r0, r3
+ 523 00c8 FFF7FEFF 		bl	DMA_GetITStatus
+ 524 00cc 031C     		mov	r3, r0
+ 525 00ce 002B     		cmp	r3, #0
+ 526 00d0 09D0     		beq	.L27
+ 527              		.loc 1 110 0 is_stmt 0 discriminator 1
+ 528 00d2 0B4B     		ldr	r3, .L28+12
+ 529 00d4 1B69     		ldr	r3, [r3, #16]
+ 530 00d6 002B     		cmp	r3, #0
+ 531 00d8 05D0     		beq	.L27
+ 111:../../src/driver/DMA/DMA1.c **** 		errorCallback[4](callbackArg[4]);
+ 532              		.loc 1 111 0 is_stmt 1
+ 533 00da 094B     		ldr	r3, .L28+12
+ 534 00dc 1A69     		ldr	r2, [r3, #16]
+ 535 00de 064B     		ldr	r3, .L28+4
+ 536 00e0 1B69     		ldr	r3, [r3, #16]
+ 537 00e2 181C     		mov	r0, r3
+ 538 00e4 9047     		blx	r2
+ 539              	.L27:
+ 112:../../src/driver/DMA/DMA1.c **** 	}
+ 113:../../src/driver/DMA/DMA1.c **** 
+ 114:../../src/driver/DMA/DMA1.c **** 	DMA_ClearITPendingBit(DMA1_IT_GL5);
+ 540              		.loc 1 114 0
+ 541 00e6 8023     		mov	r3, #128
+ 542 00e8 5B02     		lsl	r3, r3, #9
+ 543 00ea 181C     		mov	r0, r3
+ 544 00ec FFF7FEFF 		bl	DMA_ClearITPendingBit
+ 115:../../src/driver/DMA/DMA1.c **** }
+ 545              		.loc 1 115 0
+ 546 00f0 BD46     		mov	sp, r7
+ 547              		@ sp needed
+ 548 00f2 80BD     		pop	{r7, pc}
+ 549              	.L29:
+ 550              		.align	2
+ 551              	.L28:
+ 552 00f4 00000000 		.word	transferCompleteCallback
+ 553 00f8 00000000 		.word	callbackArg
+ 554 00fc 00000000 		.word	halfTransferCompleteCallback
+ 555 0100 00000000 		.word	errorCallback
+ 556              		.cfi_endproc
+ 557              	.LFE36:
+ 559              		.text
+ 560              	.Letext0:
+ 561              		.file 2 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/machine/_default_types
+ 562              		.file 3 "/usr/local/Cellar/arm-none-eabi-gcc/20140609/arm-none-eabi/include/stdint.h"
+ 563              		.file 4 "../../src/driver/DMA/DMA1.h"
+ 564              		.file 5 "../../ext-src/CMSIS/ST/STM32F0xx/Include/stm32f0xx.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 DMA1.c
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:18     .bss.errorCallback:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:21     .bss.errorCallback:0000000000000000 errorCallback
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:24     .bss.transferCompleteCallback:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:27     .bss.transferCompleteCallback:0000000000000000 transferCompleteCallback
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:30     .bss.halfTransferCompleteCallback:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:33     .bss.halfTransferCompleteCallback:0000000000000000 halfTransferCompleteCallback
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:36     .bss.callbackArg:0000000000000000 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:39     .bss.callbackArg:0000000000000000 callbackArg
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:42     .text.DMA1_init:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:47     .text.DMA1_init:0000000000000000 DMA1_init
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:70     .text.DMA1_setCallbacks:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:75     .text.DMA1_setCallbacks:0000000000000000 DMA1_setCallbacks
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:138    .text.DMA1_setCallbacks:0000000000000058 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:146    .text.DMA1_Channel1_IRQHandler:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:151    .text.DMA1_Channel1_IRQHandler:0000000000000000 DMA1_Channel1_IRQHandler
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:228    .text.DMA1_Channel1_IRQHandler:0000000000000070 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:236    .text.DMA1_Channel2_3_IRQHandler:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:241    .text.DMA1_Channel2_3_IRQHandler:0000000000000000 DMA1_Channel2_3_IRQHandler
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:386    .text.DMA1_Channel2_3_IRQHandler:00000000000000e4 $d
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:394    .text.DMA1_Channel4_5_IRQHandler:0000000000000000 $t
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:399    .text.DMA1_Channel4_5_IRQHandler:0000000000000000 DMA1_Channel4_5_IRQHandler
+/var/folders/2L/2LLjjuM0EOeRSH4ujURun++++TI/-Tmp-//ccsuQeUY.s:552    .text.DMA1_Channel4_5_IRQHandler:00000000000000f4 $d
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.0.9252205565be9cbc11fa49e4ee70d556
+                           .group:0000000000000000 wm4.stm32f0xx.h.54.664bd2bdbb20859ae6a5c66c16d4ee5a
+                           .group:0000000000000000 wm4.core_cm0.h.32.41c1bd92799bc17b3c8424dd5c622427
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.core_cm0.h.130.eea61816b4c7004601b0935484a214ea
+                           .group:0000000000000000 wm4.stm32f0xx.h.226.38dd78fa77e64690c744af5bf4bffc7b
+                           .group:0000000000000000 wm4.stm32f0xx_cec.h.80.d17e4ea90700c26010f339885be92ac0
+                           .group:0000000000000000 wm4.stm32f0xx_crc.h.31.48fbd36307d848f32978567b16118557
+                           .group:0000000000000000 wm4.stm32f0xx_comp.h.31.a640b8c7673f3e181cfd826dce70b6e2
+                           .group:0000000000000000 wm4.stm32f0xx_dac.h.31.3e178ad0888f70df8fbc4c999d855b3e
+                           .group:0000000000000000 wm4.stm32f0xx_dbgmcu.h.31.282da985c6ed8dd33417cf074ecfdf63
+                           .group:0000000000000000 wm4.stm32f0xx_dma.h.31.68def2497939cb34c3f292e0c507724a
+                           .group:0000000000000000 wm4.stm32f0xx_exti.h.31.81a00331ef3e014ed4dafe9e9baacca3
+                           .group:0000000000000000 wm4.stm32f0xx_flash.h.31.60d92ed32439cfb92572ec2678e2be21
+                           .group:0000000000000000 wm4.stm32f0xx_gpio.h.31.df5c3a39b21131ade11d30b7e1580be6
+                           .group:0000000000000000 wm4.stm32f0xx_syscfg.h.31.f98c72ea26c47fccafefd977b75786d3
+                           .group:0000000000000000 wm4.stm32f0xx_i2c.h.31.83969866ec38bbcc1bff9238f01a1954
+                           .group:0000000000000000 wm4.stm32f0xx_iwdg.h.31.bb16f7e18e54df66bf9bd0e2b29bdc93
+                           .group:0000000000000000 wm4.stm32f0xx_pwr.h.31.5b469253a65db741700e0b45f396c99d
+                           .group:0000000000000000 wm4.stm32f0xx_rcc.h.31.bc2f5dd9e2f518d727a1e0ce497a42e6
+                           .group:0000000000000000 wm4.stm32f0xx_rtc.h.31.bc9d631913a743746cf54f04d4efbf7b
+                           .group:0000000000000000 wm4.stm32f0xx_spi.h.31.5b4d0d36c03feb5b081143cdba79744d
+                           .group:0000000000000000 wm4.stm32f0xx_tim.h.31.21b4d7229c685868595d751757b51e1b
+                           .group:0000000000000000 wm4.stm32f0xx_usart.h.31.8abae79a1c4f266d08faf5996370b48f
+                           .group:0000000000000000 wm4.stm32f0xx_wwdg.h.31.0cf1a9b3d89d147c688025fdd33d9c49
+                           .group:0000000000000000 wm4.stm32f0xx_misc.h.31.d5c08c37e69b8a852dbb75e9252454c6
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+
+UNDEFINED SYMBOLS
+RCC_AHBPeriphClockCmd
+DMA_GetITStatus
+DMA_ClearITPendingBit
