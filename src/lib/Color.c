@@ -30,6 +30,8 @@ RGB RGBA2RGB(RGBA rgba){
 RGBA RGB2RGBA(RGB rgb){
 	RGBA rgba;
 	rgba.alpha = MIN(rgb.red, MIN(rgb.green, rgb.blue));
+	//!TODO
+	return rgba;
 }
 
 /////////////////////////////////////

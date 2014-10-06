@@ -121,7 +121,7 @@ VPATH	+= $(SRCDIR)/driver/
         CFLAGS  = $(FLAGS)
         CFLAGS  += $(OPTIMIZE)
         CFLAGS	+= -include stm32f0xx.h
-        #CFLAGS  += -std=gnu99
+        CFLAGS  += -std=gnu99
         CFLAGS  += -D GCC_ARMCM3
         CFLAGS  += $(DEBUG)
         CFLAGS  += -ffunction-sections -fdata-sections
