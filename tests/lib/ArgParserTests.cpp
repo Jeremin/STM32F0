@@ -70,3 +70,29 @@ TEST(ArgParserTestGroup, CanParseTwoArgs){
 
 	mock_c()->checkExpectations();
 }
+
+TEST(ArgParserTestGroup, ParseUintCanParseNumber){
+	const char* str = "255";
+	uint8_t strLen = strlen(str);
+
+	uint8_t value = ArgParser_getUint((char*)str, strLen);
+	CHECK_EQUAL(255, value);
+}
+
+TEST(ArgParserTestGroup, ParseUintReturnsZeroIfInvalidInput){
+	const char* strArray[3] = {"255 ", " ", "a"};
+
+	for (int i=0; i<3; i++){
+		uint8_t strLen = strlen(strArray[i]);
+		uint8_t value = ArgParser_getUint((char*)strArray[i], strLen);
+		CHECK_EQUAL(0, value);
+	}
+}
+
+TEST(ArgParserTestGroup, ParseUintCanParseBiggestUint32){
+	const char* str = "4294967295";
+	uint8_t strLen = strlen(str);
+
+	uint32_t value = ArgParser_getUint((char*)str, strLen);
+	CHECK_EQUAL(4294967295, value);
+}

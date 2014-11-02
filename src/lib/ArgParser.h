@@ -26,4 +26,6 @@ void ArgParser_init(ArgParser* argParser, char* argStr, uint8_t argStrLength,
 		onArgParsed onArgParsedFct);
 void ArgParser_parse(ArgParser* argParser);
 
+uint32_t ArgParser_getUint(char* str, uint8_t strLen);
+
 #endif /* ARGPARSER_H_ */

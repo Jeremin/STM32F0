@@ -47,6 +47,20 @@ void ArgParser_parse(ArgParser* argParser) {
 	callOnArgParsed(argParser);
 }
 
+uint32_t ArgParser_getUint(char* str, uint8_t strLen){
+	uint8_t i;
+	uint32_t value = 0;
+	for (i=0; i<strLen; ++i){
+		if ('0' <= str[i] && '9' >= str[i]){
+			value *= 10;
+			value += str[i] - '0';
+		}
+		else
+			return 0;
+	}
+	return value;
+}
+
 /////////////////////////////////////
 // private functions
 /////////////////////////////////////
