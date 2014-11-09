@@ -21,10 +21,12 @@ static void registerCommands(void);
 static void redCallback(void* self, const char* args, uint8_t argStrLen);
 static void greenCallback(void* self, const char* args, uint8_t argStrLen);
 static void blueCallback(void* self, const char* args, uint8_t argStrLen);
+static void rgbCallback(void* self, const char* args, uint8_t argStrLen);
 
 static void onRedParsed(char* arg, uint8_t argLength, uint8_t argIndex);
 static void onGreenParsed(char* arg, uint8_t argLength, uint8_t argIndex);
 static void onBlueParsed(char* arg, uint8_t argLength, uint8_t argIndex);
+static void onRgbParsed(char* arg, uint8_t argLength, uint8_t argIndex);
 
 /////////////////////////////////////
 // private variables
@@ -38,7 +40,7 @@ static uint8_t blue;
 // public functions
 /////////////////////////////////////
 
-void DioderController_init(void){
+void DioderController_init(void) {
 	red = 0;
 	green = 0;
 	blue = 0;
@@ -51,7 +53,7 @@ void DioderController_init(void){
 	USART1_setByteReceivedCallback(&Terminal_putCh);
 }
 
-void DioderController_tick(uint32_t timeInMs){
+void DioderController_tick(uint32_t timeInMs) {
 	Terminal_tick(timeInMs);
 	Tim1_Pwm_setValueCh1(red);
 	Tim1_Pwm_setValueCh2(green);
@@ -62,8 +64,7 @@ void DioderController_tick(uint32_t timeInMs){
 // private functions
 /////////////////////////////////////
 
-
-static void registerCommands(void){
+static void registerCommands(void) {
 	TerminalCmd cmd;
 
 	Terminal_initCmdStruct(&cmd, "red ", &redCallback, NULL, 1);
@@ -72,40 +73,66 @@ static void registerCommands(void){
 	Terminal_registerCmd(cmd);
 	Terminal_initCmdStruct(&cmd, "blue ", &blueCallback, NULL, 1);
 	Terminal_registerCmd(cmd);
+	Terminal_initCmdStruct(&cmd, "rgb ", &rgbCallback, NULL, 3);
+	Terminal_registerCmd(cmd);
 }
 
-static void redCallback(void* self, const char* args, uint8_t argStrLen){
+static void redCallback(void* self, const char* args, uint8_t argStrLen) {
 	(void) self;
 
 	ArgParser argParser;
-	ArgParser_init(&argParser, (char*)args, argStrLen, &onRedParsed);
+	ArgParser_init(&argParser, (char*) args, argStrLen, &onRedParsed);
 	ArgParser_parse(&argParser);
 }
 
-static void greenCallback(void* self, const char* args, uint8_t argStrLen){
+static void greenCallback(void* self, const char* args, uint8_t argStrLen) {
 	(void) self;
 
-		ArgParser argParser;
-		ArgParser_init(&argParser, (char*)args, argStrLen, &onGreenParsed);
-		ArgParser_parse(&argParser);
+	ArgParser argParser;
+	ArgParser_init(&argParser, (char*) args, argStrLen, &onGreenParsed);
+	ArgParser_parse(&argParser);
 }
 
-static void blueCallback(void* self, const char* args, uint8_t argStrLen){
+static void blueCallback(void* self, const char* args, uint8_t argStrLen) {
 	(void) self;
 
-		ArgParser argParser;
-		ArgParser_init(&argParser, (char*)args, argStrLen, &onBlueParsed);
-		ArgParser_parse(&argParser);
+	ArgParser argParser;
+	ArgParser_init(&argParser, (char*) args, argStrLen, &onBlueParsed);
+	ArgParser_parse(&argParser);
 }
 
-static void onRedParsed(char* arg, uint8_t argLength, uint8_t argIndex){
+static void rgbCallback(void* self, const char* args, uint8_t argStrLen) {
+	(void) self;
+
+	ArgParser argParser;
+	ArgParser_init(&argParser, (char*) args, argStrLen, &onRgbParsed);
+	ArgParser_parse(&argParser);
+}
+
+static void onRedParsed(char* arg, uint8_t argLength, uint8_t argIndex) {
 	red = ArgParser_getUint(arg, argLength);
 }
 
-static void onGreenParsed(char* arg, uint8_t argLength, uint8_t argIndex){
+static void onGreenParsed(char* arg, uint8_t argLength, uint8_t argIndex) {
 	green = ArgParser_getUint(arg, argLength);
 }
 
-static void onBlueParsed(char* arg, uint8_t argLength, uint8_t argIndex){
+static void onBlueParsed(char* arg, uint8_t argLength, uint8_t argIndex) {
 	blue = ArgParser_getUint(arg, argLength);
+}
+
+static void onRgbParsed(char* arg, uint8_t argLength, uint8_t argIndex) {
+	switch (argIndex){
+	case 0:
+		red = ArgParser_getUint(arg, argLength);
+		break;
+	case 1:
+		green = ArgParser_getUint(arg, argLength);
+		break;
+	case 2:
+		blue = ArgParser_getUint(arg, argLength);
+		break;
+	default:
+		break;
+	}
 }
