@@ -7,6 +7,7 @@
 
 #include "Terminal.h"
 #include <string.h>
+#include <stdio.h>
 #include "FiFo.h"
 
 #define FIFO_BUFFER_SIZE		(128)
@@ -32,6 +33,10 @@ static void resetState(void);
 static bool getLine(void);
 static bool getCmd(void);
 static bool getArguments(void);
+
+static void installHelp(void);
+static void handleHelp(void* self, const char* args, uint8_t argStrLen);
+static void printLine(char* str);
 
 /////////////////////////////////////
 // private variables
@@ -64,6 +69,8 @@ void Terminal_init(void) {
 	sendChar = NULL;
 	FiFo_init(&fifo, fifoBuffer, sizeof(uint8_t), FIFO_BUFFER_SIZE);
 	resetState();
+
+	installHelp();
 }
 
 uint8_t Terminal_registerCmd(TerminalCmd cmd) {
@@ -227,4 +234,37 @@ static bool getArguments(void) {
 		return false ;
 	}
 	return true;
+}
+
+static void installHelp(void){
+	TerminalCmd cmd;
+	Terminal_initCmdStruct(&cmd, "? ", &handleHelp, 0, 0);
+	Terminal_registerCmd(cmd);
+}
+
+static void handleHelp(void* self, const char* args, uint8_t argStrLen){
+	(void) self;
+	(void) args;
+	(void) argStrLen;
+	char buffer[100];
+	snprintf(buffer, 100,
+			"Registered commands: <cmd> <nbrOfArgs>\r\n---------------------------------------");
+	printLine(buffer);
+	for (uint8_t i = 0; i < TERMINAL_MAX_NBR_OF_CMDS; i++) {
+		if (cmdRegistry[i].isUsed && 0 != strncmp("? ", cmdRegistry[i].cmd.cmdStr, 2)) {
+			snprintf(buffer, 100, "%s %d", (char*) cmdRegistry[i].cmd.cmdStr,
+					cmdRegistry[i].cmd.numberOfArguments);
+			printLine(buffer);
+		}
+	}
+}
+
+static void printLine(char* str){
+	uint8_t len = strlen(str);
+	if (sendChar){
+		for (uint8_t i = 0; i < len; i++)
+			sendChar(str[i]);
+		sendChar('\r');
+		sendChar('\n');
+	}
 }
