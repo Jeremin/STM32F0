@@ -161,8 +161,20 @@ static bool getLine(void){
 	if (c=='\n' || c=='\r'){
 		currentLineStr[currentLineStrIndex] = ' ';
 		currentLineStrIndex = 0;
+
+		if (sendChar && '\r'==c)
+			sendChar('\n');
 		state = &getCmd;
-		return true;
+	}
+	else if ('\b' == c){
+		currentLineStr[currentLineStrIndex] = '\0';
+
+		if (currentLineStrIndex>0)
+			currentLineStrIndex--;
+		if (sendChar){
+			sendChar(' ');
+			sendChar('\b');
+		}
 	}
 	else {
 		currentLineStr[currentLineStrIndex++] = c;
@@ -171,8 +183,8 @@ static bool getLine(void){
 			resetState();
 			return false;
 		}
-		return true;
 	}
+	return true;
 }
 
 static bool getCmd(void) {

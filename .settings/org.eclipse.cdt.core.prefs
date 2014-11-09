@@ -1,4 +1,9 @@
 eclipse.preferences.version=1
+environment/project/0.2122915243.1931500716.105098072.2046611730.1513000048/PATH/delimiter=\:
+environment/project/0.2122915243.1931500716.105098072.2046611730.1513000048/PATH/operation=replace
+environment/project/0.2122915243.1931500716.105098072.2046611730.1513000048/PATH/value=/usr/bin\:/bin\:/usr/sbin\:/sbin\:/usr/local/bin
+environment/project/0.2122915243.1931500716.105098072.2046611730.1513000048/append=true
+environment/project/0.2122915243.1931500716.105098072.2046611730.1513000048/appendContributed=true
 environment/project/0.2122915243.1931500716.105098072.2046611730/PATH/delimiter=\:
 environment/project/0.2122915243.1931500716.105098072.2046611730/PATH/operation=replace
 environment/project/0.2122915243.1931500716.105098072.2046611730/PATH/value=/usr/bin\:/bin\:/usr/sbin\:/sbin\:/usr/local/bin

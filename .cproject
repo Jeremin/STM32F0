@@ -301,6 +301,69 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="0.2122915243.1931500716.105098072.2046611730.1952851897" name="makefile" rcbsApplicability="disable" resourcePath="build/RomRunTextInputTest/makefile" toolsToInvoke=""/>
+					<sourceEntries>
+						<entry excluding="ext-src/cpputest-3.6" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="0.2122915243.1931500716.105098072.2046611730.1513000048">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.2122915243.1931500716.105098072.2046611730.1513000048" moduleId="org.eclipse.cdt.core.settings" name="RomRunTextInputTest">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="0.2122915243.1931500716.105098072.2046611730.1513000048" name="RomRunTextInputTest" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="0.2122915243.1931500716.105098072.2046611730.1513000048." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.206335339" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.206335339.96793435" name=""/>
+							<builder arguments="-j12" buildPath="${workspace_loc:/STM32F0/build/RomRunTextInputTest}" command="make" enableAutoBuild="true" id="org.eclipse.cdt.build.core.settings.default.builder.2010063144" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.254288941" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.740479767" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.841867019" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/usr/include"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.379871546" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__STDC_HOSTED__"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1011910318" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.157689423" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.256218894" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/usr/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32F0/ext-src/STM32F0xx_StdPeriph_Driver/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32F0/ext-src/Utilities/STM32F0-Discovery}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.1507197878" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__STDC_HOSTED__"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1411656884" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.875566524" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.2034014712" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/usr/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/gcc/darwin/4.2"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32F0/ext-src/STM32F0xx_StdPeriph_Driver/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/STM32F0/ext-src/Utilities/STM32F0-Discovery}&quot;"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.826362035" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__STDC_HOSTED__"/>
+									<listOptionValue builtIn="false" value="NULL=0"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1230197292" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<fileInfo id="0.2122915243.1931500716.105098072.2046611730.1513000048.build/RomRunTextInputTest/makefile" name="makefile" rcbsApplicability="disable" resourcePath="build/RomRunTextInputTest/makefile" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry excluding="ext-src/cpputest-3.6" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
@@ -324,6 +387,12 @@
 			<resource resourceType="PROJECT" workspacePath="/STM32F0"/>
 		</configuration>
 		<configuration configurationName="Tests">
+			<resource resourceType="PROJECT" workspacePath="/STM32F0"/>
+		</configuration>
+		<configuration configurationName="RomRunTextInputTest">
+			<resource resourceType="PROJECT" workspacePath="/STM32F0"/>
+		</configuration>
+		<configuration configurationName="RomRunDioderController">
 			<resource resourceType="PROJECT" workspacePath="/STM32F0"/>
 		</configuration>
 		<configuration configurationName="HardwareTestBuild">
