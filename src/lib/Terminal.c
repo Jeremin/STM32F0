@@ -85,6 +85,14 @@ void Terminal_unregisterCmd(uint8_t id) {
 	}
 }
 
+void Terminal_initCmdStruct(TerminalCmd* cmd, uint8_t* cmdStr,
+		TerminalCmdCallback cmdCallback, void* self, uint8_t numberOfArguments){
+	strncpy((char*)cmd->cmdStr, (char*)cmdStr, TERMINAL_MAX_CMD_LENGTH);
+	cmd->cmdCallback = cmdCallback;
+	cmd->self = self;
+	cmd->numberOfArguments = numberOfArguments;
+}
+
 void Terminal_tick(uint32_t timeInMs) {
 	uint16_t ctr = MAX_STEPS_PER_TICK;
 	while (state && state() && ctr--) {}
@@ -121,7 +129,7 @@ static void findCurrentCmd(void) {
 				state = &getArguments;
 			else {
 				cmdRegistry[currentCmdIndex].cmd.cmdCallback(
-						cmdRegistry[currentCmdIndex].cmd.self, NULL);
+						cmdRegistry[currentCmdIndex].cmd.self, NULL, 0);
 				state = &getCmd;
 			}
 			return;
@@ -193,7 +201,7 @@ static bool getArguments(void) {
 		remainingNbrOfArgs--;
 		if (0 == remainingNbrOfArgs) {
 			TerminalCmd* cmd = &cmdRegistry[currentCmdIndex].cmd;
-			cmd->cmdCallback(cmd->self, (const char*) currentArgStr);
+			cmd->cmdCallback(cmd->self, (const char*) currentArgStr, currentArgStrIndex-1);
 			resetState();
 			return false;
 		}

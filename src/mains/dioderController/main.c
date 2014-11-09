@@ -50,9 +50,10 @@ void tick(uint32_t time){
 int main(void) {
 	System_init();
 
-	System_PITSetup(1);
+	DioderController_init();
+	System_PITSetup(5);
 
-	System_PITSetTaskCallback(0);
+	System_PITSetTaskCallback(&DioderController_tick);
 
 	//System_PITSetTaskCallback(&tick);
 

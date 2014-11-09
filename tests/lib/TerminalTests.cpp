@@ -39,7 +39,7 @@ TEST_GROUP(TerminalTestGroup) {
 };
 
 extern "C"{
-static void cmdCallback(void* self, const char* args){
+static void cmdCallback(void* self, const char* args, uint8_t strLen){
 	mock_c()->actualCall("cmdCallback")->withPointerParameters("self", self)->withStringParameters("args", args);
 }
 }

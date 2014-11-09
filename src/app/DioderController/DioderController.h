@@ -12,9 +12,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct _DioderController {
-
-} DioderController;
-
+void DioderController_init(void);
+void DioderController_tick(uint32_t timeInMs);
 
 #endif /* DIODERCONTROLLER_H_ */
